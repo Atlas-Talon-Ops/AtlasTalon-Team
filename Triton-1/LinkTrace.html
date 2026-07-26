@@ -1,0 +1,1367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AtlasTalon · LINK TRACE</title>
+
+    <!-- Google Fonts: JetBrains Mono + Orbitron -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet" />
+
+    <style>
+        /* ============================================================
+           HIDE SCROLLBAR — NO WHITE LINE ON THE RIGHT
+           ============================================================ */
+        html, body, .lt-root {
+            scrollbar-width: none; /* Firefox */
+            -ms-overflow-style: none; /* IE/Edge */
+        }
+        html::-webkit-scrollbar, body::-webkit-scrollbar, .lt-root::-webkit-scrollbar {
+            display: none; /* Chrome/Safari/Opera */
+            width: 0;
+            background: transparent;
+        }
+
+        /* ============================================================
+           BRAND COLORS
+           ============================================================ */
+        :root {
+            --brand-blue: #000498;
+            --brand-blue-glow: rgba(0, 4, 152, 0.3);
+            --brand-red: #FF3B30;
+            --brand-red-glow: rgba(255, 59, 48, 0.2);
+            --brand-green: #00e5a0;
+            --brand-green-glow: rgba(0, 229, 160, 0.25);
+
+            --bg-primary: #050505;
+            --bg-secondary: #030303;
+            --bg-tertiary: #080808;
+            --fg-primary: #e0e0e0;
+            --fg-secondary: #666666;
+            --fg-muted: #333333;
+            --border-glow: rgba(255, 255, 255, 0.08);
+            --glass-bg: rgba(5, 5, 5, 0.92);
+        }
+
+        /* ---------- RESET ---------- */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'JetBrains Mono', monospace;
+            background: var(--bg-primary);
+            color: var(--fg-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* ---------- ROOT ---------- */
+        .lt-root {
+            font-family: 'JetBrains Mono', monospace;
+            background: var(--bg-primary);
+            color: var(--fg-primary);
+            min-height: 100vh;
+            overflow-y: auto;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* ---------- GLASS PANEL ---------- */
+        .lt-glass-panel {
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--border-glow);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.6);
+            position: relative;
+        }
+
+        /* ---------- CONTENT ---------- */
+        .lt-content {
+            position: relative;
+            z-index: 10;
+            min-height: 100%;
+            display: flex;
+            flex-direction: column;
+            padding: 16px 24px 48px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* ---------- HEADER ---------- */
+        .lt-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .lt-header-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        /* ---- Triangle Logo ---- */
+        .lt-logo {
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        .lt-logo:hover {
+            border-color: var(--brand-blue);
+            box-shadow: 0 0 20px var(--brand-blue-glow);
+        }
+
+        .lt-logo svg {
+            width: 26px;
+            height: 26px;
+            fill: none;
+            stroke: #ffffff;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.06));
+        }
+
+        .lt-logo-dot {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            background: var(--brand-green);
+            top: 4px;
+            right: 4px;
+            animation: lt-pulse 1.5s ease-in-out infinite;
+            box-shadow: 0 0 8px var(--brand-green-glow);
+        }
+
+        @keyframes lt-pulse {
+            0%,
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+            50% {
+                opacity: 0.3;
+                transform: scale(0.8);
+            }
+        }
+
+        .lt-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 21px;
+            letter-spacing: 0.2em;
+            color: white;
+        }
+
+        .lt-title span {
+            color: var(--brand-blue);
+        }
+
+        .lt-subtitle {
+            font-size: 10px;
+            color: rgba(255, 255, 255, 0.4);
+            letter-spacing: 0.25em;
+            margin-top: 2px;
+        }
+
+        .lt-header-right {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            font-size: 10px;
+            color: rgba(255, 255, 255, 0.4);
+            letter-spacing: 0.1em;
+            flex-wrap: wrap;
+        }
+
+        .lt-header-stat {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .lt-header-stat:hover {
+            color: white;
+        }
+
+        .lt-header-stat-dot {
+            width: 8px;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+        }
+
+        .lt-header-stat-dot.found {
+            background: var(--brand-green);
+            box-shadow: 0 0 10px var(--brand-green-glow);
+        }
+
+        .lt-header-stat-dot.blue {
+            background: var(--brand-blue);
+            box-shadow: 0 0 10px var(--brand-blue-glow);
+        }
+
+        .lt-header-stat-count {
+            color: white;
+            font-weight: 700;
+        }
+
+        /* ---------- CONTROL PANEL ---------- */
+        .lt-control-panel {
+            margin-bottom: 20px;
+            padding: 20px;
+            border-radius: 4px;
+        }
+
+        .lt-control-grid {
+            display: grid;
+            grid-template-columns: 5fr 4fr 3fr;
+            gap: 16px;
+            align-items: flex-end;
+        }
+
+        .lt-field-label {
+            font-size: 10px;
+            color: rgba(255, 255, 255, 0.5);
+            display: block;
+            margin-bottom: 8px;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+        }
+
+        .lt-input {
+            background: rgba(0, 0, 0, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            color: var(--fg-primary);
+            padding: 12px 16px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            transition: all 0.2s ease;
+            width: 100%;
+            outline: none;
+            border-radius: 3px;
+        }
+
+        .lt-input:focus {
+            border-color: var(--brand-blue);
+            box-shadow: 0 0 15px var(--brand-blue-glow);
+        }
+
+        .lt-input::placeholder {
+            color: var(--fg-muted);
+        }
+
+        .lt-input.error {
+            border-color: var(--brand-red);
+            box-shadow: 0 0 15px var(--brand-red-glow);
+        }
+
+        /* ---------- SCAN BUTTON ---------- */
+        .lt-scan-btn {
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: var(--fg-primary);
+            padding: 12px 24px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            font-weight: 500;
+            letter-spacing: 2px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            position: relative;
+            overflow: hidden;
+            width: 100%;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            border-radius: 3px;
+            text-transform: uppercase;
+        }
+
+        .lt-scan-btn:hover:not(:disabled) {
+            border-color: var(--brand-blue);
+            background: rgba(0, 4, 152, 0.08);
+            box-shadow: 0 0 20px var(--brand-blue-glow);
+        }
+
+        .lt-scan-btn:active:not(:disabled) {
+            transform: scale(0.98);
+        }
+
+        .lt-scan-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .lt-scan-btn.scanning {
+            animation: lt-btnPulse 1.5s ease-in-out infinite;
+            border-color: var(--brand-blue);
+        }
+
+        @keyframes lt-btnPulse {
+            0%,
+            100% {
+                border-color: rgba(255, 255, 255, 0.15);
+                box-shadow: none;
+            }
+            50% {
+                border-color: var(--brand-blue);
+                box-shadow: 0 0 25px var(--brand-blue-glow);
+            }
+        }
+
+        /* ---------- PROGRESS ---------- */
+        .lt-progress-wrapper {
+            margin-top: 16px;
+        }
+
+        .lt-progress-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 10px;
+            color: rgba(255, 255, 255, 0.5);
+            margin-bottom: 8px;
+            letter-spacing: 0.1em;
+        }
+
+        .lt-progress-track {
+            height: 2px;
+            background: rgba(255, 255, 255, 0.06);
+            width: 100%;
+            overflow: hidden;
+            border-radius: 2px;
+        }
+
+        .lt-progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--brand-green), var(--brand-blue));
+            transition: width 0.15s linear;
+            border-radius: 2px;
+        }
+
+        /* ---------- STATS BAR ---------- */
+        .lt-stats-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 0 4px;
+            font-size: 11px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .lt-stats-left {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            flex-wrap: wrap;
+        }
+
+        .lt-stat-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .lt-stat-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        .lt-stat-dot.found {
+            background: var(--brand-green);
+            box-shadow: 0 0 10px var(--brand-green-glow);
+        }
+        .lt-stat-dot.notfound {
+            background: var(--brand-red);
+            box-shadow: 0 0 10px var(--brand-red-glow);
+        }
+        .lt-stat-dot.pending {
+            background: rgba(255, 255, 255, 0.3);
+            animation: lt-indPulse 1s ease-in-out infinite;
+        }
+
+        @keyframes lt-indPulse {
+            0%,
+            100% {
+                opacity: 0.3;
+            }
+            50% {
+                opacity: 0.8;
+            }
+        }
+
+        .lt-stat-label {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .lt-stat-found {
+            color: var(--brand-green);
+        }
+        .lt-stat-notfound {
+            color: var(--brand-red);
+        }
+        .lt-stat-pending {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .lt-status-text {
+            color: rgba(255, 255, 255, 0.4);
+            letter-spacing: 0.1em;
+            font-size: 10px;
+        }
+
+        /* ---------- RESULTS GRID ---------- */
+        .lt-results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 8px;
+        }
+
+        .lt-placeholder {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 64px 0;
+            color: rgba(255, 255, 255, 0.3);
+            font-size: 12px;
+            letter-spacing: 0.15em;
+        }
+
+        /* ---------- CATEGORY HEADER ---------- */
+        .lt-category-header {
+            grid-column: 1 / -1;
+            color: var(--fg-secondary);
+            font-size: 9px;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            margin-top: 24px;
+            margin-bottom: 10px;
+            padding-bottom: 6px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            text-shadow: 0 0 8px rgba(255, 255, 255, 0.15);
+        }
+
+        .lt-category-header:first-child {
+            margin-top: 0;
+        }
+
+        .lt-cat-count {
+            font-size: 9px;
+            color: var(--fg-muted);
+        }
+
+        /* ---------- RESULT CARD ---------- */
+        .lt-result-card {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 14px;
+            background: rgba(8, 8, 8, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            transition: all 0.25s ease;
+            opacity: 0;
+            transform: translateX(-10px);
+            min-height: 42px;
+            border-radius: 3px;
+        }
+
+        .lt-result-card.visible {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .lt-result-card.found {
+            border: 1px solid var(--brand-green);
+            background: rgba(0, 229, 160, 0.04);
+            box-shadow: inset 0 0 25px rgba(0, 229, 160, 0.06), 0 0 15px rgba(0, 229, 160, 0.08);
+            cursor: pointer;
+        }
+
+        .lt-result-card.found:hover {
+            background: rgba(0, 229, 160, 0.08);
+            transform: translateY(-1px);
+            box-shadow: 0 0 25px rgba(0, 229, 160, 0.12);
+        }
+
+        .lt-result-card.notfound {
+            border: 1px solid var(--brand-red);
+            background: rgba(255, 51, 51, 0.04);
+            box-shadow: inset 0 0 25px rgba(255, 51, 51, 0.06), 0 0 15px rgba(255, 51, 51, 0.08);
+        }
+
+        .lt-result-card.loading {
+            animation: lt-cardLoad 0.8s ease-in-out infinite;
+        }
+
+        @keyframes lt-cardLoad {
+            0%,
+            100% {
+                background: rgba(8, 8, 8, 0.4);
+            }
+            50% {
+                background: rgba(20, 20, 20, 0.6);
+            }
+        }
+
+        .lt-card-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-width: 0;
+        }
+
+        .lt-ind {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .lt-ind.found {
+            background: var(--brand-green);
+            box-shadow: 0 0 10px var(--brand-green-glow);
+        }
+
+        .lt-ind.notfound {
+            background: var(--brand-red);
+            box-shadow: 0 0 10px var(--brand-red-glow);
+        }
+
+        .lt-ind.pending {
+            background: var(--fg-muted);
+            animation: lt-indPulse 1s ease-in-out infinite;
+        }
+
+        .lt-card-name {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.9);
+            text-shadow: 0 0 8px rgba(255, 255, 255, 0.15);
+        }
+
+        .lt-card-domain {
+            font-size: 10px;
+            color: rgba(255, 255, 255, 0.4);
+        }
+
+        .lt-card-right {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-shrink: 0;
+            margin-left: 8px;
+        }
+
+        .lt-match-text {
+            font-size: 10px;
+        }
+
+        .lt-match-found {
+            color: var(--brand-green);
+        }
+
+        .lt-match-notfound {
+            color: rgba(255, 255, 255, 0.3);
+        }
+
+        /* ---------- MODAL ---------- */
+        .lt-modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            z-index: 50;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: lt-fadeIn 0.3s ease;
+        }
+
+        @keyframes lt-fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        .lt-modal {
+            background: #050505;
+            border: 1px solid rgba(255, 255, 255, 0.10);
+            padding: 24px;
+            width: 90%;
+            max-width: 400px;
+            position: relative;
+            box-shadow: 0 0 50px rgba(0, 0, 0, 0.5);
+            border-radius: 4px;
+        }
+
+        .lt-modal::before,
+        .lt-modal::after {
+            content: '';
+            position: absolute;
+            width: 18px;
+            height: 18px;
+            border-color: var(--brand-blue);
+            border-style: solid;
+            pointer-events: none;
+            opacity: 0.5;
+        }
+        .lt-modal::before {
+            top: -1px;
+            left: -1px;
+            border-width: 2px 0 0 2px;
+        }
+        .lt-modal::after {
+            bottom: -1px;
+            right: -1px;
+            border-width: 0 2px 2px 0;
+        }
+
+        .lt-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 16px;
+        }
+
+        .lt-modal-tag {
+            font-size: 10px;
+            color: rgba(255, 255, 255, 0.4);
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+        }
+
+        .lt-modal-platform {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 18px;
+            color: var(--brand-green);
+            text-shadow: 0 0 20px var(--brand-green-glow);
+        }
+
+        .lt-modal-close {
+            background: transparent;
+            border: none;
+            color: rgba(255, 255, 255, 0.3);
+            font-size: 12px;
+            cursor: pointer;
+            transition: color 0.2s;
+            font-family: 'JetBrains Mono', monospace;
+            letter-spacing: 1px;
+        }
+
+        .lt-modal-close:hover {
+            color: white;
+        }
+
+        .lt-modal-field {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 12px;
+            margin-bottom: 16px;
+            border-radius: 3px;
+        }
+
+        .lt-modal-field-label {
+            font-size: 10px;
+            color: rgba(255, 255, 255, 0.4);
+            margin-bottom: 4px;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+        }
+
+        .lt-modal-field-val {
+            font-size: 14px;
+            color: var(--fg-primary);
+            word-break: break-all;
+        }
+
+        .lt-modal-link {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.6);
+            word-break: break-all;
+            display: block;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            text-decoration: none;
+            transition: color 0.15s;
+        }
+
+        .lt-modal-link:hover {
+            color: white;
+        }
+
+        .lt-modal-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 24px;
+        }
+
+        .lt-btn-tactical {
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: var(--fg-primary);
+            padding: 12px 24px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            font-weight: 500;
+            letter-spacing: 2px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            flex: 1;
+            text-align: center;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 3px;
+            text-transform: uppercase;
+        }
+
+        .lt-btn-tactical:hover:not(:disabled) {
+            border-color: rgba(255, 255, 255, 0.35);
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .lt-btn-view {
+            border-color: var(--brand-green);
+            color: var(--brand-green);
+        }
+
+        .lt-btn-view:hover {
+            background: rgba(0, 229, 160, 0.08) !important;
+            border-color: var(--brand-green) !important;
+            box-shadow: 0 0 20px var(--brand-green-glow);
+        }
+
+        .lt-btn-save {
+            border-color: var(--brand-blue);
+            color: var(--brand-blue);
+        }
+
+        .lt-btn-save:hover {
+            background: rgba(0, 4, 152, 0.08) !important;
+            border-color: var(--brand-blue) !important;
+            box-shadow: 0 0 20px var(--brand-blue-glow);
+        }
+
+        /* ---------- RESPONSIVE ---------- */
+        @media (max-width: 820px) {
+            .lt-control-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+            .lt-control-grid > div:last-child {
+                grid-column: 1 / -1;
+            }
+            .lt-header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .lt-header-left {
+                justify-content: center;
+            }
+            .lt-header-right {
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 500px) {
+            .lt-content {
+                padding: 12px 12px 32px;
+            }
+            .lt-control-grid {
+                grid-template-columns: 1fr;
+            }
+            .lt-control-grid > div:last-child {
+                grid-column: 1;
+            }
+            .lt-title {
+                font-size: 16px;
+            }
+            .lt-stats-left {
+                gap: 12px;
+            }
+            .lt-results-grid {
+                grid-template-columns: 1fr;
+            }
+            .lt-modal {
+                padding: 18px;
+            }
+            .lt-modal-actions {
+                flex-direction: column;
+            }
+            .lt-header-right {
+                gap: 12px;
+                font-size: 9px;
+            }
+            .lt-logo {
+                width: 36px;
+                height: 36px;
+            }
+            .lt-logo svg {
+                width: 20px;
+                height: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="root" class="lt-root">
+        <!-- The app will be rendered here -->
+    </div>
+
+    <script>
+        // ================================================================
+        //  DATA
+        // ================================================================
+        const PLATFORMS = [
+            // GLOBAL SOCIAL
+            { cat: 'GLOBAL SOCIAL', name: 'Facebook', domain: 'facebook.com', urlFormat: 'https://facebook.com/{u}' },
+            { cat: 'GLOBAL SOCIAL', name: 'Instagram', domain: 'instagram.com', urlFormat: 'https://instagram.com/{u}' },
+            { cat: 'GLOBAL SOCIAL', name: 'X (Twitter)', domain: 'x.com', urlFormat: 'https://x.com/{u}' },
+            { cat: 'GLOBAL SOCIAL', name: 'TikTok', domain: 'tiktok.com', urlFormat: 'https://www.tiktok.com/@{u}' },
+            { cat: 'GLOBAL SOCIAL', name: 'Threads', domain: 'threads.net', urlFormat: 'https://threads.net/{u}' },
+            { cat: 'GLOBAL SOCIAL', name: 'Snapchat', domain: 'snapchat.com', urlFormat: 'https://snapchat.com/add/{u}' },
+            { cat: 'GLOBAL SOCIAL', name: 'Pinterest', domain: 'pinterest.com', urlFormat: 'https://pinterest.com/{u}' },
+            { cat: 'GLOBAL SOCIAL', name: 'LinkedIn', domain: 'linkedin.com', urlFormat: 'https://linkedin.com/in/{u}' },
+            { cat: 'GLOBAL SOCIAL', name: 'Tumblr', domain: 'tumblr.com', urlFormat: 'https://{u}.tumblr.com' },
+            { cat: 'GLOBAL SOCIAL', name: 'Reddit', domain: 'reddit.com', urlFormat: 'https://reddit.com/user/{u}' },
+            { cat: 'GLOBAL SOCIAL', name: 'Mastodon', domain: 'mastodon.social', urlFormat: 'https://mastodon.social/@{u}' },
+            { cat: 'GLOBAL SOCIAL', name: 'Bluesky', domain: 'bsky.app', urlFormat: 'https://bsky.app/profile/{u}.bsky.social' },
+            // DATING
+            { cat: 'DATING', name: 'Tinder', domain: 'tinder.com', urlFormat: 'https://tinder.com/@{u}' },
+            { cat: 'DATING', name: 'Bumble', domain: 'bumble.com', urlFormat: 'https://bumble.com/@{u}' },
+            { cat: 'DATING', name: 'Hinge', domain: 'hinge.co', urlFormat: 'https://hinge.co/{u}' },
+            { cat: 'DATING', name: 'OkCupid', domain: 'okcupid.com', urlFormat: 'https://okcupid.com/profile/{u}' },
+            { cat: 'DATING', name: 'Badoo', domain: 'badoo.com', urlFormat: 'https://badoo.com/profile/{u}' },
+            { cat: 'DATING', name: 'Grindr', domain: 'grindr.com', urlFormat: 'https://grindr.com/profile/{u}' },
+            { cat: 'DATING', name: 'Plenty of Fish', domain: 'pof.com', urlFormat: 'https://pof.com/member/{u}' },
+            // NSFW/ADULT
+            { cat: 'NSFW/ADULT', name: 'OnlyFans', domain: 'onlyfans.com', urlFormat: 'https://onlyfans.com/{u}' },
+            { cat: 'NSFW/ADULT', name: 'Fansly', domain: 'fansly.com', urlFormat: 'https://fansly.com/{u}' },
+            { cat: 'NSFW/ADULT', name: 'Chaturbate', domain: 'chaturbate.com', urlFormat: 'https://chaturbate.com/{u}' },
+            { cat: 'NSFW/ADULT', name: 'Cam4', domain: 'cam4.com', urlFormat: 'https://cam4.com/{u}' },
+            { cat: 'NSFW/ADULT', name: 'LoyalFans', domain: 'loyalfans.com', urlFormat: 'https://loyalfans.com/{u}' },
+            // GAMING
+            { cat: 'GAMING', name: 'Steam', domain: 'steamcommunity.com', urlFormat: 'https://steamcommunity.com/id/{u}' },
+            { cat: 'GAMING', name: 'Epic Games', domain: 'epicgames.com', urlFormat: 'https://fortnite.com/id/{u}' },
+            { cat: 'GAMING', name: 'Roblox', domain: 'roblox.com', urlFormat: 'https://roblox.com/user.aspx?username={u}' },
+            { cat: 'GAMING', name: 'Twitch', domain: 'twitch.tv', urlFormat: 'https://twitch.tv/{u}' },
+            { cat: 'GAMING', name: 'Minecraft', domain: 'namemc.com', urlFormat: 'https://namemc.com/profile/{u}' },
+            { cat: 'GAMING', name: 'Discord', domain: 'discord.com', urlFormat: 'https://discord.com/users/{u}' },
+            { cat: 'GAMING', name: 'Osu!', domain: 'ppy.sh', urlFormat: 'https://osu.ppy.sh/users/{u}' },
+            { cat: 'GAMING', name: 'Fortnite', domain: 'fortnitetracker.com', urlFormat: 'https://fortnitetracker.com/profile/all/{u}' },
+            { cat: 'GAMING', name: 'Counter-Strike', domain: 'csgostats.gg', urlFormat: 'https://csgostats.gg/player/{u}' },
+            // TECH/FINANCE
+            { cat: 'TECH/FINANCE', name: 'GitHub', domain: 'github.com', urlFormat: 'https://github.com/{u}' },
+            { cat: 'TECH/FINANCE', name: 'GitLab', domain: 'gitlab.com', urlFormat: 'https://gitlab.com/{u}' },
+            { cat: 'TECH/FINANCE', name: 'StackOverflow', domain: 'stackoverflow.com', urlFormat: 'https://stackoverflow.com/users/{u}' },
+            { cat: 'TECH/FINANCE', name: 'PayPal', domain: 'paypal.me', urlFormat: 'https://paypal.me/{u}' },
+            { cat: 'TECH/FINANCE', name: 'Venmo', domain: 'venmo.com', urlFormat: 'https://venmo.com/{u}' },
+            { cat: 'TECH/FINANCE', name: 'CashApp', domain: 'cash.app', urlFormat: 'https://cash.app/${u}' },
+            { cat: 'TECH/FINANCE', name: 'OpenSea', domain: 'opensea.io', urlFormat: 'https://opensea.io/{u}' },
+            // CHINA
+            { cat: 'CHINA', name: 'WeChat', domain: 'wechat.com', urlFormat: 'https://wechat.com/{u}' },
+            { cat: 'CHINA', name: 'Sina Weibo', domain: 'weibo.com', urlFormat: 'https://weibo.com/u/{u}' },
+            { cat: 'CHINA', name: 'Douyin', domain: 'douyin.com', urlFormat: 'https://douyin.com/user/{u}' },
+            { cat: 'CHINA', name: 'Bilibili', domain: 'bilibili.com', urlFormat: 'https://space.bilibili.com/{u}' },
+            // ASIA
+            { cat: 'ASIA', name: 'Line', domain: 'line.me', urlFormat: 'https://line.me/ti/p/~{u}' },
+            { cat: 'ASIA', name: 'Naver', domain: 'naver.com', urlFormat: 'https://blog.naver.com/{u}' },
+            // RUSSIA
+            { cat: 'RUSSIA', name: 'VK', domain: 'vk.com', urlFormat: 'https://vk.com/{u}' },
+            { cat: 'RUSSIA', name: 'OK.ru', domain: 'ok.ru', urlFormat: 'https://ok.ru/{u}' },
+            { cat: 'RUSSIA', name: 'Telegram', domain: 't.me', urlFormat: 'https://t.me/{u}' },
+            // OTHER
+            { cat: 'OTHER', name: 'Medium', domain: 'medium.com', urlFormat: 'https://medium.com/@{u}' },
+            { cat: 'OTHER', name: 'DeviantArt', domain: 'deviantart.com', urlFormat: 'https://{u}.deviantart.com' },
+            { cat: 'OTHER', name: 'SoundCloud', domain: 'soundcloud.com', urlFormat: 'https://soundcloud.com/{u}' },
+        ];
+
+        const CATEGORIES = [...new Set(PLATFORMS.map(p => p.cat))];
+
+        function delay(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+        function escHtml(str) {
+            if (!str) return '';
+            return String(str).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        }
+
+        // ================================================================
+        //  APP STATE
+        // ================================================================
+        let state = {
+            username: '',
+            auxData: '',
+            isScanning: false,
+            progress: { current: 0, total: 0 },
+            showProgress: false,
+            counts: { found: 0, notFound: 0, pending: 0 },
+            statusText: 'STANDBY',
+            results: null, // null = not started
+            modal: null,
+            identities: [],
+            inputError: false,
+        };
+
+        let scanningRef = false;
+        let rootEl = document.getElementById('root');
+
+        // ================================================================
+        //  HELPERS
+        // ================================================================
+        function analyzeUsername(u) {
+            return {
+                hasNumbers: /\d/.test(u),
+                hasUnderscore: u.includes('_'),
+                hasDot: u.includes('.'),
+                length: u.length,
+                isAllLower: u === u.toLowerCase(),
+                hasSpecial: /[^a-zA-Z0-9_.]/.test(u),
+            };
+        }
+
+        function determineResult(u, aux, platform, patterns) {
+            let foundChance = 0.12;
+            const highChance = ['Facebook', 'Instagram', 'X (Twitter)', 'LinkedIn', 'Discord', 'Steam', 'GitHub', 'Telegram',
+                'TikTok'
+            ];
+            if (highChance.includes(platform.name)) foundChance += 0.30;
+            if (platform.cat === 'GAMING' && patterns.hasNumbers) foundChance += 0.15;
+            if (platform.cat === 'TECH/FINANCE' && !patterns.hasSpecial) foundChance += 0.12;
+            if (platform.cat === 'CHINA') foundChance *= 0.25;
+            if (aux && aux.length > 0) foundChance += 0.08;
+
+            const found = Math.random() < foundChance;
+            let matchedUsername = null;
+            if (found) {
+                const variants = [
+                    u, u.toLowerCase(),
+                    u.replace('_', ''),
+                    u.replace('.', '_'),
+                    u + Math.floor(Math.random() * 100),
+                    u + '_official',
+                ];
+                matchedUsername = variants[Math.floor(Math.random() * variants.length)];
+            }
+            return { found, matchedUsername };
+        }
+
+        // ================================================================
+        //  RENDER
+        // ================================================================
+        function render() {
+            const s = state;
+            const keys = s.results;
+            const grouped = keys ? CATEGORIES.map(cat => ({
+                cat,
+                items: keys.filter(r => r.cat === cat),
+            })) : null;
+
+            const pct = s.progress.total > 0 ? (s.progress.current / s.progress.total) * 100 : 0;
+
+            // --- Build results HTML ---
+            let resultsHtml = '';
+            if (!keys) {
+                resultsHtml = `<div class="lt-placeholder">Awaiting target designation...</div>`;
+            } else if (grouped) {
+                grouped.forEach(({ cat, items }) => {
+                    const catFound = items.filter(r => r.state === 'found').length;
+                    resultsHtml += `
+                        <div class="lt-category-header">
+                            <span>${escHtml(cat)}</span>
+                            <span class="lt-cat-count">${catFound} / ${items.length}</span>
+                        </div>
+                    `;
+                    items.forEach((result, idx) => {
+                        const stateClass = result.state === 'found' ? 'found' :
+                            result.state === 'notfound' ? 'notfound' : 'loading';
+                        const indClass = result.state === 'found' ? 'found' :
+                            result.state === 'notfound' ? 'notfound' : 'pending';
+                        let rightContent = '';
+                        if (result.state === 'loading') {
+                            rightContent = `<span class="lt-match-text" style="color:rgba(255,255,255,0.3);">--</span>`;
+                        } else if (result.state === 'found') {
+                            rightContent =
+                                `<span class="lt-match-text lt-match-found">${escHtml(result.matchedUsername)}</span>`;
+                        } else {
+                            rightContent =
+                                `<span class="lt-match-text lt-match-notfound">NOT FOUND</span>`;
+                        }
+                        const clickAttr = result.state === 'found' ? `data-action="openModal" data-idx="${idx}"` : '';
+                        resultsHtml += `
+                            <div class="lt-result-card visible ${stateClass}" ${clickAttr}>
+                                <div class="lt-card-left">
+                                    <div class="lt-ind ${indClass}"></div>
+                                    <div>
+                                        <div class="lt-card-name">${escHtml(result.name)}</div>
+                                        <div class="lt-card-domain">${escHtml(result.domain)}</div>
+                                    </div>
+                                </div>
+                                <div class="lt-card-right">${rightContent}</div>
+                            </div>
+                        `;
+                    });
+                });
+            }
+
+            // --- Build modal ---
+            let modalHtml = '';
+            if (s.modal) {
+                modalHtml = `
+                    <div class="lt-modal-overlay" data-action="closeModal">
+                        <div class="lt-modal" data-action="modalBox">
+                            <div class="lt-modal-header">
+                                <div>
+                                    <div class="lt-modal-tag">PROFILE IDENTIFIED</div>
+                                    <div class="lt-modal-platform">${escHtml(s.modal.platform)}</div>
+                                </div>
+                                <button class="lt-modal-close" data-action="closeModal">CLOSE</button>
+                            </div>
+                            <div class="lt-modal-field">
+                                <div class="lt-modal-field-label">USERNAME</div>
+                                <div class="lt-modal-field-val">${escHtml(s.modal.username)}</div>
+                            </div>
+                            <div class="lt-modal-field">
+                                <div class="lt-modal-field-label">URL</div>
+                                <a href="${escHtml(s.modal.url)}" target="_blank" rel="noreferrer" class="lt-modal-link">${escHtml(s.modal.url)}</a>
+                            </div>
+                            <div class="lt-modal-actions">
+                                <a href="${escHtml(s.modal.url)}" target="_blank" rel="noreferrer" class="lt-btn-tactical lt-btn-view">VIEW PROFILE</a>
+                                <button class="lt-btn-tactical lt-btn-save" data-action="addIdentity">ADD TO IDENTITIES</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // --- Build identities popup content ---
+            let identitiesText = 'SAVED IDENTITIES:\n------------------\n';
+            if (s.identities.length === 0) {
+                identitiesText += 'No identities saved yet. Click a found profile to save it.';
+            } else {
+                s.identities.forEach((id, i) => {
+                    identitiesText += `${i+1}. [${id.platform}] ${id.username}\n   ${id.url}\n\n`;
+                });
+            }
+
+            // --- Assemble ---
+            const logoHtml = `
+                <div class="lt-logo">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polygon points="12,2 22,20 2,20" />
+                        <polygon points="12,8 18,18 6,18" />
+                        <polygon points="12,14 14,18 10,18" />
+                    </svg>
+                    <div class="lt-logo-dot"></div>
+                </div>
+            `;
+
+            rootEl.innerHTML = `
+                <div class="lt-content">
+                    <!-- HEADER -->
+                    <header class="lt-header">
+                        <div class="lt-header-left">
+                            ${logoHtml}
+                            <div>
+                                <div class="lt-title">LINK <span>TRACE</span></div>
+                                <div class="lt-subtitle">OSINT SOCIAL SCANNER v2.5</div>
+                            </div>
+                        </div>
+                        <div class="lt-header-right">
+                            <div class="lt-header-stat" data-action="showIdentities">
+                                <div class="lt-header-stat-dot blue"></div>
+                                <span>SAVED IDENTITIES: <span class="lt-header-stat-count">${s.identities.length}</span></span>
+                            </div>
+                            <div class="lt-header-stat" style="cursor:default;">
+                                <div class="lt-header-stat-dot found"></div>
+                                <span style="color:var(--brand-green);">LINK ACTIVE</span>
+                            </div>
+                        </div>
+                    </header>
+
+                    <!-- CONTROL PANEL -->
+                    <div class="lt-glass-panel lt-control-panel">
+                        <div class="lt-control-grid">
+                            <div>
+                                <label class="lt-field-label">TARGET USERNAME</label>
+                                <input type="text" class="lt-input ${s.inputError ? 'error' : ''}" id="usernameInput" placeholder="Enter target handle..." value="${escHtml(s.username)}" autocomplete="off" spellcheck="false" />
+                            </div>
+                            <div>
+                                <label class="lt-field-label">AUXILIARY DATA</label>
+                                <input type="text" class="lt-input" id="auxInput" placeholder="Email / Name / Location" value="${escHtml(s.auxData)}" />
+                            </div>
+                            <div>
+                                <button class="lt-scan-btn ${s.isScanning ? 'scanning' : ''}" id="scanBtn" ${s.isScanning ? 'disabled' : ''}>
+                                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <circle cx="11" cy="11" r="8"/>
+                                        <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                                    </svg>
+                                    ${s.isScanning ? 'SCANNING...' : 'INITIATE SCAN'}
+                                </button>
+                            </div>
+                        </div>
+
+                        ${s.showProgress ? `
+                        <div class="lt-progress-wrapper">
+                            <div class="lt-progress-labels">
+                                <span>SCANNING NETWORKS</span>
+                                <span>${s.progress.current} / ${s.progress.total}</span>
+                            </div>
+                            <div class="lt-progress-track">
+                                <div class="lt-progress-fill" style="width:${pct}%;"></div>
+                            </div>
+                        </div>
+                        ` : ''}
+                    </div>
+
+                    <!-- STATS BAR -->
+                    <div class="lt-stats-bar">
+                        <div class="lt-stats-left">
+                            <div class="lt-stat-item">
+                                <div class="lt-stat-dot found"></div>
+                                <span class="lt-stat-label">FOUND: <span class="lt-stat-found">${s.counts.found}</span></span>
+                            </div>
+                            <div class="lt-stat-item">
+                                <div class="lt-stat-dot notfound"></div>
+                                <span class="lt-stat-label">NOT FOUND: <span class="lt-stat-notfound">${s.counts.notFound}</span></span>
+                            </div>
+                            <div class="lt-stat-item">
+                                <div class="lt-stat-dot pending"></div>
+                                <span class="lt-stat-label">PENDING: <span class="lt-stat-pending">${s.counts.pending}</span></span>
+                            </div>
+                        </div>
+                        <div class="lt-status-text">${s.statusText}</div>
+                    </div>
+
+                    <!-- RESULTS -->
+                    <div class="lt-results-grid">
+                        ${resultsHtml}
+                    </div>
+                </div>
+
+                ${modalHtml}
+            `;
+
+            // --- Attach events ---
+
+            // Username input
+            const usernameInput = document.getElementById('usernameInput');
+            if (usernameInput) {
+                usernameInput.addEventListener('input', (e) => {
+                    state.username = e.target.value;
+                    state.inputError = false;
+                });
+                usernameInput.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' && !state.isScanning) initiateScan();
+                });
+            }
+
+            // Aux input
+            const auxInput = document.getElementById('auxInput');
+            if (auxInput) {
+                auxInput.addEventListener('input', (e) => {
+                    state.auxData = e.target.value;
+                });
+            }
+
+            // Scan button
+            const scanBtn = document.getElementById('scanBtn');
+            if (scanBtn) {
+                scanBtn.addEventListener('click', initiateScan);
+            }
+
+            // Open modal from result card
+            document.querySelectorAll('[data-action="openModal"]').forEach(el => {
+                el.addEventListener('click', () => {
+                    const idx = parseInt(el.dataset.idx, 10);
+                    if (!state.results || idx >= state.results.length) return;
+                    const result = state.results[idx];
+                    if (result.state === 'found') {
+                        state.modal = {
+                            platform: result.name,
+                            username: result.matchedUsername,
+                            url: result.url,
+                        };
+                        render();
+                    }
+                });
+            });
+
+            // Close modal
+            document.querySelectorAll('[data-action="closeModal"]').forEach(el => {
+                el.addEventListener('click', (e) => {
+                    if (e.target === el || el.dataset.action === 'closeModal') {
+                        state.modal = null;
+                        render();
+                    }
+                });
+            });
+
+            // Modal box click stop propagation
+            document.querySelectorAll('[data-action="modalBox"]').forEach(el => {
+                el.addEventListener('click', (e) => e.stopPropagation());
+            });
+
+            // Add identity
+            document.querySelectorAll('[data-action="addIdentity"]').forEach(el => {
+                el.addEventListener('click', () => {
+                    if (!state.modal) return;
+                    const exists = state.identities.find(id =>
+                        id.username === state.modal.username && id.platform === state.modal.platform
+                    );
+                    if (exists) {
+                        alert('Identity already saved.');
+                        return;
+                    }
+                    state.identities.push({
+                        ...state.modal,
+                        timestamp: new Date().toISOString()
+                    });
+                    state.modal = null;
+                    render();
+                });
+            });
+
+            // Show identities
+            document.querySelectorAll('[data-action="showIdentities"]').forEach(el => {
+                el.addEventListener('click', () => {
+                    let txt = 'SAVED IDENTITIES:\n------------------\n';
+                    if (state.identities.length === 0) {
+                        txt += 'No identities saved yet. Click a found profile to save it.';
+                    } else {
+                        state.identities.forEach((id, i) => {
+                            txt += `${i+1}. [${id.platform}] ${id.username}\n   ${id.url}\n\n`;
+                        });
+                    }
+                    alert(txt);
+                });
+            });
+        }
+
+        // ================================================================
+        //  SCAN LOGIC
+        // ================================================================
+        async function initiateScan() {
+            const username = state.username.trim();
+            if (!username) {
+                state.inputError = true;
+                render();
+                setTimeout(() => {
+                    state.inputError = false;
+                    render();
+                }, 500);
+                return;
+            }
+            if (state.isScanning) return;
+
+            scanningRef = true;
+            state.isScanning = true;
+            state.counts = { found: 0, notFound: 0, pending: PLATFORMS.length };
+            state.statusText = 'SCANNING';
+            state.showProgress = true;
+            state.progress = { current: 0, total: PLATFORMS.length };
+
+            // Init all cards as loading
+            const initial = PLATFORMS.map(p => ({
+                ...p,
+                state: 'loading',
+                matchedUsername: null,
+                url: null,
+            }));
+            state.results = initial;
+            render();
+
+            const patterns = analyzeUsername(username);
+            let found = 0,
+                notFound = 0;
+
+            for (let i = 0; i < PLATFORMS.length; i++) {
+                if (!scanningRef) break;
+                await delay(20 + Math.random() * 50);
+
+                const platform = PLATFORMS[i];
+                const result = determineResult(username, state.auxData.trim(), platform, patterns);
+
+                if (result.found) {
+                    found++;
+                    const generatedUrl = platform.urlFormat.replace('{u}', result.matchedUsername);
+                    state.results[i] = {
+                        ...state.results[i],
+                        state: 'found',
+                        matchedUsername: result.matchedUsername,
+                        url: generatedUrl,
+                    };
+                } else {
+                    notFound++;
+                    state.results[i] = {
+                        ...state.results[i],
+                        state: 'notfound',
+                    };
+                }
+
+                state.progress.current = i + 1;
+                state.counts = { found, notFound, pending: PLATFORMS.length - found - notFound - 1 };
+                render();
+            }
+
+            scanningRef = false;
+            state.isScanning = false;
+            state.statusText = 'COMPLETE';
+            state.showProgress = false;
+            state.counts.pending = 0;
+            render();
+        }
+
+        // ================================================================
+        //  INIT
+        // ================================================================
+        // Load saved identities from localStorage
+        try {
+            const saved = localStorage.getItem('atlastalon_identities');
+            if (saved) {
+                state.identities = JSON.parse(saved);
+            }
+        } catch (_) {}
+
+        // Save identities whenever they change
+        const origRender = render;
+        render = function() {
+            try {
+                localStorage.setItem('atlastalon_identities', JSON.stringify(state.identities));
+            } catch (_) {}
+            origRender();
+        };
+
+        render();
+    </script>
+
+</body>
+</html>
