@@ -1,0 +1,2860 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AtlasTalon · Identities</title>
+
+    <!-- Google Font: IBM Plex Mono -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+
+    <style>
+        /* ============================================================
+           IDENTITIES CSS — exactly as in the React component
+           ============================================================ */
+        .ids-body {
+            font-family: 'IBM Plex Mono', monospace;
+            background: #050505;
+            color: #e0e0e0;
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Class tabs */
+        .ids-class-tabs {
+            display: flex;
+            border-bottom: 1px solid #1a1a1a;
+            margin-bottom: 24px;
+        }
+        .ids-class-tab {
+            background: transparent;
+            border: 1px solid transparent;
+            border-bottom: none;
+            padding: 10px 28px;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 11px;
+            letter-spacing: 2px;
+            color: #444;
+            cursor: pointer;
+            text-transform: uppercase;
+            position: relative;
+            top: 1px;
+            transition: all 0.2s;
+        }
+        .ids-class-tab:hover {
+            color: #888;
+            background: rgba(255, 255, 255, 0.03);
+        }
+        .ids-class-tab.active {
+            color: #e0e0e0;
+            background: #0a0a0a;
+            border-color: #1a1a1a;
+        }
+
+        /* Identity grid */
+        .ids-identity-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+            gap: 20px;
+            max-width: 1600px;
+        }
+        .ids-card {
+            background: #0a0a0a;
+            border: 1px solid #1a1a1a;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.25s;
+            position: relative;
+            overflow: hidden;
+        }
+        .ids-card:hover {
+            border-color: #333;
+            transform: translateY(-1px);
+        }
+        .ids-card-header {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 20px;
+            position: relative;
+            z-index: 1;
+        }
+        .ids-card-photo {
+            width: 90px;
+            height: 115px;
+            background: #111;
+            border: 1px solid #1a1a1a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+        .ids-card-photo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            filter: grayscale(100%) contrast(1.1);
+        }
+        .ids-card-meta {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            min-width: 0;
+        }
+        .ids-card-id {
+            font-size: 10px;
+            color: #555;
+            letter-spacing: 2px;
+            margin-bottom: 6px;
+        }
+        .ids-card-name {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 3px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            color: #e0e0e0;
+        }
+        .ids-card-alias {
+            font-size: 12px;
+            color: #888;
+            font-style: italic;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .ids-priority-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 2px 8px;
+            border: 1px solid;
+            font-size: 9px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-top: 8px;
+        }
+        .ids-priority-badge.hostile {
+            color: #FF3D00;
+            border-color: rgba(255, 61, 0, 0.3);
+            background: rgba(255, 61, 0, 0.08);
+        }
+        .ids-priority-badge.protected {
+            color: #00E5FF;
+            border-color: rgba(0, 229, 255, 0.3);
+            background: rgba(0, 229, 255, 0.08);
+        }
+        .ids-priority-badge.neutral {
+            color: #666;
+            border-color: rgba(100, 100, 100, 0.3);
+            background: rgba(100, 100, 100, 0.08);
+        }
+        .ids-card-intel {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px 14px;
+            padding-top: 16px;
+            border-top: 1px solid #1a1a1a;
+        }
+        .ids-intel-label {
+            color: #555;
+            display: block;
+            margin-bottom: 2px;
+            font-size: 9px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+        .ids-intel-value {
+            color: #c0c0c0;
+            font-weight: 500;
+            font-size: 11px;
+        }
+        .ids-card-menu {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            z-index: 10;
+        }
+        .ids-menu-btn {
+            background: transparent;
+            border: none;
+            color: #444;
+            font-size: 9px;
+            cursor: pointer;
+            padding: 9px;
+            letter-spacing: 2px;
+            font-weight: bold;
+            transform: rotate(0deg);
+            line-height: 1;
+        }
+        .ids-menu-btn:hover {
+            color: #e0e0e0;
+            background: transparent !important;
+        }
+        .ids-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: #0a0a0a;
+            border: 1px solid #222;
+            min-width: 100px;
+            display: none;
+            z-index: 100;
+        }
+        .ids-dropdown.open {
+            display: block;
+        }
+        .ids-dropdown-item {
+            display: block;
+            width: 100%;
+            padding: 10px 12px;
+            text-align: left;
+            background: transparent;
+            border: none;
+            color: #888;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 10px;
+            letter-spacing: 1px;
+            cursor: pointer;
+            text-transform: uppercase;
+        }
+        .ids-dropdown-item:hover {
+            background: rgba(255, 255, 255, 0.04);
+            color: #FF3D00;
+        }
+
+        /* Buttons */
+        .ids-add-btn {
+            background: #0a0a0a;
+            border: 1px solid #222;
+            color: #bebebe;
+            padding: 10px 20px;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 10px;
+            letter-spacing: 2px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-transform: uppercase;
+        }
+        .ids-add-btn:hover {
+            background: #ffffff;
+            color: #000000;
+            border-color: #ffffff;
+        }
+        .ids-back-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: transparent;
+            border: 1px solid #1a1a1a;
+            color: #666;
+            padding: 8px 16px;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 10px;
+            letter-spacing: 2px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .ids-back-btn:hover {
+            border-color: #00ffcc;
+            color: #00ffcc;
+        }
+        .ids-action-btn {
+            background: #0a0a0a;
+            border: 1px solid #1a1a1a;
+            color: #666;
+            padding: 8px 14px;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 10px;
+            letter-spacing: 2px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-transform: uppercase;
+        }
+        .ids-action-btn:hover {
+            border-color: #888;
+            color: #e0e0e0;
+        }
+        .ids-action-btn.danger:hover {
+            border-color: #FF3D00;
+            color: #FF3D00;
+        }
+
+        /* Detail header */
+        .ids-detail-header {
+            display: flex;
+            gap: 28px;
+            margin-bottom: 28px;
+            padding: 28px;
+            background: #0a0a0a;
+            border: 1px solid #1a1a1a;
+        }
+        .ids-detail-photo {
+            width: 150px;
+            height: 190px;
+            background: #111;
+            border: 1px solid #1a1a1a;
+            overflow: hidden;
+            flex-shrink: 0;
+            cursor: pointer;
+            position: relative;
+        }
+        .ids-detail-photo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            filter: grayscale(100%) contrast(1.1);
+        }
+        .ids-photo-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.75);
+            padding: 8px;
+            text-align: center;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+        .ids-detail-photo:hover .ids-photo-overlay {
+            opacity: 1;
+        }
+        .ids-detail-name {
+            font-size: 28px;
+            font-weight: 300;
+            letter-spacing: 5px;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            color: #e0e0e0;
+        }
+        .ids-detail-alias {
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 18px;
+            font-style: italic;
+        }
+        .ids-detail-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 14px;
+        }
+        .ids-stat-label {
+            font-size: 9px;
+            color: #444;
+            letter-spacing: 2px;
+            display: block;
+            margin-bottom: 3px;
+            text-transform: uppercase;
+        }
+        .ids-stat-value {
+            font-size: 12px;
+            color: #c0c0c0;
+            font-weight: 500;
+        }
+        .ids-status-badge {
+            display: inline-block;
+            padding: 2px 7px;
+            font-size: 9px;
+            letter-spacing: 1px;
+            border: 1px solid #1a1a1a;
+            background: #111;
+        }
+        .ids-status-badge.red-code {
+            color: #FF3B30;
+            border-color: rgba(255, 59, 48, 0.3);
+        }
+        .ids-status-badge.cold-state {
+            color: #34C759;
+            border-color: rgba(52, 199, 89, 0.3);
+        }
+        .ids-status-badge.dark-mode {
+            color: #8E8E93;
+            border-color: rgba(142, 142, 147, 0.3);
+        }
+        .ids-status-badge.signal-lock {
+            color: #007AFF;
+            border-color: rgba(0, 122, 255, 0.3);
+        }
+
+        /* Tabs */
+        .ids-tabs-nav {
+            display: flex;
+            border-bottom: 1px solid #1a1a1a;
+            background: #0a0a0a;
+            overflow-x: auto;
+        }
+        .ids-tab-btn {
+            padding: 14px 22px;
+            background: transparent;
+            border: none;
+            color: #444;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 10px;
+            letter-spacing: 2px;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+        .ids-tab-btn:hover {
+            color: #888;
+            background: rgba(255, 255, 255, 0.03);
+        }
+        .ids-tab-btn.active {
+            color: #e0e0e0;
+            background: #050505;
+        }
+        .ids-tab-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 1px;
+            background: #00ffcc;
+        }
+        .ids-tab-content {
+            display: none;
+            padding: 24px;
+            animation: idsFadeIn 0.25s ease;
+        }
+        .ids-tab-content.active {
+            display: block;
+        }
+        @keyframes idsFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Profile grid & fields */
+        .ids-profile-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 16px;
+        }
+        .ids-section {
+            background: #0a0a0a;
+            border: 1px solid #1a1a1a;
+            padding: 18px;
+        }
+        .ids-section-full {
+            grid-column: 1 / -1;
+        }
+        .ids-section-title {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 9px;
+            letter-spacing: 3px;
+            color: #555;
+            margin-bottom: 14px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #1a1a1a;
+            text-transform: uppercase;
+        }
+        .ids-field-row {
+            display: flex;
+            margin-bottom: 8px;
+            align-items: center;
+            gap: 8px;
+        }
+        .ids-field-label {
+            width: 110px;
+            min-width: 110px;
+            font-size: 9px;
+            color: #444;
+            flex-shrink: 0;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-family: 'IBM Plex Mono', monospace;
+            line-height: 1.3;
+        }
+        .ids-field-input {
+            flex: 1;
+            min-width: 0;
+            background: #050505;
+            border: 1px solid #1a1a1a;
+            padding: 7px 10px;
+            font-size: 11px;
+            color: #c0c0c0;
+            font-family: 'IBM Plex Mono', monospace;
+            transition: border-color 0.2s;
+            outline: none;
+        }
+        .ids-field-input:focus {
+            border-color: #00ffcc;
+        }
+        .ids-field-select {
+            flex: 1;
+            min-width: 0;
+            background: #050505;
+            border: 1px solid #1a1a1a;
+            padding: 7px 10px;
+            font-size: 11px;
+            color: #c0c0c0;
+            font-family: 'IBM Plex Mono', monospace;
+            cursor: pointer;
+            outline: none;
+        }
+        .ids-field-select:focus {
+            border-color: #00ffcc;
+        }
+        .ids-threat-track {
+            flex: 1;
+            height: 3px;
+            background: #111;
+            position: relative;
+            min-width: 0;
+        }
+        .ids-threat-fill {
+            height: 100%;
+            transition: width 0.3s;
+        }
+        .ids-threat-num {
+            width: 50px;
+            flex-shrink: 0;
+            background: #050505;
+            border: 1px solid #1a1a1a;
+            padding: 5px 6px;
+            font-size: 11px;
+            color: #c0c0c0;
+            font-family: 'IBM Plex Mono', monospace;
+            text-align: right;
+            outline: none;
+        }
+        .ids-threat-num:focus {
+            border-color: #00ffcc;
+        }
+
+        /* Social cards */
+        .ids-social-card {
+            background: #0a0a0a;
+            border: 1px solid #1a1a1a;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: all 0.2s;
+        }
+        .ids-social-card:hover {
+            border-color: #2a2a2a;
+            background: #111;
+        }
+        .ids-social-icon {
+            width: 36px;
+            height: 36px;
+            background: #050505;
+            border: 1px solid #1a1a1a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-family: 'IBM Plex Mono', monospace;
+            color: #555;
+            flex-shrink: 0;
+        }
+        .ids-social-platform {
+            font-size: 9px;
+            color: #444;
+            margin-bottom: 2px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+        .ids-social-handle {
+            font-size: 12px;
+            color: #c0c0c0;
+        }
+        .ids-social-status {
+            font-size: 9px;
+            padding: 3px 7px;
+            background: rgba(255, 255, 255, 0.04);
+            color: #555;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+        .ids-social-status.active-s {
+            color: #34C759;
+        }
+        .ids-social-status.suspended {
+            color: #FF3D00;
+        }
+        .ids-add-social-btn {
+            background: #0a0a0a;
+            border: 1px dashed #222;
+            color: #444;
+            padding: 18px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 10px;
+            letter-spacing: 2px;
+            font-family: 'IBM Plex Mono', monospace;
+        }
+        .ids-add-social-btn:hover {
+            border-color: #00ffcc;
+            color: #00ffcc;
+        }
+
+        /* Modal */
+        .ids-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.92);
+            backdrop-filter: blur(8px);
+            z-index: 3000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+        .ids-modal-overlay.open {
+            display: flex;
+        }
+        .ids-modal {
+            background: #0a0a0a;
+            border: 1px solid #1a1a1a;
+            max-width: 580px;
+            width: 90%;
+            max-height: 90vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        .ids-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 18px 22px;
+            border-bottom: 1px solid #1a1a1a;
+            flex-shrink: 0;
+        }
+        .ids-modal-title {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 10px;
+            letter-spacing: 3px;
+            color: #00ffcc;
+            text-transform: uppercase;
+        }
+        .ids-modal-close {
+            background: transparent;
+            border: none;
+            color: #444;
+            font-size: 20px;
+            cursor: pointer;
+            transition: color 0.2s;
+            line-height: 1;
+        }
+        .ids-modal-close:hover {
+            color: #e0e0e0;
+        }
+        .ids-modal-body {
+            padding: 22px;
+            overflow-y: auto;
+            flex: 1;
+        }
+        .ids-modal-label {
+            display: block;
+            font-size: 9px;
+            color: #444;
+            margin-bottom: 8px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            font-family: 'IBM Plex Mono', monospace;
+        }
+        .ids-modal-input {
+            width: 100%;
+            background: #050505;
+            border: 1px solid #1a1a1a;
+            padding: 10px 12px;
+            font-size: 12px;
+            color: #c0c0c0;
+            font-family: 'IBM Plex Mono', monospace;
+            outline: none;
+            margin-bottom: 4px;
+        }
+        .ids-modal-input:focus {
+            border-color: #00ffcc;
+        }
+        .ids-modal-actions {
+            display: flex;
+            gap: 10px;
+            padding: 18px 22px;
+            border-top: 1px solid #1a1a1a;
+            flex-shrink: 0;
+        }
+        .ids-modal-btn {
+            flex: 1;
+            padding: 11px;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 10px;
+            letter-spacing: 2px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-transform: uppercase;
+        }
+        .ids-modal-btn.primary {
+            background: #00ffcc;
+            border: 1px solid #00ffcc;
+            color: #000;
+            font-weight: 600;
+        }
+        .ids-modal-btn.primary:hover {
+            background: #00d4aa;
+        }
+        .ids-modal-btn.secondary {
+            background: transparent;
+            border: 1px solid #1a1a1a;
+            color: #666;
+        }
+        .ids-modal-btn.secondary:hover {
+            border-color: #555;
+            color: #c0c0c0;
+        }
+        .ids-modal-btn.danger-btn {
+            background: rgba(255, 61, 0, 0.08);
+            border: 1px solid #FF3D00;
+            color: #FF3D00;
+        }
+        .ids-modal-btn.danger-btn:hover {
+            background: #FF3D00;
+            color: #000;
+        }
+
+        /* Platform list */
+        .ids-platform-list {
+            max-height: 220px;
+            overflow-y: auto;
+            border: 1px solid #1a1a1a;
+            background: #050505;
+        }
+        .ids-platform-list::-webkit-scrollbar {
+            width: 3px;
+        }
+        .ids-platform-list::-webkit-scrollbar-thumb {
+            background: #222;
+        }
+        .ids-platform-group-header {
+            padding: 5px 12px;
+            font-size: 9px;
+            color: #00ffcc;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            font-family: 'IBM Plex Mono', monospace;
+            background: #0a0a0a;
+            border-bottom: 1px solid #1a1a1a;
+            position: sticky;
+            top: 0;
+            z-index: 1;
+        }
+        .ids-platform-item {
+            padding: 8px 14px;
+            cursor: pointer;
+            font-size: 11px;
+            color: #666;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.02);
+            transition: background 0.1s;
+            font-family: 'IBM Plex Mono', monospace;
+        }
+        .ids-platform-item:hover {
+            background: rgba(255, 255, 255, 0.04);
+            color: #c0c0c0;
+        }
+        .ids-platform-item.selected {
+            background: rgba(0, 255, 204, 0.06);
+            color: #00ffcc;
+            border-left: 2px solid #00ffcc;
+        }
+
+        /* Empty state */
+        .ids-empty-state {
+            padding: 48px 32px;
+            text-align: center;
+            color: #333;
+        }
+        .ids-empty-text {
+            font-size: 10px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            font-family: 'IBM Plex Mono', monospace;
+        }
+
+        /* Notes */
+        .ids-notes-container {
+            display: grid;
+            grid-template-columns: 1fr 320px;
+            gap: 16px;
+        }
+        .ids-note-editor {
+            background: #0a0a0a;
+            border: 1px solid #1a1a1a;
+            padding: 18px;
+            display: flex;
+            flex-direction: column;
+            min-height: 500px;
+        }
+        .ids-editor-header {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 14px;
+            padding-bottom: 14px;
+            border-bottom: 1px solid #1a1a1a;
+            flex-wrap: wrap;
+        }
+        .ids-editor-btn {
+            background: #050505;
+            border: 1px solid #1a1a1a;
+            color: #555;
+            padding: 6px 10px;
+            font-size: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: 'IBM Plex Mono', monospace;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+        .ids-editor-btn:hover {
+            border-color: #555;
+            color: #c0c0c0;
+        }
+        .ids-editor-btn.danger:hover {
+            border-color: #FF3D00;
+            color: #FF3D00;
+        }
+        .ids-note-title-input {
+            width: 100%;
+            background: transparent;
+            border: none;
+            font-size: 16px;
+            color: #e0e0e0;
+            font-family: 'IBM Plex Mono', monospace;
+            font-weight: 600;
+            margin-bottom: 14px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #1a1a1a;
+            outline: none;
+            flex-shrink: 0;
+        }
+        .ids-note-title-input::placeholder {
+            color: #333;
+        }
+        .ids-note-content {
+            flex: 1;
+            min-height: 260px;
+            background: transparent;
+            border: none;
+            font-size: 12px;
+            color: #c0c0c0;
+            font-family: 'IBM Plex Mono', monospace;
+            line-height: 1.8;
+            outline: none;
+            overflow-y: auto;
+        }
+        .ids-note-content:empty:before {
+            content: attr(data-placeholder);
+            color: #333;
+            pointer-events: none;
+        }
+        .ids-note-content img {
+            max-width: 100%;
+            border: 1px solid #1a1a1a;
+            margin: 6px 0;
+            display: block;
+        }
+        .ids-note-content ul {
+            padding-left: 20px;
+            margin: 6px 0;
+        }
+        .ids-note-content ol {
+            padding-left: 20px;
+            margin: 6px 0;
+        }
+        .ids-note-content li {
+            margin-bottom: 2px;
+        }
+        .ids-notes-list {
+            background: #0a0a0a;
+            border: 1px solid #1a1a1a;
+            overflow-y: auto;
+            max-height: 560px;
+        }
+        .ids-notes-list::-webkit-scrollbar {
+            width: 3px;
+        }
+        .ids-notes-list::-webkit-scrollbar-thumb {
+            background: #222;
+        }
+        .ids-notes-list-header {
+            padding: 14px 16px;
+            border-bottom: 1px solid #1a1a1a;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 9px;
+            letter-spacing: 2px;
+            color: #333;
+            text-transform: uppercase;
+        }
+        .ids-note-item {
+            padding: 14px 16px;
+            border-bottom: 1px solid #1a1a1a;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+        .ids-note-item:hover {
+            background: rgba(255, 255, 255, 0.03);
+        }
+        .ids-note-item.active-note {
+            background: #111;
+            border-left: 2px solid #00ffcc;
+        }
+        .ids-note-item-title {
+            font-size: 12px;
+            color: #c0c0c0;
+            margin-bottom: 3px;
+            font-weight: 500;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .ids-note-item-date {
+            font-size: 9px;
+            color: #333;
+            letter-spacing: 1px;
+            font-family: 'IBM Plex Mono', monospace;
+        }
+
+        /* Imagery */
+        .ids-toolbar-btn {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: #0a0a0a;
+            border: 1px solid #1a1a1a;
+            color: #555;
+            padding: 8px 14px;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 10px;
+            letter-spacing: 2px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-transform: uppercase;
+        }
+        .ids-toolbar-btn:hover {
+            border-color: #00ffcc;
+            color: #00ffcc;
+        }
+        .ids-breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 16px;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 10px;
+            color: #444;
+        }
+        .ids-breadcrumb-link {
+            color: #00ffcc;
+            cursor: pointer;
+        }
+        .ids-breadcrumb-link:hover {
+            text-decoration: underline;
+        }
+        .ids-folder-card {
+            background: #0a0a0a;
+            border: 1px solid #1a1a1a;
+            padding: 18px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .ids-folder-card:hover {
+            border-color: #00ffcc;
+            background: #111;
+        }
+        .ids-media-card {
+            aspect-ratio: 4 / 3;
+            background: #0a0a0a;
+            border: 1px solid #1a1a1a;
+            overflow: hidden;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.2s;
+        }
+        .ids-media-card:hover {
+            border-color: #00ffcc;
+        }
+        .ids-media-card img,
+        .ids-media-card video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+        .ids-media-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 8px;
+            background: linear-gradient(transparent, rgba(0, 0, 0, 0.9));
+            opacity: 0;
+            transition: opacity 0.2s;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            gap: 6px;
+        }
+        .ids-media-card:hover .ids-media-overlay {
+            opacity: 1;
+        }
+        .ids-media-name {
+            font-size: 9px;
+            color: #a0a0a0;
+            font-family: 'IBM Plex Mono', monospace;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            flex: 1;
+        }
+        .ids-media-action {
+            background: rgba(0, 0, 0, 0.7);
+            border: 1px solid #333;
+            color: #888;
+            font-size: 9px;
+            padding: 2px 6px;
+            cursor: pointer;
+            font-family: 'IBM Plex Mono', monospace;
+            letter-spacing: 1px;
+            transition: all 0.15s;
+            flex-shrink: 0;
+        }
+        .ids-media-action:hover {
+            border-color: #00ffcc;
+            color: #00ffcc;
+        }
+        .ids-media-action.del:hover {
+            border-color: #FF3D00;
+            color: #FF3D00;
+        }
+
+        /* Updates */
+        .ids-update-entry {
+            background: #0a0a0a;
+            border: 1px solid #1a1a1a;
+            margin-bottom: 12px;
+            padding: 18px;
+            position: relative;
+        }
+        .ids-update-entry::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: #1a1a1a;
+        }
+        .ids-update-date {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 10px;
+            color: #444;
+            letter-spacing: 2px;
+        }
+        .ids-update-type {
+            font-size: 9px;
+            padding: 3px 8px;
+            background: rgba(255, 255, 255, 0.04);
+            color: #555;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            width: fit-content;
+            margin-top: 3px;
+            font-family: 'IBM Plex Mono', monospace;
+        }
+        .ids-update-type.critical {
+            background: rgba(255, 61, 0, 0.08);
+            color: #FF3D00;
+        }
+        .ids-update-type.intel {
+            background: rgba(52, 199, 89, 0.08);
+            color: #34C759;
+        }
+        .ids-update-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: #e0e0e0;
+            margin-bottom: 8px;
+            margin-top: 12px;
+        }
+        .ids-update-content {
+            font-size: 12px;
+            color: #666;
+            line-height: 1.8;
+        }
+        .ids-form-input,
+        .ids-form-select,
+        .ids-form-textarea {
+            width: 100%;
+            background: #050505;
+            border: 1px solid #1a1a1a;
+            padding: 9px 12px;
+            font-size: 12px;
+            color: #c0c0c0;
+            font-family: 'IBM Plex Mono', monospace;
+            transition: border-color 0.2s;
+            outline: none;
+        }
+        .ids-form-input:focus,
+        .ids-form-select:focus,
+        .ids-form-textarea:focus {
+            border-color: #00ffcc;
+        }
+        .ids-form-textarea {
+            min-height: 90px;
+            resize: vertical;
+        }
+        .ids-submit-btn {
+            background: #050505;
+            border: 1px solid #222;
+            color: #c0c0c0;
+            padding: 10px 22px;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 10px;
+            letter-spacing: 2px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-transform: uppercase;
+        }
+        .ids-submit-btn:hover {
+            background: #00ffcc;
+            color: #000;
+            border-color: #00ffcc;
+        }
+
+        /* Image viewer popup */
+        .ids-viewer-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.95);
+            backdrop-filter: blur(12px);
+            z-index: 4000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .ids-viewer-box {
+            position: relative;
+            background: #0a0a0a;
+            border: 1px solid #1a1a1a;
+            max-width: 92vw;
+            max-height: 92vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .ids-viewer-corner {
+            position: absolute;
+            width: 18px;
+            height: 18px;
+        }
+        .ids-viewer-corner.tl {
+            top: -1px;
+            left: -1px;
+            border-top: 2px solid #00ffcc;
+            border-left: 2px solid #00ffcc;
+        }
+        .ids-viewer-corner.tr {
+            top: -1px;
+            right: -1px;
+            border-top: 2px solid #00ffcc;
+            border-right: 2px solid #00ffcc;
+        }
+        .ids-viewer-corner.bl {
+            bottom: -1px;
+            left: -1px;
+            border-bottom: 2px solid #00ffcc;
+            border-left: 2px solid #00ffcc;
+        }
+        .ids-viewer-corner.br {
+            bottom: -1px;
+            right: -1px;
+            border-bottom: 2px solid #00ffcc;
+            border-right: 2px solid #00ffcc;
+        }
+        .ids-viewer-header {
+            background: repeating-linear-gradient(45deg, #111, #111 10px, #0a0a0a 10px, #0a0a0a 20px);
+            border-bottom: 1px solid #1a1a1a;
+            padding: 10px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .ids-viewer-title {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 10px;
+            color: #00ffcc;
+            letter-spacing: 2px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            max-width: 400px;
+        }
+        .ids-viewer-close {
+            background: transparent;
+            border: 1px solid #333;
+            color: #666;
+            cursor: pointer;
+            font-size: 14px;
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.15s;
+        }
+        .ids-viewer-close:hover {
+            border-color: #00ffcc;
+            color: #00ffcc;
+        }
+        .ids-viewer-media {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #000;
+            padding: 12px;
+        }
+        .ids-viewer-media img,
+        .ids-viewer-media video {
+            max-width: 85vw;
+            max-height: 75vh;
+            object-fit: contain;
+            display: block;
+        }
+        .ids-viewer-footer {
+            padding: 8px 16px;
+            border-top: 1px solid #1a1a1a;
+            display: flex;
+            justify-content: space-between;
+            font-size: 9px;
+            font-family: 'IBM Plex Mono', monospace;
+            color: #333;
+        }
+
+        /* Responsive tweaks */
+        @media (max-width: 768px) {
+            .ids-identity-grid {
+                grid-template-columns: 1fr;
+            }
+            .ids-detail-header {
+                flex-direction: column;
+                align-items: center;
+            }
+            .ids-detail-photo {
+                width: 120px;
+                height: 160px;
+            }
+            .ids-detail-name {
+                font-size: 20px;
+                letter-spacing: 2px;
+                text-align: center;
+            }
+            .ids-detail-alias {
+                text-align: center;
+            }
+            .ids-detail-stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .ids-notes-container {
+                grid-template-columns: 1fr;
+            }
+            .ids-note-editor {
+                min-height: 300px;
+            }
+            .ids-notes-list {
+                max-height: 300px;
+            }
+            .ids-profile-grid {
+                grid-template-columns: 1fr;
+            }
+            .ids-class-tab {
+                padding: 8px 14px;
+                font-size: 9px;
+            }
+            .ids-section-full {
+                grid-column: 1;
+            }
+            .ids-field-row {
+                flex-wrap: wrap;
+            }
+            .ids-field-label {
+                width: 100%;
+                min-width: 100%;
+            }
+            .ids-detail-stats {
+                grid-template-columns: 1fr 1fr;
+            }
+            .ids-page {
+                padding: 16px !important;
+            }
+            .ids-tab-btn {
+                padding: 10px 14px;
+                font-size: 8px;
+            }
+            .ids-modal {
+                width: 95%;
+            }
+            .ids-controls-row {
+                flex-wrap: wrap;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .ids-detail-stats {
+                grid-template-columns: 1fr;
+            }
+            .ids-card-header {
+                flex-direction: column;
+                align-items: center;
+            }
+            .ids-card-photo {
+                width: 70px;
+                height: 90px;
+            }
+            .ids-card-meta {
+                align-items: center;
+                text-align: center;
+            }
+            .ids-card-name {
+                font-size: 16px;
+            }
+            .ids-identity-grid {
+                grid-template-columns: 1fr;
+            }
+            .ids-class-tab {
+                padding: 6px 10px;
+                font-size: 8px;
+                letter-spacing: 1px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="root" class="ids-body">
+        <!-- The app will be rendered here -->
+    </div>
+
+    <script>
+        // ================================================================
+        //  DATA LAYER — localStorage replacement for useIdentities
+        // ================================================================
+        const STORAGE_KEY = 'identities_data';
+
+        let identities = [];
+        let nextId = 10000;
+
+        function loadIdentities() {
+            try {
+                const raw = localStorage.getItem(STORAGE_KEY);
+                if (raw) {
+                    const parsed = JSON.parse(raw);
+                    identities = parsed.identities || [];
+                    nextId = parsed.nextId || 10000;
+                } else {
+                    // Seed with demo identities
+                    identities = [
+                        createBlankIdentity('A', {
+                            name: 'JOHN DOE',
+                            alias: 'SHADOW',
+                            priority: 'ECHO',
+                            statusLogic: 'COLD-STATE',
+                            threat: 35,
+                            nationality: 'US',
+                            lastKnown: 'New York, NY'
+                        }),
+                        createBlankIdentity('A', {
+                            name: 'JANE SMITH',
+                            alias: 'PHANTOM',
+                            priority: 'OMEN',
+                            statusLogic: 'RED-CODE',
+                            threat: 72,
+                            nationality: 'UK',
+                            lastKnown: 'London, UK'
+                        }),
+                        createBlankIdentity('B', {
+                            name: 'ALEX CHEN',
+                            alias: 'VIPER',
+                            priority: 'ANCHOR',
+                            statusLogic: 'SIGNAL-LOCK',
+                            threat: 28,
+                            nationality: 'CN',
+                            lastKnown: 'Shanghai, CN'
+                        }),
+                        createBlankIdentity('B', {
+                            name: 'SAM RIVERS',
+                            alias: 'SPECTRE',
+                            priority: 'BLOODLINE',
+                            statusLogic: 'COLD-STATE',
+                            threat: 12,
+                            nationality: 'AU',
+                            lastKnown: 'Sydney, AU'
+                        }),
+                    ];
+                    saveIdentities();
+                }
+            } catch (_) {
+                identities = [];
+                nextId = 10000;
+            }
+        }
+
+        function saveIdentities() {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify({ identities, nextId }));
+        }
+
+        function getIdentities() {
+            return identities.slice();
+        }
+
+        function addIdentity(identity) {
+            const newIdentity = { ...identity, id: 'SRV-' + (nextId++) };
+            identities.push(newIdentity);
+            saveIdentities();
+            return newIdentity;
+        }
+
+        function updateIdentity(id, updates) {
+            const idx = identities.findIndex(i => i.id === id);
+            if (idx === -1) return null;
+            identities[idx] = { ...identities[idx], ...updates };
+            saveIdentities();
+            return identities[idx];
+        }
+
+        function deleteIdentity(id) {
+            const idx = identities.findIndex(i => i.id === id);
+            if (idx === -1) return false;
+            identities.splice(idx, 1);
+            saveIdentities();
+            return true;
+        }
+
+        // ================================================================
+        //  HELPERS
+        // ================================================================
+        function escHtml(str) {
+            if (!str) return '';
+            return String(str).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        }
+
+        function getThreatLabel(t) {
+            if (t >= 70) return 'CRITICAL';
+            if (t >= 50) return 'HIGH';
+            if (t >= 30) return 'MODERATE';
+            return 'LOW';
+        }
+
+        function getSocialIcon(platform) {
+            if (!platform) return '?';
+            const icons = { 'X (Twitter)': 'X', 'Instagram': 'IG', 'Facebook': 'FB', 'LinkedIn': 'LI', 'Telegram': 'TG',
+                'TikTok': 'TT', 'Discord': 'DC', 'WhatsApp': 'WA', 'YouTube': 'YT', 'Reddit': 'RD', 'GitHub': 'GH',
+                'Twitch': 'TW' };
+            return icons[platform] || platform.substring(0, 2).toUpperCase();
+        }
+
+        // ================================================================
+        //  CONSTANTS
+        // ================================================================
+        const priorityOptions = [
+            { value: 'K-STATUS', label: 'K-STATUS // TERMINAL', tier: 'hostile' },
+            { value: 'VECTOR', label: 'VECTOR // HOSTILE', tier: 'hostile' },
+            { value: 'OMEN', label: 'OMEN // HIGH-RISK', tier: 'hostile' },
+            { value: 'VOID', label: 'VOID // NEUTRALIZED', tier: 'hostile' },
+            { value: 'ECHO', label: 'ECHO // P.O.I.', tier: 'hostile' },
+            { value: 'ANCHOR', label: 'ANCHOR // NON-NEGOTIABLE', tier: 'protected' },
+            { value: 'BLOODLINE', label: 'BLOODLINE // CORE', tier: 'protected' },
+            { value: 'SENTINEL', label: 'SENTINEL // GUARDIAN', tier: 'protected' },
+            { value: 'KINDRED', label: 'KINDRED // HIGH-VALUE', tier: 'protected' },
+            { value: 'VAULT', label: 'VAULT // SECURE', tier: 'protected' },
+        ];
+
+        const statusLogicOptions = [
+            { value: 'RED-CODE', label: 'RED-CODE (Danger)', css: 'red-code' },
+            { value: 'COLD-STATE', label: 'COLD-STATE (Safe)', css: 'cold-state' },
+            { value: 'DARK-MODE', label: 'DARK-MODE (Missing)', css: 'dark-mode' },
+            { value: 'SIGNAL-LOCK', label: 'SIGNAL-LOCK (Tracked)', css: 'signal-lock' },
+        ];
+
+        const PLATFORM_GROUPS = [
+            { group: 'GLOBAL SOCIALS', platforms: ['Facebook', 'Instagram', 'X (Twitter)', 'Threads', 'Snapchat', 'Pinterest',
+                    'LinkedIn', 'Tumblr', 'Reddit', 'Mastodon', 'Bluesky', 'WhatsApp', 'Telegram', 'Discord', 'YouTube',
+                    'TikTok'
+                ] },
+            { group: 'DATING & SOCIAL DISCOVERY', platforms: ['Tinder', 'Bumble', 'Hinge', 'OkCupid', 'Badoo', 'Grindr',
+                    'Plenty of Fish', 'Facebook Dating', 'The League', 'TimeLeft', 'AdultFriendFinder',
+                    'Ashley Madison'
+                ] },
+            { group: 'GAMING & VIRTUAL', platforms: ['Steam', 'Epic Games', 'Roblox', 'Minecraft', 'Twitch',
+                    'PlayStation Network', 'Xbox Live', 'Nintendo Online', 'Osu!', 'League of Legends (OP.GG)',
+                    'Fortnite Tracker', 'Counter-Strike (CSGOStats)', 'Call of Duty', 'GTA Online', 'Battle.net'
+                ] },
+            { group: 'FINANCIAL & CRYPTO', platforms: ['PayPal', 'Venmo', 'CashApp', 'OpenSea', 'Rarible',
+                    'Coinbase (Public Profiles)', 'Buy Me a Coffee', 'Ko-fi'
+                ] },
+            { group: 'REGIONAL — CHINA', platforms: ['WeChat', 'Sina Weibo', 'Douyin', 'Bilibili', 'Xiaohongshu',
+                    'Zhihu', 'QQ'
+                ] },
+            { group: 'REGIONAL — RUSSIA/CIS', platforms: ['VK (Vkontakte)', 'OK.ru'] },
+            { group: 'REGIONAL — SOUTH KOREA', platforms: ['Naver', 'KakaoTalk'] },
+            { group: 'REGIONAL — JAPAN/SE ASIA', platforms: ['Line', 'Viber'] },
+            { group: 'DEVELOPER & TECH', platforms: ['GitHub', 'GitLab', 'Stack Overflow', 'Medium', 'DeviantArt',
+                    'Behance', 'Dribbble', 'Replit'
+                ] },
+            { group: 'OTHER', platforms: ['Other'] },
+        ];
+
+        function createBlankIdentity(classification, overrides) {
+            return {
+                id: 'SRV-' + Math.floor(Math.random() * 90000 + 10000),
+                classification: classification || 'A',
+                name: overrides?.name || 'NEW SUBJECT',
+                alias: overrides?.alias || 'UNNAMED',
+                status: 'ACTIVE',
+                statusLogic: overrides?.statusLogic || 'COLD-STATE',
+                priority: overrides?.priority || 'ECHO',
+                threat: overrides?.threat || 0,
+                nationality: overrides?.nationality || '',
+                dob: '',
+                age: '',
+                height: '',
+                weight: '',
+                eyes: '',
+                hair: '',
+                bloodType: '',
+                gender: '',
+                marks: '',
+                birthPlace: '',
+                occupation: '',
+                employer: '',
+                education: '',
+                languages: '',
+                religion: '',
+                maritalStatus: '',
+                children: '',
+                lastKnown: overrides?.lastKnown || '',
+                citizenship: '',
+                passport: '',
+                visa: '',
+                criminalRecord: '',
+                politicalAffiliation: '',
+                financialWorth: '',
+                banking: '',
+                assets: '',
+                photo: '',
+                socials: [],
+                folders: [],
+                notes: [],
+                updates: [],
+            };
+        }
+
+        // ================================================================
+        //  STATE
+        // ================================================================
+        let state = {
+            currentClass: 'A',
+            view: 'home', // 'home' | 'detail'
+            currentId: null,
+            activeTab: 'profile',
+            openDropdown: null,
+            confirm: null,
+            modal: null,
+            showModal: false,
+            // Social modal state
+            socialModal: {
+                open: false,
+                selectedPlatform: null,
+                platformFilter: '',
+                handle: '',
+                url: '',
+                status: 'ACTIVE',
+                customName: '',
+            },
+            // Folder modal
+            folderModal: { open: false, name: '' },
+            // Notes state
+            noteEditor: { currentNoteId: null, title: '', content: '' },
+            // Move file modal
+            movingFile: null,
+            // Image viewer
+            viewingFile: null,
+            // Update form
+            updateForm: { date: new Date().toISOString().split('T')[0], type: 'INTEL', title: '', content: '' },
+            // Confirm dialog
+            confirmDialog: null,
+        };
+
+        let rootEl = document.getElementById('root');
+
+        // ================================================================
+        //  RENDER
+        // ================================================================
+        function render() {
+            const s = state;
+            const filtered = identities.filter(i => i.classification === s.currentClass);
+            const currentIdentity = identities.find(i => i.id === s.currentId);
+
+            function priorityInfo(p) {
+                return priorityOptions.find(o => o.value === p) || { label: 'UNDEFINED', tier: 'neutral' };
+            }
+
+            function statusInfo(sl) {
+                return statusLogicOptions.find(o => o.value === sl) || { label: 'UNKNOWN', css: '' };
+            }
+
+            // --- Build home view ---
+            let homeHtml = '';
+            if (s.view === 'home') {
+                let cardsHtml = '';
+                filtered.forEach(identity => {
+                    const pi = priorityInfo(identity.priority);
+                    const isOpen = s.openDropdown === identity.id;
+                    cardsHtml += `
+                        <div class="ids-card" data-id="${identity.id}">
+                            <div class="ids-card-menu" data-stop-propagation>
+                                <button class="ids-menu-btn" data-dropdown-toggle="${identity.id}">...</button>
+                                <div class="ids-dropdown ${isOpen ? 'open' : ''}" data-dropdown="${identity.id}">
+                                    <button class="ids-dropdown-item" data-delete="${identity.id}">Delete</button>
+                                </div>
+                            </div>
+                            <div class="ids-card-header">
+                                <div class="ids-card-photo">
+                                    ${identity.photo ? `<img src="${escHtml(identity.photo)}" alt="${escHtml(identity.name)}" />` : '<span style="font-size:24px;color:#333;">?</span>'}
+                                </div>
+                                <div class="ids-card-meta">
+                                    <div class="ids-card-id">${escHtml(identity.id)}</div>
+                                    <div class="ids-card-name">${escHtml(identity.name)}</div>
+                                    <div class="ids-card-alias">"${escHtml(identity.alias)}"</div>
+                                    <div class="ids-priority-badge ${pi.tier}">${pi.value}</div>
+                                </div>
+                            </div>
+                            <div class="ids-card-intel">
+                                <div><span class="ids-intel-label">Threat</span><span class="ids-intel-value">${getThreatLabel(identity.threat)}</span></div>
+                                <div><span class="ids-intel-label">Age</span><span class="ids-intel-value">${identity.age ? identity.age + ' yrs' : '—'}</span></div>
+                                <div><span class="ids-intel-label">Nationality</span><span class="ids-intel-value">${identity.nationality?.split('/')[0]?.trim() || '—'}</span></div>
+                                <div><span class="ids-intel-label">Location</span><span class="ids-intel-value">${identity.lastKnown?.split(',')[0] || '—'}</span></div>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                homeHtml = `
+                    <div class="ids-page" style="padding:28px 36px 48px;">
+                        <div class="ids-class-tabs">
+                            ${['A', 'B'].map(cls => `
+                                <button class="ids-class-tab ${s.currentClass === cls ? 'active' : ''}" data-class="${cls}">Class ${cls}</button>
+                            `).join('')}
+                        </div>
+                        <div style="display:flex;justify-content:flex-end;margin-bottom:18px;">
+                            <button class="ids-add-btn" id="addIdentityBtn">+ Add Identity</button>
+                        </div>
+                        ${filtered.length === 0 ? `
+                            <div class="ids-empty-state">
+                                <div style="font-size:36px;margin-bottom:12px;opacity:0.25;"></div>
+                                <div class="ids-empty-text">No identities in Class ${s.currentClass}</div>
+                            </div>
+                        ` : `
+                            <div class="ids-identity-grid">${cardsHtml}</div>
+                        `}
+                    </div>
+                `;
+            }
+
+            // --- Build detail view ---
+            let detailHtml = '';
+            if (s.view === 'detail' && currentIdentity) {
+                const pi = priorityInfo(currentIdentity.priority);
+                const si = statusInfo(currentIdentity.statusLogic);
+                const threatColor = currentIdentity.threat >= 70 ? '#FF3D00' : currentIdentity.threat >= 50 ? '#FFD60A' :
+                '#34C759';
+
+                // --- Profile tab ---
+                let profileHtml = `
+                    <div class="ids-profile-grid">
+                        <div class="ids-section ids-section-full">
+                            <div class="ids-section-title">Classification & Threat</div>
+                            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:8px 24px;">
+                                <div class="ids-field-row">
+                                    <span class="ids-field-label">Class</span>
+                                    <select class="ids-field-select" data-field="classification">
+                                        <option value="A" ${currentIdentity.classification === 'A' ? 'selected' : ''}>Class A</option>
+                                        <option value="B" ${currentIdentity.classification === 'B' ? 'selected' : ''}>Class B</option>
+                                    </select>
+                                </div>
+                                <div class="ids-field-row">
+                                    <span class="ids-field-label">Priority</span>
+                                    <select class="ids-field-select" data-field="priority">
+                                        ${priorityOptions.map(o => `<option value="${o.value}" ${currentIdentity.priority === o.value ? 'selected' : ''}>${o.label}</option>`).join('')}
+                                    </select>
+                                </div>
+                                <div class="ids-field-row">
+                                    <span class="ids-field-label">Status Logic</span>
+                                    <select class="ids-field-select" data-field="statusLogic">
+                                        ${statusLogicOptions.map(o => `<option value="${o.value}" ${currentIdentity.statusLogic === o.value ? 'selected' : ''}>${o.label}</option>`).join('')}
+                                    </select>
+                                </div>
+                                <div class="ids-field-row">
+                                    <span class="ids-field-label">Admin Status</span>
+                                    <input class="ids-field-input" data-field="status" value="${escHtml(currentIdentity.status)}" />
+                                </div>
+                                <div class="ids-field-row">
+                                    <span class="ids-field-label">Threat %</span>
+                                    <div style="flex:1;display:flex;align-items:center;gap:8px;min-width:0;">
+                                        <div class="ids-threat-track">
+                                            <div class="ids-threat-fill" style="width:${currentIdentity.threat}%;background:${threatColor};"></div>
+                                        </div>
+                                        <input type="number" min="0" max="100" class="ids-threat-num" data-field="threat" value="${currentIdentity.threat}" />
+                                        <span style="color:${threatColor};font-weight:600;font-size:11px;flex-shrink:0;">%</span>
+                                    </div>
+                                </div>
+                                <div class="ids-field-row">
+                                    <span class="ids-field-label">Criminal Record</span>
+                                    <input class="ids-field-input" data-field="criminalRecord" value="${escHtml(currentIdentity.criminalRecord)}" />
+                                </div>
+                                <div class="ids-field-row">
+                                    <span class="ids-field-label">Political Affiliation</span>
+                                    <input class="ids-field-input" data-field="politicalAffiliation" value="${escHtml(currentIdentity.politicalAffiliation)}" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="ids-section">
+                            <div class="ids-section-title">Biographic Data</div>
+                            ${['name','alias','dob','age','gender','birthPlace','religion','maritalStatus','children'].map(f => `
+                                <div class="ids-field-row">
+                                    <span class="ids-field-label">${f.replace(/([A-Z])/g,' $1').toUpperCase().trim()}</span>
+                                    <input class="ids-field-input" data-field="${f}" value="${escHtml(currentIdentity[f] || '')}" />
+                                </div>
+                            `).join('')}
+                        </div>
+                        <div class="ids-section">
+                            <div class="ids-section-title">Physical</div>
+                            ${['height','weight','eyes','hair','bloodType','marks'].map(f => `
+                                <div class="ids-field-row">
+                                    <span class="ids-field-label">${f.replace(/([A-Z])/g,' $1').toUpperCase().trim()}</span>
+                                    <input class="ids-field-input" data-field="${f}" value="${escHtml(currentIdentity[f] || '')}" />
+                                </div>
+                            `).join('')}
+                        </div>
+                        <div class="ids-section">
+                            <div class="ids-section-title">Citizenship & Travel</div>
+                            ${['nationality','citizenship','passport','visa','lastKnown'].map(f => `
+                                <div class="ids-field-row">
+                                    <span class="ids-field-label">${f.replace(/([A-Z])/g,' $1').toUpperCase().trim()}</span>
+                                    <input class="ids-field-input" data-field="${f}" value="${escHtml(currentIdentity[f] || '')}" />
+                                </div>
+                            `).join('')}
+                        </div>
+                        <div class="ids-section">
+                            <div class="ids-section-title">Professional</div>
+                            ${['occupation','employer','education','languages'].map(f => `
+                                <div class="ids-field-row">
+                                    <span class="ids-field-label">${f.replace(/([A-Z])/g,' $1').toUpperCase().trim()}</span>
+                                    <input class="ids-field-input" data-field="${f}" value="${escHtml(currentIdentity[f] || '')}" />
+                                </div>
+                            `).join('')}
+                        </div>
+                        <div class="ids-section">
+                            <div class="ids-section-title">Financial</div>
+                            ${['financialWorth','banking','assets'].map(f => `
+                                <div class="ids-field-row">
+                                    <span class="ids-field-label">${f.replace(/([A-Z])/g,' $1').toUpperCase().trim()}</span>
+                                    <input class="ids-field-input" data-field="${f}" value="${escHtml(currentIdentity[f] || '')}" />
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+
+                // --- Imagery tab ---
+                let foldersHtml = '';
+                if (currentIdentity.folders.length > 0) {
+                    foldersHtml += `
+                        <div style="margin-bottom:28px;">
+                            <div style="font-size:9px;color:#333;letter-spacing:2px;margin-bottom:12px;text-transform:uppercase;font-family:'IBM Plex Mono',monospace;">FOLDERS</div>
+                            <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;">
+                                ${currentIdentity.folders.map((folder, idx) => `
+                                    <div class="ids-folder-card" data-folder-open="${idx}">
+                                        <svg style="width:48px;height:38px;margin:0 auto 10px;color:#555;display:block;" viewBox="0 0 64 50" fill="none" stroke="currentColor" stroke-width="1.5">
+                                            <path d="M2 10 C2 7,4 5,7 5 L22 5 L26 10 L57 10 C60 10,62 12,62 15 L62 43 C62 46,60 48,57 48 L7 48 C4 48,2 46,2 43 L2 10Z" />
+                                        </svg>
+                                        <div style="font-size:11px;color:#c0c0c0;margin-bottom:3px;font-weight:500;font-family:'IBM Plex Mono',monospace;">${escHtml(folder.name)}</div>
+                                        <div style="font-size:9px;color:#333;font-family:'IBM Plex Mono',monospace;">${folder.files.length} FILES</div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    `;
+                }
+
+                let allFiles = currentIdentity.folders.flatMap((f, fi) => f.files.map(file => ({ ...file, folderIdx: fi,
+                    folderName: f.name })));
+
+                let allMediaHtml = '';
+                if (allFiles.length > 0) {
+                    allMediaHtml = `
+                        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px;">
+                            ${allFiles.map(file => `
+                                <div class="ids-media-card" data-file-view='${JSON.stringify({id:file.id,name:file.name,type:file.type,data:file.data,folderIdx:file.folderIdx})}'>
+                                    <div style="width:100%;height:100%;position:absolute;inset:0;">
+                                        ${file.type?.startsWith('video') ? `<video src="${escHtml(file.data)}" muted />` : `<img src="${escHtml(file.data)}" alt="${escHtml(file.name)}" />`}
+                                    </div>
+                                    <div class="ids-media-overlay">
+                                        <span class="ids-media-name">${escHtml(file.name)}</span>
+                                        <button class="ids-media-action" data-move-file='${JSON.stringify({id:file.id,name:file.name,type:file.type,data:file.data,folderIdx:file.folderIdx})}'>MOVE</button>
+                                        <button class="ids-media-action del" data-delete-file='${JSON.stringify({id:file.id,folderIdx:file.folderIdx})}'>DEL</button>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    `;
+                } else {
+                    allMediaHtml = `
+                        <div class="ids-empty-state">
+                            <div style="font-size:28px;margin-bottom:10px;opacity:0.3;">📷</div>
+                            <div class="ids-empty-text">No media — click Upload to add</div>
+                        </div>
+                    `;
+                }
+
+                let folderContentHtml = '';
+                if (state.openFolderIdx !== null && state.openFolderIdx !== undefined) {
+                    const folder = currentIdentity.folders[state.openFolderIdx];
+                    if (folder) {
+                        folderContentHtml = `
+                            <div class="ids-breadcrumb">
+                                <span class="ids-breadcrumb-link" data-folder-back>ALL ASSETS</span>
+                                <span>/</span>
+                                <span style="color:#c0c0c0;">${escHtml(folder.name)}</span>
+                            </div>
+                            <div style="font-size:9px;color:#333;letter-spacing:2px;margin-bottom:12px;text-transform:uppercase;font-family:'IBM Plex Mono',monospace;">${folder.files.length} FILES</div>
+                            ${folder.files.length > 0 ? `
+                                <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px;">
+                                    ${folder.files.map(file => `
+                                        <div class="ids-media-card" data-file-view='${JSON.stringify({id:file.id,name:file.name,type:file.type,data:file.data,folderIdx:state.openFolderIdx})}'>
+                                            <div style="width:100%;height:100%;position:absolute;inset:0;">
+                                                ${file.type?.startsWith('video') ? `<video src="${escHtml(file.data)}" muted />` : `<img src="${escHtml(file.data)}" alt="${escHtml(file.name)}" />`}
+                                            </div>
+                                            <div class="ids-media-overlay">
+                                                <span class="ids-media-name">${escHtml(file.name)}</span>
+                                                <button class="ids-media-action" data-move-file='${JSON.stringify({id:file.id,name:file.name,type:file.type,data:file.data,folderIdx:state.openFolderIdx})}'>MOVE</button>
+                                                <button class="ids-media-action del" data-delete-file='${JSON.stringify({id:file.id,folderIdx:state.openFolderIdx})}'>DEL</button>
+                                            </div>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            ` : `
+                                <div class="ids-empty-state">
+                                    <div class="ids-empty-text">Folder is empty</div>
+                                </div>
+                            `}
+                        `;
+                    }
+                }
+
+                let imageryHtml = `
+                    <div>
+                        <div style="display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap;">
+                            <button class="ids-toolbar-btn" id="uploadBtn">+ Upload</button>
+                            <button class="ids-toolbar-btn" id="newFolderBtn">+ New Folder</button>
+                            ${state.openFolderIdx !== null && state.openFolderIdx !== undefined ? `
+                                <button class="ids-toolbar-btn" data-folder-back>← Back</button>
+                            ` : ''}
+                            <input type="file" id="fileInput" multiple accept="image/*,video/*" style="display:none;" />
+                        </div>
+                        ${state.openFolderIdx !== null && state.openFolderIdx !== undefined ? folderContentHtml : `
+                            ${foldersHtml}
+                            <div>
+                                <div style="font-size:9px;color:#333;letter-spacing:2px;margin-bottom:12px;text-transform:uppercase;font-family:'IBM Plex Mono',monospace;">ALL MEDIA (${allFiles.length})</div>
+                                ${allMediaHtml}
+                            </div>
+                        `}
+                    </div>
+                `;
+
+                // --- Socials tab ---
+                let socialsHtml = `
+                    <div>
+                        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:8px;margin-bottom:20px;">
+                            ${currentIdentity.socials.map(s => `
+                                <div class="ids-social-card">
+                                    <div class="ids-social-icon">${getSocialIcon(s.platform)}</div>
+                                    <div style="flex:1;min-width:0;">
+                                        <div class="ids-social-platform">${escHtml(s.platform)}</div>
+                                        <div class="ids-social-handle">${escHtml(s.handle)}</div>
+                                    </div>
+                                    <div class="ids-social-status ${s.status === 'ACTIVE' ? 'active-s' : s.status === 'SUSPENDED' ? 'suspended' : ''}">${s.status}</div>
+                                    <button data-remove-social="${s.id}" style="background:transparent;border:none;color:#333;cursor:pointer;font-size:16px;padding:0 4px;transition:color 0.15s;flex-shrink:0;">×</button>
+                                </div>
+                            `).join('')}
+                            <div class="ids-add-social-btn" id="addSocialBtn">+ Add Social Profile</div>
+                        </div>
+                    </div>
+                `;
+
+                // --- Notes tab ---
+                const currentNote = currentIdentity.notes.find(n => n.id === state.noteEditor.currentNoteId);
+                const noteTitle = state.noteEditor.currentNoteId !== null ? (currentNote ? currentNote.title : '') : state
+                    .noteEditor.title;
+                const noteContent = state.noteEditor.currentNoteId !== null ? (currentNote ? currentNote.content : '') : state
+                    .noteEditor.content;
+
+                let notesHtml = `
+                    <div class="ids-notes-container">
+                        <div class="ids-note-editor">
+                            <div class="ids-editor-header">
+                                <button class="ids-editor-btn" id="noteNewBtn">+ New</button>
+                                <button class="ids-editor-btn" id="noteSaveBtn">Save</button>
+                                <button class="ids-editor-btn danger" id="noteDeleteBtn">Delete</button>
+                                <div style="width:1px;background:#1a1a1a;margin:2px 2px;"></div>
+                                <button class="ids-editor-btn" data-format="bold" title="Bold"><b style="font-family:serif;">B</b></button>
+                                <button class="ids-editor-btn" data-format="italic" title="Italic"><i style="font-family:serif;">I</i></button>
+                                <button class="ids-editor-btn" data-format="underline" title="Underline"><u>U</u></button>
+                                <button class="ids-editor-btn" data-format="strikeThrough" title="Strikethrough"><s>S</s></button>
+                                <div style="width:1px;background:#1a1a1a;margin:2px 2px;"></div>
+                                <button class="ids-editor-btn" data-format="insertUnorderedList" title="Bullet list">• List</button>
+                                <button class="ids-editor-btn" data-format="insertOrderedList" title="Numbered list">1. List</button>
+                                <div style="width:1px;background:#1a1a1a;margin:2px 2px;"></div>
+                                <button class="ids-editor-btn" id="noteImgBtn">📎 IMG</button>
+                                <input type="file" id="noteImgInput" accept="image/*" style="display:none;" />
+                            </div>
+                            <input class="ids-note-title-input" id="noteTitleInput" placeholder="Note title..." value="${escHtml(noteTitle)}" />
+                            <div id="noteContentEditor" class="ids-note-content" contenteditable="true" data-placeholder="Start typing your note...">${noteContent}</div>
+                        </div>
+                        <div class="ids-notes-list">
+                            <div class="ids-notes-list-header">SAVED NOTES (${currentIdentity.notes.length})</div>
+                            ${currentIdentity.notes.length > 0 ? currentIdentity.notes.map(note => `
+                                <div class="ids-note-item ${note.id === state.noteEditor.currentNoteId ? 'active-note' : ''}" data-note-select="${note.id}">
+                                    <div class="ids-note-item-title">${escHtml(note.title)}</div>
+                                    <div class="ids-note-item-date">${note.date}</div>
+                                </div>
+                            `).join('') : `
+                                <div class="ids-empty-state"><div class="ids-empty-text">No notes yet</div></div>
+                            `}
+                        </div>
+                    </div>
+                `;
+
+                // --- Updates tab ---
+                let updatesHtml = `
+                    <div style="max-width:880px;">
+                        <div style="background:#0a0a0a;border:1px solid #1a1a1a;padding:20px;margin-bottom:24px;">
+                            <div style="font-size:9px;color:#333;letter-spacing:2px;margin-bottom:14px;text-transform:uppercase;font-family:'IBM Plex Mono',monospace;">LOG NEW UPDATE</div>
+                            <div style="display:flex;gap:14px;margin-bottom:12px;">
+                                <div style="flex:1;">
+                                    <label style="display:block;font-size:9px;color:#333;margin-bottom:6px;letter-spacing:2px;text-transform:uppercase;font-family:'IBM Plex Mono',monospace;">Date</label>
+                                    <input type="date" class="ids-form-input" id="updateDate" value="${state.updateForm.date}" />
+                                </div>
+                                <div style="flex:1;">
+                                    <label style="display:block;font-size:9px;color:#333;margin-bottom:6px;letter-spacing:2px;text-transform:uppercase;font-family:'IBM Plex Mono',monospace;">Type</label>
+                                    <select class="ids-form-select" id="updateType">
+                                        ${['INTEL','CRITICAL','ROUTINE','SURVEILLANCE'].map(t => `<option value="${t}" ${state.updateForm.type === t ? 'selected' : ''}>${t}</option>`).join('')}
+                                    </select>
+                                </div>
+                            </div>
+                            <div style="margin-bottom:12px;">
+                                <label style="display:block;font-size:9px;color:#333;margin-bottom:6px;letter-spacing:2px;text-transform:uppercase;font-family:'IBM Plex Mono',monospace;">Title</label>
+                                <input class="ids-form-input" id="updateTitle" placeholder="Update title..." value="${escHtml(state.updateForm.title)}" />
+                            </div>
+                            <div style="margin-bottom:16px;">
+                                <label style="display:block;font-size:9px;color:#333;margin-bottom:6px;letter-spacing:2px;text-transform:uppercase;font-family:'IBM Plex Mono',monospace;">Content</label>
+                                <textarea class="ids-form-textarea" id="updateContent" placeholder="Describe the update...">${escHtml(state.updateForm.content)}</textarea>
+                            </div>
+                            <button class="ids-submit-btn" id="logUpdateBtn">LOG UPDATE</button>
+                        </div>
+                        <div style="font-size:9px;color:#333;letter-spacing:2px;margin-bottom:14px;text-transform:uppercase;font-family:'IBM Plex Mono',monospace;">UPDATE HISTORY</div>
+                        ${currentIdentity.updates.length > 0 ? currentIdentity.updates.map(u => `
+                            <div class="ids-update-entry">
+                                <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;">
+                                    <div>
+                                        <div class="ids-update-date">${u.date}</div>
+                                        <div class="ids-update-type ${u.type.toLowerCase()}">${u.type}</div>
+                                    </div>
+                                    <button data-delete-update="${u.id}" style="background:transparent;border:none;color:#333;cursor:pointer;font-size:16px;padding:4px;transition:color 0.15s;">×</button>
+                                </div>
+                                <div class="ids-update-title">${escHtml(u.title)}</div>
+                                <div class="ids-update-content">${escHtml(u.content)}</div>
+                            </div>
+                        `).join('') : `
+                            <div class="ids-empty-state">
+                                <div style="font-size:24px;margin-bottom:10px;opacity:0.3;">📋</div>
+                                <div class="ids-empty-text">No updates logged</div>
+                            </div>
+                        `}
+                    </div>
+                `;
+
+                // --- Tabs ---
+                const TAB_NAMES = ['profile', 'imagery', 'socials', 'notes', 'updates'];
+                const TAB_HTML = { profile: profileHtml, imagery: imageryHtml, socials: socialsHtml, notes: notesHtml,
+                    updates: updatesHtml };
+
+                let tabsNavHtml = TAB_NAMES.map(tab => `
+                    <button class="ids-tab-btn ${s.activeTab === tab ? 'active' : ''}" data-tab="${tab}">${tab.charAt(0).toUpperCase() + tab.slice(1)}</button>
+                `).join('');
+
+                let tabsContentHtml = TAB_NAMES.map(tab => `
+                    <div class="ids-tab-content ${s.activeTab === tab ? 'active' : ''}" data-tab-content="${tab}">
+                        ${TAB_HTML[tab] || ''}
+                    </div>
+                `).join('');
+
+                // --- Detail view assembly ---
+                detailHtml = `
+                    <div class="ids-page" style="padding:28px 36px;">
+                        <div style="max-width:1400px;margin:0 auto;">
+                            <div style="display:flex;align-items:center;gap:14px;margin-bottom:20px;">
+                                <button class="ids-back-btn" id="backToHomeBtn">← Database</button>
+                                <div style="margin-left:auto;display:flex;gap:8px;">
+                                    <button class="ids-action-btn" id="saveIdentityBtn">Save</button>
+                                    <button class="ids-action-btn danger" id="deleteIdentityBtn">Delete</button>
+                                </div>
+                            </div>
+
+                            <div class="ids-detail-header">
+                                <div style="position:relative;">
+                                    <div class="ids-detail-photo" id="detailPhotoClick">
+                                        ${currentIdentity.photo ? `<img src="${escHtml(currentIdentity.photo)}" alt="${escHtml(currentIdentity.name)}" />` : ''}
+                                        <div class="ids-photo-overlay">
+                                            <button style="background:transparent;border:1px solid #555;color:#888;padding:4px 10px;font-size:9px;cursor:pointer;font-family:'IBM Plex Mono',monospace;letter-spacing:1px;">CHANGE PHOTO</button>
+                                        </div>
+                                    </div>
+                                    <input type="file" id="detailPhotoInput" accept="image/*" style="display:none;" />
+                                </div>
+                                <div style="flex:1;display:flex;flex-direction:column;justify-content:center;min-width:0;">
+                                    <h1 class="ids-detail-name">${escHtml(currentIdentity.name)}</h1>
+                                    <div class="ids-detail-alias">"${escHtml(currentIdentity.alias)}"</div>
+                                    <div class="ids-detail-stats">
+                                        <div><span class="ids-stat-label">Priority</span><span class="ids-stat-value"><span class="ids-priority-badge ${pi.tier}">${pi.value}</span></span></div>
+                                        <div><span class="ids-stat-label">Status</span><span class="ids-stat-value"><span class="ids-status-badge ${si.css}">${currentIdentity.statusLogic}</span></span></div>
+                                        <div><span class="ids-stat-label">Threat</span><span class="ids-stat-value" style="color:${threatColor}">${currentIdentity.threat}%</span></div>
+                                        <div><span class="ids-stat-label">Class</span><span class="ids-stat-value">${currentIdentity.classification}</span></div>
+                                        <div><span class="ids-stat-label">Location</span><span class="ids-stat-value">${currentIdentity.lastKnown || '—'}</span></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div style="background:#050505;border:1px solid #1a1a1a;">
+                                <div class="ids-tabs-nav">${tabsNavHtml}</div>
+                                ${tabsContentHtml}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // --- Build confirm dialog ---
+            let confirmHtml = '';
+            if (s.confirmDialog) {
+                confirmHtml = `
+                    <div class="ids-modal-overlay open" id="confirmOverlay">
+                        <div class="ids-modal" style="max-width:380px;">
+                            <div class="ids-modal-header">
+                                <span class="ids-modal-title">⚠ CONFIRM</span>
+                                <button class="ids-modal-close" id="confirmCancelBtn">×</button>
+                            </div>
+                            <div class="ids-modal-body">
+                                <p style="font-size:12px;color:#888;line-height:1.7;font-family:'IBM Plex Mono',monospace;">${escHtml(s.confirmDialog.message)}</p>
+                            </div>
+                            <div class="ids-modal-actions">
+                                <button class="ids-modal-btn secondary" id="confirmCancelBtn2">CANCEL</button>
+                                <button class="ids-modal-btn danger-btn" id="confirmOkBtn">CONFIRM</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // --- Build social modal ---
+            let socialModalHtml = '';
+            if (state.socialModal.open) {
+                const filteredGroups = PLATFORM_GROUPS.map(g => ({
+                    ...g,
+                    platforms: g.platforms.filter(p => p.toLowerCase().includes(state.socialModal.platformFilter
+                    .toLowerCase())),
+                })).filter(g => g.platforms.length > 0);
+
+                socialModalHtml = `
+                    <div class="ids-modal-overlay open" id="socialModalOverlay">
+                        <div class="ids-modal">
+                            <div class="ids-modal-header">
+                                <span class="ids-modal-title">ADD SOCIAL PROFILE</span>
+                                <button class="ids-modal-close" id="socialModalClose">×</button>
+                            </div>
+                            <div class="ids-modal-body">
+                                <div style="margin-bottom:14px;">
+                                    <label class="ids-modal-label">Search Platform</label>
+                                    <input class="ids-modal-input" id="socialPlatformFilter" style="margin-bottom:8px;" placeholder="Filter platforms..." value="${escHtml(state.socialModal.platformFilter)}" autofocus />
+                                    <div class="ids-platform-list">
+                                        ${filteredGroups.map(g => `
+                                            <div class="ids-platform-group-header">${g.group}</div>
+                                            ${g.platforms.map(p => `
+                                                <div class="ids-platform-item ${state.socialModal.selectedPlatform === p ? 'selected' : ''}" data-social-platform="${p}">${p}</div>
+                                            `).join('')}
+                                        `).join('')}
+                                    </div>
+                                </div>
+                                ${state.socialModal.selectedPlatform === 'Other' ? `
+                                    <div style="margin-bottom:14px;">
+                                        <label class="ids-modal-label">Platform Name</label>
+                                        <input class="ids-modal-input" id="socialCustomName" placeholder="Enter platform name" value="${escHtml(state.socialModal.customName)}" />
+                                    </div>
+                                ` : ''}
+                                <div style="margin-bottom:14px;">
+                                    <label class="ids-modal-label">Username / Handle</label>
+                                    <input class="ids-modal-input" id="socialHandle" placeholder="@username" value="${escHtml(state.socialModal.handle)}" />
+                                </div>
+                                <div style="margin-bottom:14px;">
+                                    <label class="ids-modal-label">Profile URL</label>
+                                    <input class="ids-modal-input" id="socialUrl" placeholder="https://..." value="${escHtml(state.socialModal.url)}" />
+                                </div>
+                                <div style="margin-bottom:6px;">
+                                    <label class="ids-modal-label">Status</label>
+                                    <select class="ids-modal-input" id="socialStatus">
+                                        ${['ACTIVE','SUSPENDED','DELETED','MONITORED'].map(s => `<option value="${s}" ${state.socialModal.status === s ? 'selected' : ''}>${s}</option>`).join('')}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="ids-modal-actions">
+                                <button class="ids-modal-btn secondary" id="socialModalCancel">CANCEL</button>
+                                <button class="ids-modal-btn primary" id="socialModalAdd">ADD PROFILE</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // --- Build folder modal ---
+            let folderModalHtml = '';
+            if (state.folderModal.open) {
+                folderModalHtml = `
+                    <div class="ids-modal-overlay open" id="folderModalOverlay">
+                        <div class="ids-modal" style="max-width:360px;">
+                            <div class="ids-modal-header">
+                                <span class="ids-modal-title">NEW FOLDER</span>
+                                <button class="ids-modal-close" id="folderModalClose">×</button>
+                            </div>
+                            <div class="ids-modal-body">
+                                <label class="ids-modal-label">Folder Name</label>
+                                <input class="ids-modal-input" id="folderNameInput" placeholder="Enter name..." value="${escHtml(state.folderModal.name)}" autofocus />
+                            </div>
+                            <div class="ids-modal-actions">
+                                <button class="ids-modal-btn secondary" id="folderModalCancel">CANCEL</button>
+                                <button class="ids-modal-btn primary" id="folderModalCreate">CREATE</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // --- Build move file modal ---
+            let moveFileHtml = '';
+            if (state.movingFile && currentIdentity) {
+                moveFileHtml = `
+                    <div class="ids-modal-overlay open" id="moveFileOverlay">
+                        <div class="ids-modal" style="max-width:360px;">
+                            <div class="ids-modal-header">
+                                <span class="ids-modal-title">MOVE FILE</span>
+                                <button class="ids-modal-close" id="moveFileClose">×</button>
+                            </div>
+                            <div class="ids-modal-body">
+                                <p style="font-size:11px;color:#555;margin-bottom:14px;font-family:'IBM Plex Mono',monospace;line-height:1.6;">
+                                    Moving: <span style="color:#c0c0c0;">${escHtml(state.movingFile.name)}</span>
+                                </p>
+                                <label class="ids-modal-label">Select destination folder</label>
+                                <div class="ids-platform-list">
+                                    ${currentIdentity.folders.map((f, idx) => idx !== state.movingFile.folderIdx ? `
+                                        <div class="ids-platform-item" data-move-target="${idx}">${escHtml(f.name)}</div>
+                                    ` : '').join('')}
+                                    ${currentIdentity.folders.filter((_, i) => i !== state.movingFile.folderIdx).length === 0 ? `
+                                        <div style="padding:14px;font-size:11px;color:#444;font-family:'IBM Plex Mono',monospace;">No other folders exist</div>
+                                    ` : ''}
+                                </div>
+                            </div>
+                            <div class="ids-modal-actions">
+                                <button class="ids-modal-btn secondary" id="moveFileCancel">CANCEL</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // --- Build image viewer ---
+            let viewerHtml = '';
+            if (state.viewingFile) {
+                const file = state.viewingFile;
+                viewerHtml = `
+                    <div class="ids-viewer-overlay" id="viewerOverlay">
+                        <div class="ids-viewer-box">
+                            <div class="ids-viewer-corner tl"></div>
+                            <div class="ids-viewer-corner tr"></div>
+                            <div class="ids-viewer-corner bl"></div>
+                            <div class="ids-viewer-corner br"></div>
+                            <div class="ids-viewer-header">
+                                <span class="ids-viewer-title">${escHtml(file.name)}</span>
+                                <button class="ids-viewer-close" id="viewerClose">×</button>
+                            </div>
+                            <div class="ids-viewer-media">
+                                ${file.type?.startsWith('video') ? `<video src="${escHtml(file.data)}" controls autoplay style="max-width:85vw;max-height:75vh;"></video>` : `<img src="${escHtml(file.data)}" alt="${escHtml(file.name)}" />`}
+                            </div>
+                            <div class="ids-viewer-footer">
+                                <span>FILE: ${escHtml(file.name)}</span>
+                                <span>TYPE: ${file.type || 'IMAGE'}</span>
+                                <span>STATUS: SECURE</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // --- Assemble final HTML ---
+            rootEl.innerHTML = `
+                ${homeHtml}
+                ${detailHtml}
+                ${confirmHtml}
+                ${socialModalHtml}
+                ${folderModalHtml}
+                ${moveFileHtml}
+                ${viewerHtml}
+            `;
+
+            // ================================================================
+            //  BIND EVENTS
+            // ================================================================
+
+            // --- Home view events ---
+            document.querySelectorAll('.ids-class-tab[data-class]').forEach(el => {
+                el.addEventListener('click', () => {
+                    state.currentClass = el.dataset.class;
+                    render();
+                });
+            });
+
+            const addBtn = document.getElementById('addIdentityBtn');
+            if (addBtn) {
+                addBtn.addEventListener('click', () => {
+                    const newIdentity = createBlankIdentity(state.currentClass);
+                    addIdentity(newIdentity);
+                    state.currentId = newIdentity.id;
+                    state.view = 'detail';
+                    state.activeTab = 'profile';
+                    render();
+                });
+            }
+
+            document.querySelectorAll('.ids-card[data-id]').forEach(el => {
+                el.addEventListener('click', (e) => {
+                    if (e.target.closest('.ids-card-menu')) return;
+                    state.currentId = el.dataset.id;
+                    state.view = 'detail';
+                    state.activeTab = 'profile';
+                    render();
+                });
+            });
+
+            // Dropdown toggle
+            document.querySelectorAll('[data-dropdown-toggle]').forEach(el => {
+                el.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const id = el.dataset.dropdownToggle;
+                    state.openDropdown = state.openDropdown === id ? null : id;
+                    render();
+                });
+            });
+
+            document.querySelectorAll('[data-delete]').forEach(el => {
+                el.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const id = el.dataset.delete;
+                    state.confirmDialog = {
+                        message: `Delete identity? This cannot be undone.`,
+                        onConfirm: () => {
+                            deleteIdentity(id);
+                            if (state.currentId === id) { state.view = 'home';
+                                state.currentId = null; }
+                            state.confirmDialog = null;
+                            render();
+                        },
+                    };
+                    render();
+                });
+            });
+
+            // --- Detail view events ---
+            const backBtn = document.getElementById('backToHomeBtn');
+            if (backBtn) {
+                backBtn.addEventListener('click', () => {
+                    state.view = 'home';
+                    state.currentId = null;
+                    state.openDropdown = null;
+                    render();
+                });
+            }
+
+            const saveBtn = document.getElementById('saveIdentityBtn');
+            if (saveBtn) {
+                saveBtn.addEventListener('click', () => {
+                    alert('Identity saved.');
+                });
+            }
+
+            const deleteBtn = document.getElementById('deleteIdentityBtn');
+            if (deleteBtn) {
+                deleteBtn.addEventListener('click', () => {
+                    if (!currentIdentity) return;
+                    state.confirmDialog = {
+                        message: `Delete identity? This cannot be undone.`,
+                        onConfirm: () => {
+                            deleteIdentity(currentIdentity.id);
+                            state.view = 'home';
+                            state.currentId = null;
+                            state.confirmDialog = null;
+                            render();
+                        },
+                    };
+                    render();
+                });
+            }
+
+            // Profile fields
+            document.querySelectorAll('[data-field]').forEach(el => {
+                el.addEventListener('change', () => {
+                    if (!currentIdentity) return;
+                    const field = el.dataset.field;
+                    let value = el.value;
+                    if (field === 'threat') {
+                        value = Math.min(100, Math.max(0, parseInt(value) || 0));
+                    }
+                    updateIdentity(currentIdentity.id, { [field]: value });
+                    render();
+                });
+                el.addEventListener('input', () => {
+                    if (!currentIdentity) return;
+                    const field = el.dataset.field;
+                    let value = el.value;
+                    if (field === 'threat') {
+                        value = Math.min(100, Math.max(0, parseInt(value) || 0));
+                    }
+                    updateIdentity(currentIdentity.id, { [field]: value });
+                });
+            });
+
+            // Photo upload
+            const photoClick = document.getElementById('detailPhotoClick');
+            const photoInput = document.getElementById('detailPhotoInput');
+            if (photoClick && photoInput) {
+                photoClick.addEventListener('click', () => photoInput.click());
+                photoInput.addEventListener('change', (e) => {
+                    const file = e.target.files[0];
+                    if (!file) return;
+                    const reader = new FileReader();
+                    reader.onload = (ev) => {
+                        if (currentIdentity) {
+                            updateIdentity(currentIdentity.id, { photo: ev.target.result });
+                            render();
+                        }
+                    };
+                    reader.readAsDataURL(file);
+                });
+            }
+
+            // --- Tabs ---
+            document.querySelectorAll('[data-tab]').forEach(el => {
+                el.addEventListener('click', () => {
+                    state.activeTab = el.dataset.tab;
+                    render();
+                });
+            });
+
+            // --- Imagery tab events ---
+            const uploadBtn = document.getElementById('uploadBtn');
+            const fileInput = document.getElementById('fileInput');
+            if (uploadBtn && fileInput) {
+                uploadBtn.addEventListener('click', () => fileInput.click());
+                fileInput.addEventListener('change', (e) => {
+                    const files = Array.from(e.target.files);
+                    if (!currentIdentity) return;
+                    let folders = currentIdentity.folders.length > 0 ? [...currentIdentity.folders] : [{ name: 'General',
+                        files: [] }];
+                    const targetIdx = state.openFolderIdx !== null && state.openFolderIdx !== undefined ?
+                        state.openFolderIdx : 0;
+                    files.forEach(file => {
+                        const reader = new FileReader();
+                        reader.onload = (ev) => {
+                            const newFile = { id: Date.now() + Math.random(), name: file.name, type: file
+                                    .type, data: ev.target.result };
+                            folders = folders.map((f, i) => i === targetIdx ? { ...f, files: [...f.files,
+                                    newFile] } : f);
+                            updateIdentity(currentIdentity.id, { folders });
+                            render();
+                        };
+                        reader.readAsDataURL(file);
+                    });
+                    e.target.value = '';
+                });
+            }
+
+            // New folder
+            const newFolderBtn = document.getElementById('newFolderBtn');
+            if (newFolderBtn) {
+                newFolderBtn.addEventListener('click', () => {
+                    state.folderModal = { open: true, name: '' };
+                    render();
+                });
+            }
+
+            // Folder open
+            document.querySelectorAll('[data-folder-open]').forEach(el => {
+                el.addEventListener('click', () => {
+                    state.openFolderIdx = parseInt(el.dataset.folderOpen, 10);
+                    render();
+                });
+            });
+
+            // Folder back
+            document.querySelectorAll('[data-folder-back]').forEach(el => {
+                el.addEventListener('click', () => {
+                    state.openFolderIdx = null;
+                    render();
+                });
+            });
+
+            // File view
+            document.querySelectorAll('[data-file-view]').forEach(el => {
+                el.addEventListener('click', (e) => {
+                    if (e.target.closest('.ids-media-overlay')) return;
+                    try {
+                        const file = JSON.parse(el.dataset.fileView);
+                        state.viewingFile = file;
+                        render();
+                    } catch (_) {}
+                });
+            });
+
+            // Delete file
+            document.querySelectorAll('[data-delete-file]').forEach(el => {
+                el.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    if (!currentIdentity) return;
+                    try {
+                        const { id, folderIdx } = JSON.parse(el.dataset.deleteFile);
+                        state.confirmDialog = {
+                            message: 'Permanently delete this file?',
+                            onConfirm: () => {
+                                const updated = currentIdentity.folders.map((f, i) =>
+                                    i === folderIdx ? { ...f, files: f.files.filter(fi => fi.id !==
+                                            id) } : f
+                                );
+                                updateIdentity(currentIdentity.id, { folders: updated });
+                                state.confirmDialog = null;
+                                render();
+                            },
+                        };
+                        render();
+                    } catch (_) {}
+                });
+            });
+
+            // Move file
+            document.querySelectorAll('[data-move-file]').forEach(el => {
+                el.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    try {
+                        const file = JSON.parse(el.dataset.moveFile);
+                        state.movingFile = file;
+                        render();
+                    } catch (_) {}
+                });
+            });
+
+            // --- Socials tab events ---
+            const addSocialBtn = document.getElementById('addSocialBtn');
+            if (addSocialBtn) {
+                addSocialBtn.addEventListener('click', () => {
+                    state.socialModal = { open: true, selectedPlatform: null, platformFilter: '', handle: '',
+                        url: '', status: 'ACTIVE', customName: '' };
+                    render();
+                });
+            }
+
+            document.querySelectorAll('[data-remove-social]').forEach(el => {
+                el.addEventListener('click', () => {
+                    if (!currentIdentity) return;
+                    const id = parseInt(el.dataset.removeSocial, 10);
+                    state.confirmDialog = {
+                        message: 'Remove this social profile entry?',
+                        onConfirm: () => {
+                            updateIdentity(currentIdentity.id, { socials: currentIdentity.socials.filter(s =>
+                                    s.id !== id) });
+                            state.confirmDialog = null;
+                            render();
+                        },
+                    };
+                    render();
+                });
+            });
+
+            // --- Notes tab events ---
+            const noteNewBtn = document.getElementById('noteNewBtn');
+            if (noteNewBtn) {
+                noteNewBtn.addEventListener('click', () => {
+                    state.noteEditor = { currentNoteId: null, title: '', content: '' };
+                    render();
+                });
+            }
+
+            const noteSaveBtn = document.getElementById('noteSaveBtn');
+            if (noteSaveBtn) {
+                noteSaveBtn.addEventListener('click', () => {
+                    if (!currentIdentity) return;
+                    const titleEl = document.getElementById('noteTitleInput');
+                    const contentEl = document.getElementById('noteContentEditor');
+                    const t = (titleEl ? titleEl.value : '').trim() || 'Untitled Note';
+                    const content = contentEl ? contentEl.innerHTML : '';
+                    if (state.noteEditor.currentNoteId) {
+                        updateIdentity(currentIdentity.id, {
+                            notes: currentIdentity.notes.map(n =>
+                                n.id === state.noteEditor.currentNoteId ? { ...n, title: t, content,
+                                    date: new Date().toISOString().split('T')[0] } : n
+                            )
+                        });
+                    } else {
+                        const newId = Date.now();
+                        updateIdentity(currentIdentity.id, {
+                            notes: [{ id: newId, title: t, content, date: new Date().toISOString().split(
+                                    'T')[0] }, ...currentIdentity.notes]
+                        });
+                        state.noteEditor.currentNoteId = newId;
+                    }
+                    render();
+                });
+            }
+
+            const noteDeleteBtn = document.getElementById('noteDeleteBtn');
+            if (noteDeleteBtn) {
+                noteDeleteBtn.addEventListener('click', () => {
+                    if (!currentIdentity || !state.noteEditor.currentNoteId) return;
+                    state.confirmDialog = {
+                        message: 'Delete this note permanently?',
+                        onConfirm: () => {
+                            updateIdentity(currentIdentity.id, {
+                                notes: currentIdentity.notes.filter(n => n.id !== state.noteEditor
+                                    .currentNoteId)
+                            });
+                            state.noteEditor = { currentNoteId: null, title: '', content: '' };
+                            state.confirmDialog = null;
+                            render();
+                        },
+                    };
+                    render();
+                });
+            }
+
+            // Note format buttons
+            document.querySelectorAll('[data-format]').forEach(el => {
+                el.addEventListener('click', () => {
+                    const contentEl = document.getElementById('noteContentEditor');
+                    if (!contentEl) return;
+                    contentEl.focus();
+                    document.execCommand(el.dataset.format, false, null);
+                });
+            });
+
+            // Note image attach
+            const noteImgBtn = document.getElementById('noteImgBtn');
+            const noteImgInput = document.getElementById('noteImgInput');
+            if (noteImgBtn && noteImgInput) {
+                noteImgBtn.addEventListener('click', () => noteImgInput.click());
+                noteImgInput.addEventListener('change', (e) => {
+                    const file = e.target.files[0];
+                    if (!file) return;
+                    const reader = new FileReader();
+                    reader.onload = (ev) => {
+                        const contentEl = document.getElementById('noteContentEditor');
+                        if (!contentEl) return;
+                        contentEl.focus();
+                        document.execCommand('insertHTML', false,
+                            `<img src="${ev.target.result}" alt="${file.name}" style="max-width:100%;border:1px solid #1a1a1a;margin:6px 0;display:block;">`
+                            );
+                    };
+                    reader.readAsDataURL(file);
+                    e.target.value = '';
+                });
+            }
+
+            // Note select
+            document.querySelectorAll('[data-note-select]').forEach(el => {
+                el.addEventListener('click', () => {
+                    const id = parseInt(el.dataset.noteSelect, 10);
+                    state.noteEditor.currentNoteId = id;
+                    render();
+                });
+            });
+
+            // --- Updates tab events ---
+            const logUpdateBtn = document.getElementById('logUpdateBtn');
+            if (logUpdateBtn) {
+                logUpdateBtn.addEventListener('click', () => {
+                    if (!currentIdentity) return;
+                    const date = document.getElementById('updateDate')?.value || new Date().toISOString().split(
+                    'T')[0];
+                    const type = document.getElementById('updateType')?.value || 'INTEL';
+                    const title = document.getElementById('updateTitle')?.value || '';
+                    const content = document.getElementById('updateContent')?.value || '';
+                    if (!title.trim() || !content.trim()) return;
+                    updateIdentity(currentIdentity.id, {
+                        updates: [{ id: Date.now(), date, type, title, content }, ...currentIdentity
+                            .updates]
+                    });
+                    state.updateForm = { date, type, title: '', content: '' };
+                    render();
+                });
+            }
+
+            document.querySelectorAll('[data-delete-update]').forEach(el => {
+                el.addEventListener('click', () => {
+                    if (!currentIdentity) return;
+                    const id = parseInt(el.dataset.deleteUpdate, 10);
+                    state.confirmDialog = {
+                        message: 'Delete this update entry?',
+                        onConfirm: () => {
+                            updateIdentity(currentIdentity.id, {
+                                updates: currentIdentity.updates.filter(u => u.id !== id)
+                            });
+                            state.confirmDialog = null;
+                            render();
+                        },
+                    };
+                    render();
+                });
+            });
+
+            // --- Confirm dialog ---
+            document.querySelectorAll('#confirmCancelBtn, #confirmCancelBtn2').forEach(el => {
+                el?.addEventListener('click', () => {
+                    state.confirmDialog = null;
+                    render();
+                });
+            });
+
+            const confirmOk = document.getElementById('confirmOkBtn');
+            if (confirmOk) {
+                confirmOk.addEventListener('click', () => {
+                    if (state.confirmDialog && state.confirmDialog.onConfirm) {
+                        state.confirmDialog.onConfirm();
+                    }
+                });
+            }
+
+            const confirmOverlay = document.getElementById('confirmOverlay');
+            if (confirmOverlay) {
+                confirmOverlay.addEventListener('click', (e) => {
+                    if (e.target === e.currentTarget) {
+                        state.confirmDialog = null;
+                        render();
+                    }
+                });
+            }
+
+            // --- Social modal ---
+            const socialModalClose = document.getElementById('socialModalClose');
+            const socialModalCancel = document.getElementById('socialModalCancel');
+            const socialModalOverlay = document.getElementById('socialModalOverlay');
+            [socialModalClose, socialModalCancel, socialModalOverlay].forEach(el => {
+                el?.addEventListener('click', (e) => {
+                    if (e.target === e.currentTarget) {
+                        state.socialModal.open = false;
+                        render();
+                    }
+                });
+            });
+
+            document.querySelectorAll('[data-social-platform]').forEach(el => {
+                el.addEventListener('click', () => {
+                    state.socialModal.selectedPlatform = el.textContent.trim();
+                    render();
+                });
+            });
+
+            const socialPlatformFilter = document.getElementById('socialPlatformFilter');
+            if (socialPlatformFilter) {
+                socialPlatformFilter.addEventListener('input', (e) => {
+                    state.socialModal.platformFilter = e.target.value;
+                    render();
+                });
+            }
+
+            const socialAddBtn = document.getElementById('socialModalAdd');
+            if (socialAddBtn) {
+                socialAddBtn.addEventListener('click', () => {
+                    if (!currentIdentity) return;
+                    let platform = state.socialModal.selectedPlatform;
+                    if (platform === 'Other') {
+                        const custom = document.getElementById('socialCustomName')?.value.trim();
+                        if (!custom) { alert('Please enter a platform name.'); return; }
+                        platform = custom;
+                    } else if (!platform) { alert('Please select a platform.'); return; }
+                    const handle = document.getElementById('socialHandle')?.value.trim();
+                    if (!handle) { alert('Please enter a username/handle.'); return; }
+                    const url = document.getElementById('socialUrl')?.value || '';
+                    const status = document.getElementById('socialStatus')?.value || 'ACTIVE';
+                    updateIdentity(currentIdentity.id, {
+                        socials: [...currentIdentity.socials, { id: Date.now(), platform, handle, url,
+                            status }]
+                    });
+                    state.socialModal.open = false;
+                    render();
+                });
+            }
+
+            // --- Folder modal ---
+            const folderModalClose = document.getElementById('folderModalClose');
+            const folderModalCancel = document.getElementById('folderModalCancel');
+            const folderModalOverlay = document.getElementById('folderModalOverlay');
+            [folderModalClose, folderModalCancel, folderModalOverlay].forEach(el => {
+                el?.addEventListener('click', (e) => {
+                    if (e.target === e.currentTarget) {
+                        state.folderModal.open = false;
+                        render();
+                    }
+                });
+            });
+
+            const folderNameInput = document.getElementById('folderNameInput');
+            if (folderNameInput) {
+                folderNameInput.addEventListener('input', (e) => {
+                    state.folderModal.name = e.target.value;
+                });
+                folderNameInput.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') {
+                        document.getElementById('folderModalCreate')?.click();
+                    }
+                });
+            }
+
+            const folderModalCreate = document.getElementById('folderModalCreate');
+            if (folderModalCreate) {
+                folderModalCreate.addEventListener('click', () => {
+                    if (!currentIdentity) return;
+                    if (!state.folderModal.name.trim()) return;
+                    updateIdentity(currentIdentity.id, {
+                        folders: [...currentIdentity.folders, { name: state.folderModal.name.toUpperCase(),
+                            files: [] }]
+                    });
+                    state.folderModal.open = false;
+                    render();
+                });
+            }
+
+            // --- Move file modal ---
+            const moveFileClose = document.getElementById('moveFileClose');
+            const moveFileCancel = document.getElementById('moveFileCancel');
+            const moveFileOverlay = document.getElementById('moveFileOverlay');
+            [moveFileClose, moveFileCancel, moveFileOverlay].forEach(el => {
+                el?.addEventListener('click', (e) => {
+                    if (e.target === e.currentTarget) {
+                        state.movingFile = null;
+                        render();
+                    }
+                });
+            });
+
+            document.querySelectorAll('[data-move-target]').forEach(el => {
+                el.addEventListener('click', () => {
+                    if (!currentIdentity || !state.movingFile) return;
+                    const toIdx = parseInt(el.dataset.moveTarget, 10);
+                    if (state.movingFile.folderIdx === toIdx) {
+                        state.movingFile = null;
+                        render();
+                        return;
+                    }
+                    const updated = currentIdentity.folders.map((folder, i) => {
+                        if (i === state.movingFile.folderIdx) {
+                            return { ...folder, files: folder.files.filter(f => f.id !== state
+                                    .movingFile.id) };
+                        }
+                        if (i === toIdx) {
+                            return { ...folder, files: [...folder.files, state.movingFile] };
+                        }
+                        return folder;
+                    });
+                    updateIdentity(currentIdentity.id, { folders: updated });
+                    state.movingFile = null;
+                    render();
+                });
+            });
+
+            // --- Image viewer ---
+            const viewerClose = document.getElementById('viewerClose');
+            const viewerOverlay = document.getElementById('viewerOverlay');
+            [viewerClose, viewerOverlay].forEach(el => {
+                el?.addEventListener('click', (e) => {
+                    if (e.target === e.currentTarget) {
+                        state.viewingFile = null;
+                        render();
+                    }
+                });
+            });
+
+            // Keyboard: Escape to close modals
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    if (state.viewingFile) { state.viewingFile = null;
+                        render(); }
+                    if (state.movingFile) { state.movingFile = null;
+                        render(); }
+                    if (state.socialModal.open) { state.socialModal.open = false;
+                        render(); }
+                    if (state.folderModal.open) { state.folderModal.open = false;
+                        render(); }
+                    if (state.confirmDialog) { state.confirmDialog = null;
+                        render(); }
+                }
+            });
+
+            // --- Stop propagation for dropdown menus ---
+            document.querySelectorAll('[data-stop-propagation]').forEach(el => {
+                el.addEventListener('click', (e) => e.stopPropagation());
+            });
+
+            // Close dropdowns on outside click
+            document.addEventListener('click', (e) => {
+                if (state.openDropdown && !e.target.closest('.ids-card-menu')) {
+                    state.openDropdown = null;
+                    render();
+                }
+            });
+        }
+
+        // ================================================================
+        //  INIT
+        // ================================================================
+        loadIdentities();
+        render();
+    </script>
+
+</body>
+</html>
