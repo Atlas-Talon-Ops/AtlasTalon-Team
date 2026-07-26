@@ -1,0 +1,1285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AtlasTalon · RECON</title>
+
+    <!-- Google Fonts: JetBrains Mono + Orbitron -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet" />
+
+    <style>
+        /* ============================================================
+           HIDE SCROLLBAR — NO WHITE LINE ON THE RIGHT
+           ============================================================ */
+        html, body, .rc-root {
+            scrollbar-width: none; /* Firefox */
+            -ms-overflow-style: none; /* IE/Edge */
+        }
+        html::-webkit-scrollbar, body::-webkit-scrollbar, .rc-root::-webkit-scrollbar {
+            display: none; /* Chrome/Safari/Opera */
+            width: 0;
+            background: transparent;
+        }
+
+        /* ============================================================
+           BRAND COLORS
+           ============================================================ */
+        :root {
+            --brand-blue: #000498;
+            --brand-blue-glow: rgba(0, 4, 152, 0.3);
+            --brand-red: #FF3B30;
+            --brand-red-glow: rgba(255, 59, 48, 0.2);
+            --brand-green: #00e5a0;
+            --brand-green-glow: rgba(0, 229, 160, 0.25);
+
+            --bg-primary: #050505;
+            --bg-secondary: #0a0a0a;
+            --bg-tertiary: #111111;
+            --fg-primary: #e0e0e0;
+            --fg-secondary: #888888;
+            --fg-muted: #444444;
+            --border-tactical: rgba(255, 255, 255, 0.15);
+            --glass-bg: rgba(10, 10, 10, 0.85);
+        }
+
+        /* ---------- RESET ---------- */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'JetBrains Mono', monospace;
+            background: var(--bg-primary);
+            color: var(--fg-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* ---------- ROOT ---------- */
+        .rc-root {
+            font-family: 'JetBrains Mono', monospace;
+            background: var(--bg-primary);
+            color: var(--fg-primary);
+            min-height: 100vh;
+            overflow-y: auto;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* ---------- PARTICLE CANVAS ---------- */
+        .rc-particle-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* ---------- GLASS PANEL ---------- */
+        .rc-glass {
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--border-tactical);
+            border-radius: 4px;
+            box-shadow: inset 0 0 20px rgba(255, 45, 45, 0.05), 0 0 30px rgba(0, 0, 0, 0.8);
+        }
+
+        /* ---------- CONTENT ---------- */
+        .rc-content {
+            position: relative;
+            z-index: 10;
+            min-height: 100%;
+            display: flex;
+            flex-direction: column;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 12px;
+        }
+
+        /* ---------- HEADER ---------- */
+        .rc-header {
+            margin: 12px 0 0;
+            padding: 16px;
+        }
+
+        .rc-header-inner {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        @media (min-width: 1024px) {
+            .rc-header-inner {
+                flex-direction: row;
+                align-items: center;
+                justify-content: space-between;
+            }
+        }
+
+        .rc-logo-row {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        /* ---- Triangle Logo ---- */
+        .rc-logo-box {
+            width: 40px;
+            height: 40px;
+            border: 1px solid var(--brand-red);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        .rc-logo-box:hover {
+            border-color: var(--brand-blue);
+            box-shadow: 0 0 20px var(--brand-blue-glow);
+        }
+
+        .rc-logo-box svg {
+            width: 24px;
+            height: 24px;
+            fill: none;
+            stroke: #ffffff;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.06));
+        }
+
+        .rc-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 20px;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+        }
+
+        .rc-title span {
+            color: var(--brand-blue);
+        }
+
+        .rc-header-meta {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            font-size: 12px;
+        }
+
+        .rc-status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--brand-green);
+            box-shadow: 0 0 10px var(--brand-green-glow);
+            animation: rc-statusPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes rc-statusPulse {
+            0%,
+            100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.5;
+            }
+        }
+
+        /* ---------- SEARCH AREA ---------- */
+        .rc-search-area {
+            margin: 8px 0;
+            padding: 16px;
+        }
+
+        .rc-section-title {
+            font-size: 12px;
+            color: white;
+            margin-bottom: 8px;
+            letter-spacing: 0.15em;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 4px;
+        }
+
+        .rc-form-grid {
+            display: grid;
+            grid-template-columns: repeat(1, 1fr);
+            gap: 8px 16px;
+        }
+
+        @media (min-width: 768px) {
+            .rc-form-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        @media (min-width: 1024px) {
+            .rc-form-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+
+        .rc-form-group {
+            display: flex;
+            flex-direction: column;
+        }
+        .rc-form-group.full {
+            grid-column: 1 / -1;
+        }
+
+        .rc-label {
+            font-size: 12px;
+            color: var(--fg-secondary);
+            margin-bottom: 4px;
+        }
+
+        .rc-input {
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid var(--border-tactical);
+            color: var(--fg-primary);
+            padding: 10px 14px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            transition: all 0.2s ease;
+            width: 100%;
+            outline: none;
+            border-radius: 2px;
+        }
+
+        .rc-input:focus {
+            border-color: var(--brand-blue);
+            box-shadow: 0 0 15px var(--brand-blue-glow);
+        }
+
+        .rc-input::placeholder {
+            color: var(--fg-muted);
+        }
+
+        .rc-textarea {
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid var(--border-tactical);
+            color: var(--fg-primary);
+            padding: 10px 14px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            transition: all 0.2s ease;
+            width: 100%;
+            outline: none;
+            resize: none;
+            height: 96px;
+            border-radius: 2px;
+        }
+
+        .rc-textarea:focus {
+            border-color: var(--brand-blue);
+            box-shadow: 0 0 15px var(--brand-blue-glow);
+        }
+
+        .rc-textarea::placeholder {
+            color: var(--fg-muted);
+        }
+
+        .rc-section-sep {
+            grid-column: 1 / -1;
+            margin-top: 16px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding-top: 8px;
+        }
+
+        .rc-search-footer {
+            margin-top: 16px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding-top: 16px;
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .rc-btn {
+            background: transparent;
+            border: 1px solid var(--border-tactical);
+            color: var(--fg-primary);
+            padding: 8px 16px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .rc-btn:hover {
+            border-color: var(--brand-blue);
+            color: #fff;
+            box-shadow: 0 0 20px var(--brand-blue-glow);
+        }
+
+        .rc-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .rc-btn-danger {
+            border-color: var(--brand-red);
+            color: var(--brand-red);
+        }
+
+        .rc-btn-danger:hover {
+            background: var(--brand-red);
+            color: var(--bg-primary);
+            box-shadow: 0 0 20px var(--brand-red-glow);
+            border-color: var(--brand-red);
+        }
+
+        /* ---------- DASHBOARD ---------- */
+        .rc-dashboard {
+            flex: 1;
+            padding: 0;
+            display: grid;
+            gap: 12px;
+            margin: 8px 0;
+        }
+
+        @media (min-width: 1024px) {
+            .rc-dashboard {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        .rc-panel {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .rc-panel-header {
+            padding: 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .rc-panel-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+        .rc-panel-dot.green {
+            background: var(--brand-green);
+            box-shadow: 0 0 10px var(--brand-green-glow);
+        }
+        .rc-panel-dot.cyan {
+            background: var(--brand-blue);
+            box-shadow: 0 0 10px var(--brand-blue-glow);
+        }
+
+        .rc-panel-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 14px;
+            letter-spacing: 0.1em;
+        }
+
+        .rc-panel-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 8px;
+        }
+
+        .rc-panel-body::-webkit-scrollbar {
+            width: 4px;
+        }
+        .rc-panel-body::-webkit-scrollbar-thumb {
+            background: var(--fg-muted);
+            border-radius: 2px;
+        }
+        .rc-panel-body::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .rc-empty {
+            text-align: center;
+            color: var(--fg-secondary);
+            font-size: 12px;
+            padding: 40px 0;
+        }
+
+        /* ---------- TABS ---------- */
+        .rc-tabs {
+            display: flex;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .rc-tab-btn {
+            padding: 8px 16px;
+            font-size: 11px;
+            background: transparent;
+            border: none;
+            color: var(--fg-muted);
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s;
+            letter-spacing: 1px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .rc-tab-btn.active {
+            color: var(--brand-red);
+            border-bottom-color: var(--brand-red);
+            background: rgba(255, 45, 45, 0.05);
+        }
+
+        .rc-tab-btn:hover:not(.active) {
+            color: white;
+            border-bottom-color: rgba(255, 255, 255, 0.2);
+        }
+
+        /* ---------- CANDIDATE CARD ---------- */
+        .rc-candidate-card {
+            padding: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+            cursor: pointer;
+            margin-bottom: 8px;
+            transition: all 0.2s;
+        }
+
+        .rc-candidate-card:hover {
+            border-color: var(--brand-blue);
+            background: rgba(0, 4, 152, 0.05);
+            box-shadow: 0 0 15px var(--brand-blue-glow);
+        }
+
+        .rc-candidate-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .rc-candidate-name {
+            font-size: 14px;
+            font-weight: 500;
+            color: white;
+        }
+
+        .rc-candidate-region {
+            font-size: 12px;
+            color: var(--fg-secondary);
+        }
+
+        .rc-identified-badge {
+            font-size: 12px;
+            color: var(--brand-green);
+            border: 1px solid rgba(0, 229, 160, 0.3);
+            padding: 1px 4px;
+            border-radius: 2px;
+        }
+
+        /* ---------- ACTIVITY FEED ---------- */
+        .rc-activity-item {
+            padding: 8px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            transform: translateX(-20px);
+            opacity: 0;
+            animation: rc-slideIn 0.4s ease forwards;
+        }
+
+        @keyframes rc-slideIn {
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .rc-activity-item:hover {
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .rc-activity-msg {
+            font-size: 12px;
+            color: #d1d5db;
+        }
+
+        .rc-activity-time {
+            font-size: 12px;
+            color: var(--fg-muted);
+        }
+
+        /* ---------- MANIFEST ---------- */
+        .rc-manifest-section {
+            margin-bottom: 16px;
+        }
+
+        .rc-manifest-subtitle {
+            font-size: 12px;
+            color: white;
+            margin-bottom: 8px;
+            letter-spacing: 0.15em;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 4px;
+        }
+
+        .rc-manifest-name {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 20px;
+            color: white;
+            margin-bottom: 4px;
+        }
+
+        .rc-manifest-meta {
+            font-size: 12px;
+            color: var(--fg-secondary);
+        }
+
+        .rc-risk-badge {
+            font-size: 12px;
+            padding: 4px 8px;
+            border: 1px solid rgba(255, 170, 0, 0.3);
+            color: #facc15;
+            border-radius: 2px;
+        }
+
+        .rc-connection-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            color: #d1d5db;
+            margin-bottom: 8px;
+        }
+
+        .rc-conn-dot {
+            width: 6px;
+            height: 6px;
+            background: var(--brand-blue);
+            border-radius: 50%;
+            flex-shrink: 0;
+            box-shadow: 0 0 6px var(--brand-blue-glow);
+        }
+
+        .rc-social-card {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 12px;
+            border: 1px solid var(--border-tactical);
+            background: rgba(0, 0, 0, 0.3);
+            margin-bottom: 8px;
+            border-radius: 2px;
+        }
+
+        .rc-social-card.found {
+            border-color: var(--brand-green);
+            box-shadow: 0 0 10px var(--brand-green-glow);
+            background: rgba(0, 229, 160, 0.05);
+        }
+
+        .rc-social-name {
+            font-size: 12px;
+            color: white;
+            font-weight: 500;
+        }
+
+        .rc-social-handle {
+            font-size: 12px;
+            color: var(--fg-secondary);
+            margin-left: 8px;
+        }
+
+        .rc-social-status-badge {
+            font-size: 12px;
+            color: var(--brand-green);
+            border: 1px solid rgba(0, 229, 160, 0.3);
+            padding: 2px 6px;
+            border-radius: 2px;
+        }
+
+        .rc-contact-item {
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.03);
+            border-left: 2px solid var(--brand-green);
+            margin-bottom: 8px;
+        }
+
+        .rc-contact-type {
+            font-size: 12px;
+            color: var(--fg-secondary);
+            margin-bottom: 4px;
+        }
+
+        .rc-contact-val {
+            font-size: 14px;
+            color: white;
+        }
+
+        /* ---------- FOOTER ---------- */
+        .rc-footer {
+            padding: 0;
+            padding-top: 0;
+            margin: 8px 0;
+        }
+
+        .rc-footer-inner {
+            padding: 12px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .rc-footer-time {
+            font-size: 12px;
+            color: var(--fg-secondary);
+            margin-left: auto;
+        }
+
+        /* ---------- CONSOLE ---------- */
+        .rc-console {
+            margin: 0 0 12px;
+            padding: 12px;
+        }
+
+        .rc-console-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 12px;
+            letter-spacing: 0.1em;
+            color: var(--fg-secondary);
+            margin-bottom: 8px;
+        }
+
+        .rc-console-body {
+            background: rgba(0, 0, 0, 0.5);
+            padding: 12px;
+            border-radius: 2px;
+            max-height: 96px;
+            overflow-y: auto;
+            font-size: 12px;
+        }
+
+        .rc-console-body::-webkit-scrollbar {
+            width: 4px;
+        }
+        .rc-console-body::-webkit-scrollbar-thumb {
+            background: var(--fg-muted);
+            border-radius: 2px;
+        }
+        .rc-console-body::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .rc-console-line {
+            opacity: 0;
+            animation: rc-typeIn 0.3s ease-out forwards;
+            margin-bottom: 2px;
+        }
+
+        @keyframes rc-typeIn {
+            to {
+                opacity: 1;
+            }
+        }
+
+        .rc-log-info {
+            color: var(--fg-secondary);
+        }
+        .rc-log-success {
+            color: var(--brand-green);
+        }
+        .rc-log-warn {
+            color: #facc15;
+        }
+        .rc-log-error {
+            color: var(--brand-red);
+        }
+
+        /* ---------- RESPONSIVE ---------- */
+        @media (max-width: 500px) {
+            .rc-content {
+                padding: 0 8px;
+            }
+            .rc-header {
+                padding: 12px;
+            }
+            .rc-search-area {
+                padding: 12px;
+            }
+            .rc-title {
+                font-size: 16px;
+            }
+            .rc-logo-box {
+                width: 32px;
+                height: 32px;
+            }
+            .rc-logo-box svg {
+                width: 20px;
+                height: 20px;
+            }
+            .rc-header-meta {
+                font-size: 10px;
+                gap: 12px;
+            }
+            .rc-dashboard {
+                grid-template-columns: 1fr;
+            }
+            .rc-form-grid {
+                grid-template-columns: 1fr;
+            }
+            .rc-footer-inner {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .rc-footer-time {
+                margin-left: 0;
+                text-align: center;
+            }
+            .rc-btn {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="root" class="rc-root">
+        <!-- Particle canvas will be injected by JS -->
+    </div>
+
+    <script>
+        // ================================================================
+        //  PARTICLE CANVAS
+        // ================================================================
+        (function initParticles() {
+            const canvas = document.createElement('canvas');
+            canvas.className = 'rc-particle-canvas';
+            document.body.prepend(canvas);
+            const ctx = canvas.getContext('2d');
+            let particles = [];
+            let rafId = null;
+
+            function resize() {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            }
+
+            function initParticles() {
+                particles = [];
+                const count = 50;
+                for (let i = 0; i < count; i++) {
+                    particles.push({
+                        x: Math.random() * canvas.width,
+                        y: Math.random() * canvas.height,
+                        vx: (Math.random() - 0.5) * 0.5,
+                        vy: (Math.random() - 0.5) * 0.5,
+                        size: Math.random() * 2 + 0.5,
+                        opacity: Math.random() * 0.5 + 0.1,
+                    });
+                }
+            }
+
+            function animate() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                particles.forEach(p => {
+                    p.x += p.vx;
+                    p.y += p.vy;
+                    if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
+                    if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, Math.max(0.5, p.size), 0, Math.PI * 2);
+                    ctx.fillStyle = `rgba(255,59,48,${p.opacity})`; // brand red
+                    ctx.fill();
+                });
+                rafId = requestAnimationFrame(animate);
+            }
+
+            resize();
+            initParticles();
+            animate();
+
+            window.addEventListener('resize', () => {
+                resize();
+                initParticles();
+            });
+
+            // Cleanup on page unload
+            window.addEventListener('beforeunload', () => {
+                if (rafId) cancelAnimationFrame(rafId);
+            });
+        })();
+
+        // ================================================================
+        //  DATA & HELPERS
+        // ================================================================
+        const SECTIONS = [{
+            title: 'PERSONAL INFORMATION',
+            fields: [
+                { label: 'First Name', key: 'firstName', placeholder: 'John' },
+                { label: 'Middle Name', key: 'middleName', placeholder: 'William' },
+                { label: 'Last Name', key: 'lastName', placeholder: 'Doe' },
+                { label: 'Date of Birth', key: 'dob', placeholder: 'yyyy-mm-dd' },
+                { label: 'SSN', key: 'ssn', placeholder: 'XXX-XX-XXXX' },
+                { label: 'Phone', key: 'phone', placeholder: '+1 (555) 000-0000' },
+                { label: 'Email', key: 'email', placeholder: 'user@domain.com' },
+                { label: 'Address', key: 'address', placeholder: '123 Main St' },
+                { label: 'City', key: 'city', placeholder: 'Metropolis' },
+                { label: 'State', key: 'state', placeholder: 'NY' },
+                { label: 'Zip Code', key: 'zip', placeholder: '10001' },
+            ],
+        }, {
+            title: 'KNOWN SOCIAL ACCOUNTS',
+            fields: [
+                { label: 'Facebook', key: 'facebook', placeholder: 'URL or ID' },
+                { label: 'Instagram', key: 'instagram', placeholder: '@handle' },
+                { label: 'Twitter / X', key: 'twitter', placeholder: '@handle' },
+                { label: 'LinkedIn', key: 'linkedin', placeholder: 'URL' },
+                { label: 'TikTok', key: 'tiktok', placeholder: '@handle' },
+                { label: 'Snapchat', key: 'snapchat', placeholder: 'Username' },
+                { label: 'YouTube', key: 'youtube', placeholder: 'Channel URL' },
+                { label: 'Reddit', key: 'reddit', placeholder: 'u/username' },
+                { label: 'Discord', key: 'discord', placeholder: 'Username#0000' },
+                { label: 'Telegram', key: 'telegram', placeholder: '@handle' },
+            ],
+        }, {
+            title: 'EMPLOYMENT & EDUCATION',
+            fields: [
+                { label: 'Current Employer', key: 'employer', placeholder: 'Acme Corp' },
+                { label: 'Job Title', key: 'jobTitle', placeholder: 'Senior Analyst' },
+                { label: 'Previous Employers', key: 'prevEmployers', placeholder: 'Comma separated' },
+                { label: 'Estimated Income', key: 'income', placeholder: '$80,000' },
+                { label: 'High School', key: 'highSchool', placeholder: 'Central High' },
+                { label: 'College / University', key: 'college', placeholder: 'State University' },
+                { label: 'Degree', key: 'degree', placeholder: 'B.S. Computer Science' },
+                { label: 'Graduation Year', key: 'gradYear', placeholder: '2015' },
+            ],
+        }, {
+            title: 'ASSOCIATES & ASSETS',
+            fields: [
+                { label: 'Spouse / Partner', key: 'spouse', placeholder: 'Jane Doe' },
+                { label: 'Children', key: 'children', placeholder: 'Names/Ages' },
+                { label: 'Parents', key: 'parents', placeholder: 'Names' },
+                { label: 'Siblings', key: 'siblings', placeholder: 'Names' },
+                { label: 'Known Friends', key: 'friends', placeholder: 'Names' },
+                { label: 'Vehicle Make', key: 'vehicleMake', placeholder: 'Toyota' },
+                { label: 'Model', key: 'vehicleModel', placeholder: 'Camry' },
+                { label: 'Year', key: 'vehicleYear', placeholder: '2020' },
+                { label: 'License Plate', key: 'plate', placeholder: 'ABC-1234' },
+                { label: 'VIN', key: 'vin', placeholder: '17 chars' },
+            ],
+        }, {
+            title: 'FINANCIAL & ONLINE PRESENCE',
+            fields: [
+                { label: 'Bank Name', key: 'bank', placeholder: 'Chase' },
+                { label: 'Account Number', key: 'accountNum', placeholder: '********' },
+                { label: 'Credit Score', key: 'creditScore', placeholder: '700-750' },
+                { label: 'Loans / Debts', key: 'loans', placeholder: 'Details' },
+                { label: 'Personal Websites', key: 'websites', placeholder: 'URLs' },
+                { label: 'Forums / Communities', key: 'forums', placeholder: 'Reddit, Forums' },
+                { label: 'Gaming Tags', key: 'gamingTags', placeholder: 'Steam, PSN' },
+                { label: 'Online Aliases', key: 'aliases', placeholder: 'Handles' },
+            ],
+        }, ];
+
+        // Build initial form state
+        const INITIAL_FORM = {};
+        SECTIONS.forEach(s => s.fields.forEach(f => { INITIAL_FORM[f.key] = ''; }));
+        INITIAL_FORM.notes = '';
+
+        // ================================================================
+        //  APP STATE
+        // ================================================================
+        let state = {
+            form: { ...INITIAL_FORM },
+            candidates: [],
+            activityLog: [{ icon: 'sys', color: 'gray', msg: 'System Idle.', time: new Date().toLocaleTimeString() }],
+            consoleLines: [{ type: 'info', msg: '[SYS] OSINT Aggregator V3.0 Ready.' }],
+            selectedCandidate: null,
+            manifestTab: 'overview',
+            lastQueryTime: '--:--:--',
+            searching: false,
+        };
+
+        const rootEl = document.getElementById('root');
+
+        // ================================================================
+        //  HELPERS
+        // ================================================================
+        function escHtml(str) {
+            if (!str) return '';
+            return String(str).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        }
+
+        function log(msg, type = 'info') {
+            const time = new Date().toLocaleTimeString('en-US', { hour12: false });
+            state.consoleLines.push({ type, msg: `[${time}] ${msg}` });
+        }
+
+        function addActivity(icon, color, msg) {
+            state.activityLog.unshift({ icon, color, msg, time: new Date().toLocaleTimeString() });
+        }
+
+        // ================================================================
+        //  RENDER
+        // ================================================================
+        function render() {
+            const s = state;
+            const candidate = s.selectedCandidate;
+
+            // --- Form HTML ---
+            let formHtml = '';
+            SECTIONS.forEach((section, si) => {
+                const isFirst = si === 0;
+                formHtml += `
+                    <div class="rc-section-sep" style="${isFirst ? 'grid-column:1/-1; margin-top:0; border-top:none; padding-top:0;' : ''}">
+                        <div class="rc-section-title">${section.title}</div>
+                    </div>
+                    <div class="rc-form-grid" style="margin-bottom:8px;">
+                `;
+                section.fields.forEach(f => {
+                    const val = s.form[f.key] || '';
+                    formHtml += `
+                        <div class="rc-form-group">
+                            <label class="rc-label">${f.label}</label>
+                            <input class="rc-input" placeholder="${escHtml(f.placeholder)}" value="${escHtml(val)}" data-key="${f.key}" />
+                        </div>
+                    `;
+                });
+                formHtml += `</div>`;
+            });
+
+            // Notes
+            const notesVal = s.form.notes || '';
+            formHtml += `
+                <div style="margin-top:16px; border-top:1px solid rgba(255,255,255,0.1); padding-top:8px;">
+                    <div class="rc-section-title">INVESTIGATION NOTES</div>
+                    <textarea class="rc-textarea" placeholder="Detailed observations about the target..." data-key="notes">${escHtml(notesVal)}</textarea>
+                </div>
+            `;
+
+            // --- Candidates panel ---
+            let candidatesHtml = '';
+            if (s.candidates.length === 0) {
+                candidatesHtml = `<div class="rc-empty">AWAITING INPUT</div>`;
+            } else {
+                s.candidates.forEach((c, i) => {
+                    candidatesHtml += `
+                        <div class="rc-candidate-card" data-idx="${i}">
+                            <div class="rc-candidate-top">
+                                <div>
+                                    <div class="rc-candidate-name">${escHtml(c.name)}</div>
+                                    <div class="rc-candidate-region">${escHtml(c.region)}</div>
+                                </div>
+                                <span class="rc-identified-badge">IDENTIFIED</span>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+
+            // --- Activity log ---
+            let activityHtml = '';
+            s.activityLog.forEach((item, i) => {
+                activityHtml += `
+                    <div class="rc-activity-item" style="animation-delay:${i * 0.05}s;">
+                        <span style="font-size:12px;">${item.icon}</span>
+                        <div style="flex:1;">
+                            <div class="rc-activity-msg">${escHtml(item.msg)}</div>
+                            <div class="rc-activity-time">${escHtml(item.time)}</div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            // --- Manifest ---
+            let manifestHtml = '';
+            if (!candidate) {
+                manifestHtml = `<div class="rc-empty">NO ENTITY SELECTED</div>`;
+            } else {
+                const c = candidate;
+                if (s.manifestTab === 'overview') {
+                    manifestHtml = `
+                        <div>
+                            <div class="rc-manifest-section">
+                                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+                                    <div class="rc-manifest-name">${escHtml(c.name)}</div>
+                                    <span class="rc-risk-badge">RISK: ${escHtml(c.overview.riskScore)}</span>
+                                </div>
+                                <div class="rc-manifest-meta">Last Activity: ${escHtml(c.overview.lastSeen)}</div>
+                            </div>
+                            <div class="rc-manifest-section">
+                                <div class="rc-manifest-subtitle">NETWORK CONNECTIONS</div>
+                                ${c.overview.connections.map(conn => `
+                                    <div class="rc-connection-item">
+                                        <div class="rc-conn-dot"></div>
+                                        ${escHtml(conn)}
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    `;
+                } else if (s.manifestTab === 'socials') {
+                    manifestHtml = `
+                        <div>
+                            <div class="rc-manifest-subtitle">DISCOVERED PROFILES</div>
+                            ${c.socials.map(soc => `
+                                <div class="rc-social-card found">
+                                    <div>
+                                        <span class="rc-social-name">${escHtml(soc.platform)}</span>
+                                        <span class="rc-social-handle">${escHtml(soc.handle)}</span>
+                                    </div>
+                                    <span class="rc-social-status-badge">${escHtml(soc.status)}</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                    `;
+                } else if (s.manifestTab === 'contacts') {
+                    manifestHtml = `
+                        <div>
+                            <div class="rc-manifest-subtitle">CONTACT INTELLIGENCE</div>
+                            ${c.contacts.map(cont => `
+                                <div class="rc-contact-item">
+                                    <div class="rc-contact-type">${escHtml(cont.type)}</div>
+                                    <div class="rc-contact-val">${escHtml(cont.value)}</div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    `;
+                }
+            }
+
+            // --- Console ---
+            let consoleHtml = '';
+            s.consoleLines.forEach((line, i) => {
+                const cls = `rc-log-${line.type}`;
+                consoleHtml += `<div class="rc-console-line ${cls}">${escHtml(line.msg)}</div>`;
+            });
+
+            // --- Assemble full HTML ---
+            const logoHtml = `
+                <div class="rc-logo-box">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polygon points="12,2 22,20 2,20" />
+                        <polygon points="12,8 18,18 6,18" />
+                        <polygon points="12,14 14,18 10,18" />
+                    </svg>
+                </div>
+            `;
+
+            rootEl.innerHTML = `
+                <div class="rc-content">
+                    <!-- HEADER -->
+                    <header class="rc-glass rc-header">
+                        <div class="rc-header-inner">
+                            <div class="rc-logo-row">
+                                ${logoHtml}
+                                <div class="rc-title">RECON</div>
+                            </div>
+                            <div class="rc-header-meta">
+                                <div style="display:flex; align-items:center; gap:8px;">
+                                    <div class="rc-status-dot"></div>
+                                    <span style="color:#9ca3af;">SYSTEM ONLINE</span>
+                                </div>
+                            </div>
+                        </div>
+                    </header>
+
+                    <!-- SEARCH AREA -->
+                    <div class="rc-glass rc-search-area">
+                        ${formHtml}
+                        <div class="rc-search-footer">
+                            <button class="rc-btn" id="searchBtn" ${s.searching ? 'disabled' : ''}>
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                                </svg>
+                                ${s.searching ? 'SEARCHING...' : 'EXECUTE DOSSIER SEARCH'}
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- DASHBOARD -->
+                    <div class="rc-dashboard">
+                        <!-- CANDIDATES -->
+                        <div class="rc-glass rc-panel">
+                            <div class="rc-panel-header">
+                                <div class="rc-panel-dot green"></div>
+                                <div class="rc-panel-title">MATCH CANDIDATES</div>
+                            </div>
+                            <div class="rc-panel-body" id="candidatesPanel">
+                                ${candidatesHtml}
+                            </div>
+                        </div>
+
+                        <!-- ACTIVITY -->
+                        <div class="rc-glass rc-panel">
+                            <div class="rc-panel-header">
+                                <div class="rc-panel-dot cyan"></div>
+                                <div class="rc-panel-title">ACTIVITY LOG</div>
+                            </div>
+                            <div class="rc-panel-body" style="padding:0;" id="activityPanel">
+                                ${activityHtml}
+                            </div>
+                        </div>
+
+                        <!-- MANIFEST -->
+                        <div class="rc-glass rc-panel">
+                            <div class="rc-tabs">
+                                ${['overview', 'socials', 'contacts'].map(tab => `
+                                    <button class="rc-tab-btn ${s.manifestTab === tab ? 'active' : ''}" data-tab="${tab}">${tab.toUpperCase()}</button>
+                                `).join('')}
+                            </div>
+                            <div class="rc-panel-body" id="manifestPanel">
+                                ${manifestHtml}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- FOOTER -->
+                    <div class="rc-footer">
+                        <div class="rc-glass rc-footer-inner">
+                            <button class="rc-btn rc-btn-danger" id="purgeBtn">PURGE SESSION</button>
+                            <span class="rc-footer-time">${s.lastQueryTime}</span>
+                        </div>
+                    </div>
+
+                    <!-- CONSOLE -->
+                    <div class="rc-glass rc-console">
+                        <div class="rc-console-title">SYSTEM CONSOLE</div>
+                        <div class="rc-console-body" id="consoleBody">
+                            ${consoleHtml}
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // --- Attach events ---
+
+            // Input fields: form
+            document.querySelectorAll('.rc-input, .rc-textarea').forEach(el => {
+                const key = el.dataset.key;
+                if (!key) return;
+                el.addEventListener('input', () => {
+                    state.form[key] = el.value;
+                });
+            });
+
+            // Search button
+            const searchBtn = document.getElementById('searchBtn');
+            if (searchBtn) {
+                searchBtn.addEventListener('click', runDossierSearch);
+            }
+
+            // Candidate cards (delegated)
+            const candidatesPanel = document.getElementById('candidatesPanel');
+            if (candidatesPanel) {
+                candidatesPanel.addEventListener('click', (e) => {
+                    const card = e.target.closest('.rc-candidate-card');
+                    if (!card) return;
+                    const idx = parseInt(card.dataset.idx, 10);
+                    if (!isNaN(idx) && idx < state.candidates.length) {
+                        selectCandidate(state.candidates[idx]);
+                    }
+                });
+            }
+
+            // Tab buttons
+            document.querySelectorAll('.rc-tab-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const tab = btn.dataset.tab;
+                    if (tab) {
+                        state.manifestTab = tab;
+                        render();
+                    }
+                });
+            });
+
+            // Purge button
+            const purgeBtn = document.getElementById('purgeBtn');
+            if (purgeBtn) {
+                purgeBtn.addEventListener('click', purgeSession);
+            }
+
+            // Auto-scroll console to bottom
+            const consoleBody = document.getElementById('consoleBody');
+            if (consoleBody) {
+                consoleBody.scrollTop = consoleBody.scrollHeight;
+            }
+        }
+
+        // ================================================================
+        //  ACTIONS
+        // ================================================================
+        function runDossierSearch() {
+            if (state.searching) return;
+            state.searching = true;
+            log('Initiating Dossier Search...', 'info');
+            addActivity('🔍', 'cyan', 'Scanning database for entity...');
+            render();
+
+            setTimeout(() => {
+                const f = state.form;
+                const mockCandidate = {
+                    name: `${f.firstName || 'John'} ${f.lastName || 'Doe'}`.trim() || 'John Doe',
+                    region: `${f.city || 'New York'}, ${f.state || 'USA'}`.trim(),
+                    overview: {
+                        connections: [f.employer || 'Acme Corp', 'Shadow Industries'],
+                        lastSeen: '2 hours ago',
+                        riskScore: 'MEDIUM',
+                    },
+                    socials: [
+                        { platform: 'LinkedIn', handle: f.linkedin || 'johndoe', status: 'public' },
+                        { platform: 'Twitter', handle: f.twitter || '@johndoe_real', status: 'public' },
+                        ...(f.instagram ? [{ platform: 'Instagram', handle: f.instagram, status: 'public' }] : []),
+                    ].filter(Boolean),
+                    contacts: [
+                        ...(f.email ? [{ type: 'Email', value: f.email }] : [{ type: 'Email', value: 'john.doe@example.com' }]),
+                        ...(f.phone ? [{ type: 'Phone', value: f.phone }] : [{ type: 'Phone', value: '+1 (555) 123-4567' }]),
+                    ],
+                };
+
+                state.candidates = [mockCandidate];
+                state.selectedCandidate = mockCandidate;
+                state.manifestTab = 'overview';
+                state.lastQueryTime = new Date().toLocaleTimeString();
+                addActivity('✓', 'green', `Match found: ${mockCandidate.name}`);
+                log(`Match found: ${mockCandidate.name}`, 'success');
+                state.searching = false;
+                render();
+            }, 1500);
+        }
+
+        function purgeSession() {
+            state.form = { ...INITIAL_FORM };
+            state.candidates = [];
+            state.selectedCandidate = null;
+            state.activityLog = [{ icon: 'sys', color: 'gray', msg: 'Local cache purged.', time: new Date().toLocaleTimeString() }];
+            log('Session purged. All local data cleared.', 'warn');
+            state.lastQueryTime = '--:--:--';
+            render();
+        }
+
+        function selectCandidate(c) {
+            state.selectedCandidate = c;
+            state.manifestTab = 'overview';
+            addActivity('ℹ', 'cyan', `Manifest loaded for ${c.name}`);
+            render();
+        }
+
+        // ================================================================
+        //  INIT
+        // ================================================================
+        render();
+    </script>
+
+</body>
+</html>

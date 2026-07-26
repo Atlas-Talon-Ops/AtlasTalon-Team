@@ -1,0 +1,1079 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AtlasTalon · TACTICAL MAP</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Roboto+Mono:wght@300;400;700&display=swap" rel="stylesheet" />
+
+    <!-- Leaflet CSS (will be loaded dynamically) -->
+    <style>
+        /* ============================================================
+           BRAND COLORS — AtlasTalon
+           ============================================================ */
+        :root {
+            --brand-blue: #000498;
+            --brand-blue-glow: rgba(0, 4, 152, 0.3);
+            --brand-red: #FF3B30;
+            --brand-red-glow: rgba(255, 59, 48, 0.25);
+            --brand-green: #00e5a0;
+            --brand-green-glow: rgba(0, 229, 160, 0.3);
+            --white: #e8e8e8;
+            --grey-100: #c0c0c0;
+            --grey-200: #909090;
+            --grey-300: #606060;
+            --grey-400: #404040;
+            --grey-500: #282828;
+            --grey-600: #181818;
+            --black: #0a0a0a;
+            --black-deep: #050505;
+            --amber: #d4a000;
+        }
+
+        /* ---------- Hide scrollbar ---------- */
+        html, body, .mp-root {
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+        html::-webkit-scrollbar, body::-webkit-scrollbar, .mp-root::-webkit-scrollbar {
+            display: none;
+            width: 0;
+            background: transparent;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Roboto Mono', monospace;
+            background: var(--black-deep);
+            color: var(--white);
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* ============================================================
+           MAP ROOT (adapted from original CSS)
+           ============================================================ */
+        .mp-root {
+            font-family: 'Roboto Mono', monospace;
+            background-color: var(--black-deep);
+            color: var(--white);
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .mp-tactical { font-family: 'Share Tech Mono', monospace; letter-spacing: 1px; }
+
+        .mp-root ::-webkit-scrollbar { width: 4px; }
+        .mp-root ::-webkit-scrollbar-track { background: #0a0a0a; }
+        .mp-root ::-webkit-scrollbar-thumb { background: #333; }
+
+        /* Map */
+        #mp-map {
+            height: 100%; width: 100%;
+            background: #0d1117;
+            z-index: 1;
+            transition: transform 0.5s ease;
+            transform-origin: center center;
+        }
+
+        /* Render filters — tile pane only so markers keep colors */
+        .mp-dark-filter .leaflet-tile-pane {
+            filter: grayscale(100%) invert(100%) contrast(90%) brightness(120%);
+        }
+        .mp-thermal-filter .leaflet-tile-pane {
+            filter: grayscale(100%) contrast(150%) brightness(80%) sepia(20%) hue-rotate(-10deg);
+        }
+        .mp-mesh-filter .leaflet-tile-pane {
+            filter: grayscale(1) invert(0.9) brightness(0.6) contrast(1.1) saturate(0.3) hue-rotate(170deg);
+        }
+        .mp-3d-active {
+            transform: perspective(2000px) rotateX(50deg) scale(0.85);
+        }
+
+        /* Grid overlay canvas */
+        .mp-grid-canvas {
+            position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+            pointer-events: none; z-index: 5;
+        }
+
+        /* Tactical marker — using brand blue */
+        .mp-tactical-marker {
+            width: 30px; height: 30px;
+            border: none; background: transparent;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .mp-tactical-marker svg {
+            width: 100%; height: 100%;
+            filter: drop-shadow(0 0 5px var(--brand-blue-glow));
+            overflow: visible;
+        }
+
+        /* Military popup — brand accents */
+        .mp-military-popup .leaflet-popup-content-wrapper {
+            background: rgba(10,10,10,0.95);
+            border: 1px solid var(--brand-blue);
+            border-radius: 0 !important;
+            box-shadow: 5px 5px 0px rgba(0,0,0,0.5), 0 0 15px var(--brand-blue-glow);
+            color: white;
+            padding: 0;
+            font-family: 'Share Tech Mono', monospace;
+        }
+        .mp-military-popup .leaflet-popup-tip {
+            background: #0a0a0a;
+            border: 1px solid var(--brand-blue);
+            border-radius: 0;
+        }
+        .mp-military-popup .leaflet-popup-content { margin: 0; min-width: 280px; }
+
+        .mp-popup-header {
+            background: repeating-linear-gradient(45deg, #111, #111 10px, #0a0a0a 10px, #0a0a0a 20px);
+            border-bottom: 1px solid #333;
+            padding: 10px;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .mp-popup-header span {
+            color: var(--brand-blue);
+        }
+        .mp-popup-body { padding: 12px; font-size: 11px; color: #ccc; }
+        .mp-popup-row {
+            display: flex; justify-content: space-between;
+            margin-bottom: 6px; border-bottom: 1px dotted #333; padding-bottom: 2px;
+        }
+        .mp-popup-label { color: var(--brand-green); font-size: 10px; }
+        .mp-popup-value { color: white; font-weight: bold; }
+
+        .mp-popup-scan-line {
+            position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(to bottom, transparent 50%, rgba(0,229,160,0.05) 51%);
+            background-size: 100% 4px;
+            pointer-events: none;
+        }
+
+        /* Obsidian buttons — brand blue */
+        .mp-obs-btn {
+            background: rgba(0,0,0,0.8);
+            border: 1px solid #333;
+            color: #ccc;
+            transition: all 0.2s;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .mp-obs-btn:hover {
+            border-color: var(--brand-blue);
+            color: var(--brand-blue);
+            box-shadow: 0 0 10px var(--brand-blue-glow);
+        }
+        .mp-obs-btn.active {
+            background: rgba(0,4,152,0.1);
+            border-color: var(--brand-blue);
+            color: var(--brand-blue);
+        }
+        .mp-obs-btn::after {
+            content: ''; position: absolute; top: 0; left: 0;
+            width: 5px; height: 5px;
+            border-top: 2px solid #666; border-left: 2px solid #666;
+        }
+        .mp-obs-btn::before {
+            content: ''; position: absolute; bottom: 0; right: 0;
+            width: 5px; height: 5px;
+            border-bottom: 2px solid #666; border-right: 2px solid #666;
+        }
+
+        /* Search bar — brand blue */
+        .mp-search-wrap {
+            position: absolute; top: 16px; left: 50%; transform: translateX(-50%);
+            z-index: 30; width: 384px;
+        }
+        .mp-search-bar {
+            display: flex; align-items: center;
+            background: rgba(0,0,0,0.9); border: 1px solid #374151;
+            border-radius: 2px; padding: 8px 16px;
+            backdrop-filter: blur(4px);
+        }
+        .mp-search-input {
+            flex: 1; background: transparent; border: none; outline: none;
+            color: white; font-size: 14px;
+            font-family: 'Share Tech Mono', monospace; letter-spacing: 1px;
+        }
+        .mp-search-input::placeholder { color: #6b7280; }
+        .mp-locate-btn {
+            background: rgba(0,4,152,0.2);
+            border: 1px solid var(--brand-blue);
+            color: var(--brand-blue);
+            padding: 4px 12px;
+            font-size: 12px; font-weight: 700;
+            cursor: pointer; border-radius: 2px;
+            transition: all 0.2s;
+            font-family: 'Share Tech Mono', monospace;
+            white-space: nowrap;
+        }
+        .mp-locate-btn:hover {
+            background: var(--brand-blue);
+            color: white;
+            box-shadow: 0 0 10px var(--brand-blue-glow);
+        }
+
+        /* Autocomplete suggestions */
+        .mp-suggestions {
+            position: absolute; top: 100%; left: 0; right: 0;
+            background: rgba(0,0,0,0.95); border: 1px solid #333; border-top: none;
+            max-height: 250px; overflow-y: auto; z-index: 1000;
+            border-radius: 0 0 2px 2px;
+        }
+        .mp-suggestion-item {
+            padding: 10px 15px; cursor: pointer; font-size: 12px;
+            border-bottom: 1px solid #222; transition: background 0.2s;
+            font-family: 'Share Tech Mono', monospace; letter-spacing: 1px;
+            color: #e0e0e0;
+        }
+        .mp-suggestion-item:hover {
+            background: rgba(0,4,152,0.1);
+            color: var(--brand-blue);
+        }
+        .mp-suggestion-item:last-child { border-bottom: none; }
+
+        /* Control panel */
+        .mp-controls {
+            position: absolute; top: 50%; left: 16px; transform: translateY(-50%);
+            z-index: 20;
+            display: flex; flex-direction: column; gap: 12px;
+            padding: 8px;
+            background: rgba(0,0,0,0.6); border: 1px solid #1f2937;
+            border-radius: 4px; backdrop-filter: blur(4px);
+        }
+        .mp-ctrl-section {
+            display: flex; flex-direction: column; gap: 4px;
+        }
+        .mp-ctrl-section-title {
+            font-size: 10px; color: #6b7280; text-transform: uppercase;
+            text-align: center; margin-bottom: 4px;
+            font-family: 'Share Tech Mono', monospace; letter-spacing: 1px;
+        }
+        .mp-ctrl-divider { border-bottom: 1px solid #374151; padding-bottom: 12px; margin-bottom: 0; }
+        .mp-ctrl-divider-top { border-top: 1px solid #374151; padding-top: 12px; }
+
+        /* Zone panel — brand blue */
+        .mp-zone-panel {
+            position: absolute; bottom: 96px; left: 16px;
+            z-index: 20;
+            background: rgba(0,0,0,0.9); border: 1px solid #374151;
+            padding: 12px; backdrop-filter: blur(4px);
+            width: 224px;
+        }
+        .mp-zone-title {
+            font-size: 12px; color: #9ca3af; margin-bottom: 8px;
+            border-bottom: 1px solid #374151; padding-bottom: 4px;
+            font-family: 'Share Tech Mono', monospace; letter-spacing: 1px;
+        }
+        .mp-zone-stats {
+            font-size: 12px; color: #6b7280; font-family: monospace; margin-bottom: 12px;
+        }
+        .mp-zone-submit {
+            background: var(--brand-blue);
+            color: white;
+            padding: 4px 12px;
+            font-size: 12px; font-weight: 700; border-radius: 2px;
+            border: 1px solid var(--brand-blue);
+            width: 100%; cursor: pointer;
+            font-family: 'Share Tech Mono', monospace; letter-spacing: 1px;
+            transition: all 0.2s;
+        }
+        .mp-zone-submit:hover {
+            background: #0005b3;
+            box-shadow: 0 0 10px var(--brand-blue-glow);
+        }
+
+        /* Zoom controls */
+        .mp-zoom {
+            position: absolute; bottom: 16px; left: 16px; z-index: 20;
+            display: flex; flex-direction: column; gap: 4px;
+        }
+
+        /* Rotation control */
+        .mp-rotation {
+            position: absolute; bottom: 16px; right: 16px; z-index: 20;
+            background: rgba(0,0,0,0.8); padding: 12px; border-radius: 4px;
+            border: 1px solid #374151; backdrop-filter: blur(4px);
+        }
+        .mp-rotation-label {
+            font-size: 12px; color: #9ca3af; display: block; margin-bottom: 4px;
+            font-family: 'Share Tech Mono', monospace; letter-spacing: 1px;
+        }
+        .mp-rotation input { width: 192px; }
+
+        /* Detail panel — brand blue accent */
+        .mp-detail-panel {
+            position: absolute; top: 0; right: 0; height: 100%; width: 450px;
+            background: rgba(17,24,39,0.95); backdrop-filter: blur(12px);
+            border-left: 1px solid #374151; z-index: 20;
+            display: flex; flex-direction: column;
+            transform: translateX(100%);
+            transition: transform 0.4s cubic-bezier(0.16,1,0.3,1);
+        }
+        .mp-detail-panel.open { transform: translateX(0); }
+        .mp-detail-header {
+            padding: 24px; border-bottom: 1px solid #1f2937;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .mp-detail-title {
+            font-size: 20px; font-weight: 700; color: white;
+            font-family: 'Share Tech Mono', monospace; letter-spacing: 1px;
+        }
+        .mp-detail-close {
+            background: transparent; border: none; color: #6b7280;
+            font-size: 24px; cursor: pointer; transition: color 0.2s;
+        }
+        .mp-detail-close:hover { color: white; }
+        .mp-detail-body { flex: 1; overflow-y: auto; padding: 24px; }
+        .mp-detail-img { width: 100%; height: 192px; background: #1f2937; border-radius: 2px; margin-bottom: 24px; background-size: cover; background-position: center; }
+        .mp-detail-section { margin-bottom: 16px; }
+        .mp-detail-label { font-size: 12px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 4px; }
+        .mp-detail-value { color: white; font-family: monospace; }
+        .mp-detail-value.cyan { color: var(--brand-blue); }
+        .mp-detail-value.gray { color: #9ca3af; font-size: 14px; line-height: 1.6; }
+
+        /* Popup action buttons — brand colors */
+        .mp-popup-action {
+            margin-top: 8px; width: 100%;
+            padding: 4px; font-size: 12px; cursor: pointer; border-radius: 2px;
+            transition: all 0.2s; font-family: 'Share Tech Mono', monospace; letter-spacing: 1px;
+        }
+        .mp-popup-dossier {
+            background: rgba(0,4,152,0.2);
+            border: 1px solid var(--brand-blue);
+            color: var(--brand-blue);
+        }
+        .mp-popup-dossier:hover {
+            background: var(--brand-blue);
+            color: white;
+        }
+        .mp-popup-connect {
+            background: rgba(255,59,48,0.2);
+            border: 1px solid var(--brand-red);
+            color: var(--brand-red);
+        }
+        .mp-popup-connect:hover {
+            background: var(--brand-red);
+            color: white;
+        }
+
+        /* ---------- Small tweaks ---------- */
+        .mp-obs-btn.w-10 { width: 40px; height: 40px; }
+        .mp-obs-btn.text-xs { font-size: 10px; }
+        .mp-obs-btn.text-xl { font-size: 18px; }
+        .mp-obs-btn.rounded { border-radius: 2px; }
+        .mp-obs-btn.font-bold { font-weight: 700; }
+
+        /* Leaflet draw overrides */
+        .leaflet-draw-toolbar a {
+            background-color: rgba(0,0,0,0.8) !important;
+            color: #ccc !important;
+            border-color: #333 !important;
+        }
+        .leaflet-draw-toolbar a:hover {
+            background-color: rgba(0,4,152,0.1) !important;
+            border-color: var(--brand-blue) !important;
+        }
+        .leaflet-draw-actions a {
+            background-color: rgba(0,0,0,0.9) !important;
+            color: #ccc !important;
+        }
+        .leaflet-draw-actions a:hover {
+            background-color: rgba(0,4,152,0.1) !important;
+            color: var(--brand-blue) !important;
+        }
+
+        /* Responsive */
+        @media (max-width: 700px) {
+            .mp-search-wrap { width: 90%; top: 10px; }
+            .mp-search-input { font-size: 12px; }
+            .mp-locate-btn { font-size: 10px; padding: 2px 8px; }
+            .mp-controls { left: 6px; padding: 4px; gap: 8px; }
+            .mp-obs-btn { width: 32px; height: 32px; font-size: 8px !important; }
+            .mp-ctrl-section-title { font-size: 8px; }
+            .mp-detail-panel { width: 100%; }
+            .mp-zone-panel { width: 180px; }
+            .mp-rotation input { width: 120px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="root" class="mp-root">
+        <!-- The app will be rendered here -->
+    </div>
+
+    <!-- Scripts: Leaflet and Leaflet.Draw will be loaded dynamically -->
+    <script>
+        // ================================================================
+        //  LOAD SCRIPTS & CSS
+        // ================================================================
+        function loadScript(src) {
+            return new Promise((resolve, reject) => {
+                if (document.querySelector(`script[src="${src}"]`)) { resolve(); return; }
+                const s = document.createElement('script');
+                s.src = src;
+                s.onload = resolve;
+                s.onerror = reject;
+                document.head.appendChild(s);
+            });
+        }
+
+        function loadLink(href) {
+            if (document.querySelector(`link[href="${href}"]`)) return;
+            const l = document.createElement('link');
+            l.rel = 'stylesheet';
+            l.href = href;
+            document.head.appendChild(l);
+        }
+
+        // Load Leaflet CSS
+        loadLink('https://unpkg.com/leaflet@1.9.4/dist/leaflet.css');
+        loadLink('https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.css');
+
+        // Load Leaflet JS and then Draw
+        Promise.all([
+            loadScript('https://unpkg.com/leaflet@1.9.4/dist/leaflet.js'),
+        ]).then(() => {
+            return loadScript('https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js');
+        }).then(() => {
+            // Leaflet ready, initialize map
+            initMap();
+        }).catch(console.error);
+
+        // ================================================================
+        //  STATE
+        // ================================================================
+        let state = {
+            viewMode: '2d',
+            renderMode: 'dark',
+            showZonePanel: false,
+            showRotation: false,
+            zoneColor: '#00e5a0',
+            rotation: 0,
+            zoneArea: '0',
+            zonePerim: '0',
+            searchQuery: '',
+            suggestions: [],
+            showSuggestions: false,
+            detailPanel: { open: false, title: '', coords: '', img: '', desc: '' },
+            activeTools: { marker: false, zone: false },
+        };
+
+        let leafletMap = null;
+        let darkLayer = null;
+        let satLayer = null;
+        let drawnItems = null;
+        let currentDrawer = null;
+        let currentShape = null;
+        let debounceTimer = null;
+        let mapContainer = null;
+
+        // ================================================================
+        //  HELPERS
+        // ================================================================
+        function escHtml(str) {
+            if (!str) return '';
+            return String(str).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        }
+
+        // ================================================================
+        //  MAP INITIALIZATION
+        // ================================================================
+        function initMap() {
+            const L = window.L;
+            if (!L) return;
+
+            const root = document.getElementById('root');
+            // Create map container
+            const mapDiv = document.createElement('div');
+            mapDiv.id = 'mp-map';
+            mapDiv.style.position = 'absolute';
+            mapDiv.style.inset = '0';
+            root.appendChild(mapDiv);
+
+            // Create grid canvas
+            const canvas = document.createElement('canvas');
+            canvas.className = 'mp-grid-canvas';
+            canvas.style.display = 'none';
+            root.appendChild(canvas);
+
+            mapContainer = mapDiv;
+
+            const map = L.map(mapDiv, { zoomControl: false }).setView([51.505, -0.09], 13);
+            leafletMap = map;
+
+            // Tile layers
+            const dark = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '' });
+            const sat = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { attribution: '' });
+            darkLayer = dark;
+            satLayer = sat;
+
+            const drawn = new L.FeatureGroup();
+            drawnItems = drawn;
+            map.addLayer(drawn);
+            map.addLayer(dark);
+
+            // Apply dark filter
+            setTimeout(() => {
+                mapDiv.classList.add('mp-dark-filter');
+            }, 100);
+
+            // Grid on move
+            map.on('move', drawGrid);
+
+            // Add default markers
+            createMarker(51.505, -0.09, 'Safe House Alpha', 'Primary safe house.');
+            createMarker(51.51, -0.1, 'Target Location', 'Rendezvous point.');
+
+            // Resize grid on window resize
+            window.addEventListener('resize', () => {
+                resizeGridCanvas();
+            });
+
+            // Render the UI
+            renderUI();
+        }
+
+        // ================================================================
+        //  GRID CANVAS
+        // ================================================================
+        function resizeGridCanvas() {
+            const canvas = document.querySelector('.mp-grid-canvas');
+            if (!canvas) return;
+            const rect = canvas.parentElement.getBoundingClientRect();
+            canvas.width = rect.width;
+            canvas.height = rect.height;
+            drawGrid();
+        }
+
+        function drawGrid() {
+            const canvas = document.querySelector('.mp-grid-canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            if (state.renderMode !== 'thermal') return;
+            ctx.strokeStyle = 'rgba(0,229,160,0.15)';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            for (let i = 0; i < canvas.width; i += 100) { ctx.moveTo(i, 0); ctx.lineTo(i, canvas.height); }
+            for (let i = 0; i < canvas.height; i += 100) { ctx.moveTo(0, i); ctx.lineTo(canvas.width, i); }
+            ctx.stroke();
+        }
+
+        // ================================================================
+        //  VIEW MODE
+        // ================================================================
+        function handleViewMode(mode) {
+            state.viewMode = mode;
+            const el = mapContainer;
+            if (!el) return;
+            if (mode === '3d') {
+                el.classList.add('mp-3d-active');
+                state.showRotation = true;
+            } else {
+                el.classList.remove('mp-3d-active');
+                el.style.transform = '';
+                state.showRotation = false;
+                state.rotation = 0;
+            }
+            renderUI();
+        }
+
+        function handleRotation(deg) {
+            state.rotation = deg;
+            const el = mapContainer;
+            if (!el || state.viewMode !== '3d') return;
+            el.style.transform = `perspective(2000px) rotateX(50deg) rotateZ(${deg}deg) scale(0.85)`;
+        }
+
+        // ================================================================
+        //  RENDER LAYER
+        // ================================================================
+        function handleSetLayer(type) {
+            const map = leafletMap;
+            const L = window.L;
+            if (!map || !L) return;
+
+            state.renderMode = type;
+            const el = mapContainer;
+
+            el.classList.remove('mp-dark-filter', 'mp-thermal-filter', 'mp-mesh-filter');
+
+            const canvas = document.querySelector('.mp-grid-canvas');
+            if (canvas) canvas.style.display = 'none';
+
+            if (darkLayer) map.removeLayer(darkLayer);
+            if (satLayer) map.removeLayer(satLayer);
+
+            switch (type) {
+                case 'dark':
+                    map.addLayer(darkLayer);
+                    el.classList.add('mp-dark-filter');
+                    break;
+                case 'sat':
+                    map.addLayer(satLayer);
+                    break;
+                case 'thermal':
+                    map.addLayer(satLayer);
+                    el.classList.add('mp-thermal-filter');
+                    if (canvas) { canvas.style.display = 'block'; resizeGridCanvas(); }
+                    break;
+                case 'mesh':
+                    map.addLayer(darkLayer);
+                    el.classList.add('mp-mesh-filter');
+                    break;
+                default: break;
+            }
+            renderUI();
+        }
+
+        // ================================================================
+        //  TOOLS
+        // ================================================================
+        function handleEnableTool(type) {
+            const map = leafletMap;
+            const L = window.L;
+            if (!map || !L) return;
+
+            if (currentDrawer) { currentDrawer.disable(); currentDrawer = null; }
+            state.activeTools = { marker: false, zone: false };
+            state.showZonePanel = false;
+
+            if (type === 'marker') {
+                state.activeTools.marker = true;
+                const drawer = new L.Draw.Marker(map, {});
+                drawer.enable();
+                currentDrawer = drawer;
+                map.once('draw:created', (e) => {
+                    const { lat, lng } = e.layer.getLatLng();
+                    createMarker(lat, lng, 'New Pin', 'Dropped pin');
+                    state.activeTools.marker = false;
+                    currentDrawer = null;
+                    renderUI();
+                });
+            } else if (type === 'polygon') {
+                state.activeTools.zone = true;
+                state.showZonePanel = true;
+                const drawer = new L.Draw.Polygon(map, {
+                    shapeOptions: { color: state.zoneColor, fillOpacity: 0.4, weight: 3 },
+                });
+                drawer.enable();
+                currentDrawer = drawer;
+                map.once('draw:created', (e) => {
+                    const shape = e.layer;
+                    currentShape = shape;
+                    drawnItems.addLayer(shape);
+                    calcStats(shape);
+                    shape.on('click', () => showZonePopup(shape));
+                });
+            }
+            renderUI();
+        }
+
+        function handleZoneColor(color) {
+            state.zoneColor = color;
+            if (currentDrawer && currentDrawer.setDrawOptions) {
+                currentDrawer.setDrawOptions({ shapeOptions: { color, fillOpacity: 0.4, weight: 3 } });
+            }
+            if (currentShape) {
+                currentShape.setStyle({ color, fillOpacity: 0.4, weight: 3 });
+            }
+        }
+
+        function calcStats(layer) {
+            const L = window.L;
+            if (!L || !L.GeometryUtil) return;
+            const latlngs = layer.getLatLngs()[0];
+            const area = L.GeometryUtil.geodesicArea(latlngs);
+            let perimeter = 0;
+            for (let i = 0; i < latlngs.length; i++) {
+                const p1 = latlngs[i],
+                    p2 = latlngs[(i + 1) % latlngs.length];
+                perimeter += p1.distanceTo(p2);
+            }
+            const areaFt = (area * 10.7639).toFixed(1);
+            const perimFt = (perimeter * 3.28084).toFixed(1);
+            state.zoneArea = areaFt;
+            state.zonePerim = perimFt;
+            layer.zoneData = { area: areaFt, perimeter: perimFt };
+            renderUI();
+        }
+
+        function handleSubmitZone() {
+            if (!currentShape) return;
+            if (currentDrawer) { currentDrawer.disable();
+                currentDrawer = null; }
+            state.activeTools.zone = false;
+            showZonePopup(currentShape);
+            state.showZonePanel = false;
+            renderUI();
+        }
+
+        function showZonePopup(layer) {
+            const L = window.L;
+            const map = leafletMap;
+            if (!L || !map || !layer.zoneData) return;
+            const data = layer.zoneData;
+            const center = layer.getBounds().getCenter();
+
+            // Expose connectCenter globally for popup button
+            window.__mp_connectCenter = (lat, lng) => connectCenter(lat, lng);
+
+            const content = `
+                <div style="position:relative">
+                    <div style="position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(to bottom,transparent 50%,rgba(0,229,160,0.05) 51%);background-size:100% 4px;pointer-events:none;"></div>
+                    <div class="mp-popup-header">
+                        <span style="font-family:'Share Tech Mono',monospace;font-size:12px;letter-spacing:1px;">SECTOR DEFINED</span>
+                    </div>
+                    <div class="mp-popup-body">
+                        <div class="mp-popup-row"><span class="mp-popup-label">AREA</span><span class="mp-popup-value">${data.area} SQ FT</span></div>
+                        <div class="mp-popup-row"><span class="mp-popup-label">PERIMETER</span><span class="mp-popup-value">${data.perimeter} FT</span></div>
+                        <div class="mp-popup-row"><span class="mp-popup-label">CENTER</span><span class="mp-popup-value">${center.lat.toFixed(4)}, ${center.lng.toFixed(4)}</span></div>
+                        <button onclick="window.__mp_connectCenter(${center.lat},${center.lng})" class="mp-popup-action mp-popup-connect">CONNECT CENTER</button>
+                    </div>
+                </div>`;
+
+            L.popup({ className: 'mp-military-popup', closeButton: false, autoClose: false })
+                .setLatLng(center).setContent(content).openOn(map);
+        }
+
+        function connectCenter(lat, lng) {
+            const L = window.L;
+            if (!L || !currentShape) return;
+            const centerPt = L.latLng(lat, lng);
+            currentShape.getLatLngs()[0].forEach(pt => {
+                L.polyline([pt, centerPt], { color: '#FF3B30', weight: 1, dashArray: '5,5' }).addTo(drawnItems);
+            });
+            L.circleMarker(centerPt, { radius: 5, color: '#FF3B30' }).addTo(drawnItems);
+        }
+
+        // ================================================================
+        //  MARKERS
+        // ================================================================
+        function createMarker(lat, lng, title, desc) {
+            const L = window.L;
+            const map = leafletMap;
+            if (!L || !map) return;
+
+            const icon = L.divIcon({
+                className: 'mp-tactical-marker',
+                html: `<svg viewBox="0 0 100 100"><path d="M50 0 L55 45 L100 50 L55 55 L50 100 L45 55 L0 50 L45 45 Z" fill="#000498" stroke="white" stroke-width="2"/></svg>`,
+                iconSize: [30, 30],
+                iconAnchor: [15, 15],
+            });
+
+            const marker = L.marker([lat, lng], { icon, draggable: true }).addTo(map);
+            const img = `https://picsum.photos/seed/${title.replace(/\s/g, '')}/400/200`;
+
+            window.__mp_showPanel = (t, c, im, d) => {
+                state.detailPanel = { open: true, title: t, coords: c, img: im, desc: d };
+                renderUI();
+            };
+
+            const content = `
+                <div style="position:relative">
+                    <div style="position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(to bottom,transparent 50%,rgba(0,229,160,0.05) 51%);background-size:100% 4px;pointer-events:none;z-index:999;"></div>
+                    <img src="${img}" style="width:100%;height:128px;object-fit:cover;display:block;">
+                    <div class="mp-popup-header">
+                        <span style="font-family:'Share Tech Mono',monospace;font-size:12px;letter-spacing:1px;">${escHtml(title)}</span>
+                    </div>
+                    <div class="mp-popup-body">
+                        <div class="mp-popup-row">
+                            <span class="mp-popup-label">COORDS</span>
+                            <span class="mp-popup-value">${parseFloat(lat).toFixed(4)}, ${parseFloat(lng).toFixed(4)}</span>
+                        </div>
+                        <button onclick="window.__mp_showPanel('${escHtml(title)}','${parseFloat(lat).toFixed(4)}, ${parseFloat(lng).toFixed(4)}','${img}','${escHtml(desc)}')" class="mp-popup-action mp-popup-dossier">DOSSIER</button>
+                    </div>
+                </div>`;
+
+            marker.bindPopup(content, { className: 'mp-military-popup', closeButton: false });
+        }
+
+        // ================================================================
+        //  SEARCH
+        // ================================================================
+        function handleSearchInput(val) {
+            state.searchQuery = val;
+            state.suggestions = [];
+            state.showSuggestions = false;
+
+            if (val.length < 3) {
+                renderUI();
+                return;
+            }
+
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(() => {
+                fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(val)}&limit=5&addressdetails=1`)
+                    .then(r => r.json())
+                    .then(data => {
+                        state.suggestions = data;
+                        state.showSuggestions = data.length > 0;
+                        renderUI();
+                    })
+                    .catch(() => {});
+            }, 400);
+        }
+
+        function selectSuggestion(item) {
+            state.searchQuery = item.display_name;
+            state.suggestions = [];
+            state.showSuggestions = false;
+            const map = leafletMap;
+            if (!map) return;
+            map.flyTo([item.lat, item.lon], 16);
+            createMarker(item.lat, item.lon, item.display_name.split(',')[0], item.display_name);
+            renderUI();
+        }
+
+        function handleSearch() {
+            if (!state.searchQuery.trim()) return;
+            state.showSuggestions = false;
+            fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(state.searchQuery)}`)
+                .then(r => r.json())
+                .then(data => {
+                    if (data.length > 0) {
+                        const map = leafletMap;
+                        if (!map) return;
+                        map.flyTo([data[0].lat, data[0].lon], 16);
+                        createMarker(data[0].lat, data[0].lon, 'Search Result', state.searchQuery);
+                    }
+                })
+                .catch(() => {});
+            renderUI();
+        }
+
+        // ================================================================
+        //  RENDER UI (controls, panels, etc.)
+        // ================================================================
+        function renderUI() {
+            const root = document.getElementById('root');
+            // Keep map container and canvas intact; we only update the overlay elements
+
+            // Remove old overlay elements
+            document.querySelectorAll('.mp-search-wrap, .mp-controls, .mp-zone-panel, .mp-zoom, .mp-rotation, .mp-detail-panel, .mp-suggestions, .mp-fake-overlay')
+                .forEach(el => el.remove());
+
+            // Build search bar
+            const searchWrap = document.createElement('div');
+            searchWrap.className = 'mp-search-wrap';
+            searchWrap.innerHTML = `
+                <div class="mp-search-bar">
+                    <svg style="width:20px;height:20px;color:#6b7280;margin-right:8px;flex-shrink:0;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                    <input type="text" class="mp-search-input mp-tactical" id="searchInput" placeholder="Search location..." value="${escHtml(state.searchQuery)}" />
+                    <button class="mp-locate-btn" id="locateBtn">LOCATE</button>
+                </div>
+                ${state.showSuggestions && state.suggestions.length > 0 ? `
+                    <div class="mp-suggestions" id="suggestionsContainer">
+                        ${state.suggestions.map((item, i) => `
+                            <div class="mp-suggestion-item" data-idx="${i}">${escHtml(item.display_name)}</div>
+                        `).join('')}
+                    </div>
+                ` : ''}
+            `;
+            root.appendChild(searchWrap);
+
+            // Bind search events
+            const searchInput = document.getElementById('searchInput');
+            const locateBtn = document.getElementById('locateBtn');
+            if (searchInput) {
+                searchInput.addEventListener('input', (e) => handleSearchInput(e.target.value));
+                searchInput.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') handleSearch();
+                    if (e.key === 'Escape') { state.showSuggestions = false;
+                        renderUI(); }
+                });
+                searchInput.addEventListener('focus', () => {
+                    if (state.suggestions.length > 0) { state.showSuggestions = true;
+                        renderUI(); }
+                });
+            }
+            if (locateBtn) locateBtn.addEventListener('click', handleSearch);
+
+            // Suggestion click
+            document.querySelectorAll('.mp-suggestion-item[data-idx]').forEach(el => {
+                el.addEventListener('mousedown', () => {
+                    const idx = parseInt(el.dataset.idx, 10);
+                    if (state.suggestions[idx]) selectSuggestion(state.suggestions[idx]);
+                });
+            });
+
+            // Control panel
+            const controls = document.createElement('div');
+            controls.className = 'mp-controls';
+            const btnSize = 'mp-obs-btn w-10 h-10 text-xs rounded';
+            const active2d = state.viewMode === '2d' ? 'active' : '';
+            const active3d = state.viewMode === '3d' ? 'active' : '';
+            const activeDark = state.renderMode === 'dark' ? 'active' : '';
+            const activeSat = state.renderMode === 'sat' ? 'active' : '';
+            const activeThermal = state.renderMode === 'thermal' ? 'active' : '';
+            const activeMesh = state.renderMode === 'mesh' ? 'active' : '';
+            const activeMarker = state.activeTools.marker ? 'active' : '';
+            const activeZone = state.activeTools.zone ? 'active' : '';
+
+            controls.innerHTML = `
+                <div class="mp-ctrl-section mp-ctrl-divider">
+                    <div class="mp-ctrl-section-title">View</div>
+                    <button class="${btnSize} ${active2d}" data-view="2d">2D</button>
+                    <button class="${btnSize} ${active3d}" data-view="3d">3D</button>
+                </div>
+                <div class="mp-ctrl-section">
+                    <div class="mp-ctrl-section-title">Render</div>
+                    <button class="${btnSize} ${activeDark}" data-render="dark" title="Dark">DK</button>
+                    <button class="${btnSize} ${activeSat}" data-render="sat" title="Satellite">SAT</button>
+                    <button class="${btnSize} ${activeThermal}" data-render="thermal" title="Thermal">TH</button>
+                    <button class="${btnSize} ${activeMesh}" data-render="mesh" title="Digital Mesh">MSH</button>
+                </div>
+                <div class="mp-ctrl-section mp-ctrl-divider-top">
+                    <div class="mp-ctrl-section-title">Tools</div>
+                    <button class="${btnSize} ${activeMarker}" data-tool="marker" title="Drop Pin">
+                        <svg style="width:20px;height:20px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                    </button>
+                    <button class="${btnSize} ${activeZone}" data-tool="polygon" title="Draw Zone">
+                        <svg style="width:20px;height:20px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 4a2 2 0 114 0v1a1 1 0 001 1h3a1 1 0 011 1v3a1 1 0 01-1 1h-1a2 2 0 100 4h1a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-1a2 2 0 10-4 0v1a1 1 0 01-1 1H7a1 1 0 01-1-1v-3a1 1 0 00-1-1H4a2 2 0 110-4h1a1 1 0 001-1V7a1 1 0 011-1h3a1 1 0 001-1V4z" />
+                        </svg>
+                    </button>
+                </div>
+            `;
+            root.appendChild(controls);
+
+            // Bind control events
+            controls.querySelectorAll('[data-view]').forEach(btn => {
+                btn.addEventListener('click', () => handleViewMode(btn.dataset.view));
+            });
+            controls.querySelectorAll('[data-render]').forEach(btn => {
+                btn.addEventListener('click', () => handleSetLayer(btn.dataset.render));
+            });
+            controls.querySelectorAll('[data-tool]').forEach(btn => {
+                btn.addEventListener('click', () => handleEnableTool(btn.dataset.tool));
+            });
+
+            // Zone panel
+            if (state.showZonePanel) {
+                const zonePanel = document.createElement('div');
+                zonePanel.className = 'mp-zone-panel';
+                zonePanel.innerHTML = `
+                    <div class="mp-zone-title">ZONE PARAMETERS</div>
+                    <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
+                        <label style="font-size:12px;color:white;">Color:</label>
+                        <input type="color" value="${state.zoneColor}" id="zoneColorPicker" style="width:32px;height:24px;background:transparent;border:none;cursor:pointer;" />
+                    </div>
+                    <div class="mp-zone-stats">
+                        Area: <span>${state.zoneArea}</span> sq ft<br />
+                        Perimeter: <span>${state.zonePerim}</span> ft
+                    </div>
+                    <button class="mp-zone-submit mp-tactical" id="submitZoneBtn">SUBMIT ZONE</button>
+                `;
+                root.appendChild(zonePanel);
+
+                document.getElementById('zoneColorPicker')?.addEventListener('input', (e) => handleZoneColor(e.target.value));
+                document.getElementById('submitZoneBtn')?.addEventListener('click', handleSubmitZone);
+            }
+
+            // Zoom controls
+            const zoomDiv = document.createElement('div');
+            zoomDiv.className = 'mp-zoom';
+            zoomDiv.innerHTML = `
+                <button class="mp-obs-btn w-10 h-10 text-xl font-bold rounded" id="zoomInBtn">+</button>
+                <button class="mp-obs-btn w-10 h-10 text-xl font-bold rounded" id="zoomOutBtn">−</button>
+            `;
+            root.appendChild(zoomDiv);
+            document.getElementById('zoomInBtn')?.addEventListener('click', () => leafletMap?.zoomIn());
+            document.getElementById('zoomOutBtn')?.addEventListener('click', () => leafletMap?.zoomOut());
+
+            // Rotation
+            if (state.showRotation) {
+                const rotDiv = document.createElement('div');
+                rotDiv.className = 'mp-rotation';
+                rotDiv.innerHTML = `
+                    <label class="mp-rotation-label">ROTATION</label>
+                    <input type="range" min="0" max="360" value="${state.rotation}" id="rotationSlider" />
+                `;
+                root.appendChild(rotDiv);
+                document.getElementById('rotationSlider')?.addEventListener('input', (e) => {
+                    handleRotation(Number(e.target.value));
+                });
+            }
+
+            // Detail panel
+            if (state.detailPanel.open) {
+                const panel = document.createElement('div');
+                panel.className = 'mp-detail-panel open';
+                panel.innerHTML = `
+                    <div class="mp-detail-header">
+                        <h2 class="mp-detail-title">${escHtml(state.detailPanel.title || 'LOCATION DETAILS')}</h2>
+                        <button class="mp-detail-close" id="closeDetailBtn">×</button>
+                    </div>
+                    <div class="mp-detail-body">
+                        <div class="mp-detail-img" style="background-image:url('${escHtml(state.detailPanel.img || '')}');"></div>
+                        <div class="mp-detail-section">
+                            <div class="mp-detail-label">Coordinates</div>
+                            <div class="mp-detail-value">${escHtml(state.detailPanel.coords || 'N/A')}</div>
+                        </div>
+                        <div class="mp-detail-section">
+                            <div class="mp-detail-label">Status</div>
+                            <div class="mp-detail-value cyan">Active</div>
+                        </div>
+                        <div class="mp-detail-section">
+                            <div class="mp-detail-label">Intelligence Report</div>
+                            <div class="mp-detail-value gray">${escHtml(state.detailPanel.desc || 'Detailed information.')}</div>
+                        </div>
+                    </div>
+                `;
+                root.appendChild(panel);
+                document.getElementById('closeDetailBtn')?.addEventListener('click', () => {
+                    state.detailPanel.open = false;
+                    renderUI();
+                });
+            }
+
+            // Outside click to close suggestions
+            if (state.showSuggestions) {
+                const overlay = document.createElement('div');
+                overlay.style.position = 'fixed';
+                overlay.style.inset = '0';
+                overlay.style.zIndex = '25';
+                overlay.addEventListener('click', () => {
+                    state.showSuggestions = false;
+                    renderUI();
+                });
+                root.appendChild(overlay);
+            }
+        }
+
+        // ================================================================
+        //  INIT
+        // ================================================================
+        // The map will be initialized after Leaflet loads (see above)
+        // We also need to handle resizing of the canvas
+        window.addEventListener('resize', () => {
+            if (state.renderMode === 'thermal') {
+                resizeGridCanvas();
+            }
+        });
+    </script>
+
+</body>
+</html>
