@@ -3,17 +3,24 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>AtlasTalon · Identities</title>
-
-    <!-- Google Font: IBM Plex Mono -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <title>Identities · AIDA</title>
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
-
     <style>
-        /* ============================================================
-           IDENTITIES CSS — exactly as in the React component
-           ============================================================ */
+        /* ===== RESET / FIX WHITE EDGES ===== */
+        html, body {
+            margin: 0;
+            padding: 0;
+            background: #050505;
+            height: 100%;
+            overflow: hidden; /* avoid scroll on html, body will scroll inside .ids-body */
+        }
+        #root {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* ===== INJECTED CSS (unchanged) ===== */
         .ids-body {
             font-family: 'IBM Plex Mono', monospace;
             background: #050505;
@@ -22,8 +29,6 @@
             overflow-x: hidden;
             position: relative;
         }
-
-        /* Class tabs */
         .ids-class-tabs {
             display: flex;
             border-bottom: 1px solid #1a1a1a;
@@ -53,8 +58,6 @@
             background: #0a0a0a;
             border-color: #1a1a1a;
         }
-
-        /* Identity grid */
         .ids-identity-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
@@ -195,7 +198,10 @@
         }
         .ids-menu-btn:hover {
             color: #e0e0e0;
+        }
+        .ids-menu-btn:hover {
             background: transparent !important;
+            color: #e0e0e0;
         }
         .ids-dropdown {
             position: absolute;
@@ -228,8 +234,6 @@
             background: rgba(255, 255, 255, 0.04);
             color: #FF3D00;
         }
-
-        /* Buttons */
         .ids-add-btn {
             background: #0a0a0a;
             border: 1px solid #222;
@@ -285,8 +289,6 @@
             border-color: #FF3D00;
             color: #FF3D00;
         }
-
-        /* Detail header */
         .ids-detail-header {
             display: flex;
             gap: 28px;
@@ -384,8 +386,6 @@
             color: #007AFF;
             border-color: rgba(0, 122, 255, 0.3);
         }
-
-        /* Tabs */
         .ids-tabs-nav {
             display: flex;
             border-bottom: 1px solid #1a1a1a;
@@ -441,8 +441,6 @@
                 transform: translateY(0);
             }
         }
-
-        /* Profile grid & fields */
         .ids-profile-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -454,7 +452,7 @@
             padding: 18px;
         }
         .ids-section-full {
-            grid-column: 1 / -1;
+            grid-column: 1/-1;
         }
         .ids-section-title {
             font-family: 'IBM Plex Mono', monospace;
@@ -539,8 +537,6 @@
         .ids-threat-num:focus {
             border-color: #00ffcc;
         }
-
-        /* Social cards */
         .ids-social-card {
             background: #0a0a0a;
             border: 1px solid #1a1a1a;
@@ -609,8 +605,6 @@
             border-color: #00ffcc;
             color: #00ffcc;
         }
-
-        /* Modal */
         .ids-modal-overlay {
             position: fixed;
             top: 0;
@@ -736,8 +730,6 @@
             background: #FF3D00;
             color: #000;
         }
-
-        /* Platform list */
         .ids-platform-list {
             max-height: 220px;
             overflow-y: auto;
@@ -781,8 +773,6 @@
             color: #00ffcc;
             border-left: 2px solid #00ffcc;
         }
-
-        /* Empty state */
         .ids-empty-state {
             padding: 48px 32px;
             text-align: center;
@@ -794,8 +784,6 @@
             text-transform: uppercase;
             font-family: 'IBM Plex Mono', monospace;
         }
-
-        /* Notes */
         .ids-notes-container {
             display: grid;
             grid-template-columns: 1fr 320px;
@@ -937,8 +925,6 @@
             letter-spacing: 1px;
             font-family: 'IBM Plex Mono', monospace;
         }
-
-        /* Imagery */
         .ids-toolbar-btn {
             display: flex;
             align-items: center;
@@ -987,7 +973,7 @@
             background: #111;
         }
         .ids-media-card {
-            aspect-ratio: 4 / 3;
+            aspect-ratio: 4/3;
             background: #0a0a0a;
             border: 1px solid #1a1a1a;
             overflow: hidden;
@@ -1051,8 +1037,6 @@
             border-color: #FF3D00;
             color: #FF3D00;
         }
-
-        /* Updates */
         .ids-update-entry {
             background: #0a0a0a;
             border: 1px solid #1a1a1a;
@@ -1145,8 +1129,6 @@
             color: #000;
             border-color: #00ffcc;
         }
-
-        /* Image viewer popup */
         .ids-viewer-overlay {
             position: fixed;
             inset: 0;
@@ -1253,232 +1235,24 @@
             font-family: 'IBM Plex Mono', monospace;
             color: #333;
         }
-
-        /* Responsive tweaks */
-        @media (max-width: 768px) {
-            .ids-identity-grid {
-                grid-template-columns: 1fr;
-            }
-            .ids-detail-header {
-                flex-direction: column;
-                align-items: center;
-            }
-            .ids-detail-photo {
-                width: 120px;
-                height: 160px;
-            }
-            .ids-detail-name {
-                font-size: 20px;
-                letter-spacing: 2px;
-                text-align: center;
-            }
-            .ids-detail-alias {
-                text-align: center;
-            }
-            .ids-detail-stats {
-                grid-template-columns: repeat(2, 1fr);
-            }
-            .ids-notes-container {
-                grid-template-columns: 1fr;
-            }
-            .ids-note-editor {
-                min-height: 300px;
-            }
-            .ids-notes-list {
-                max-height: 300px;
-            }
-            .ids-profile-grid {
-                grid-template-columns: 1fr;
-            }
-            .ids-class-tab {
-                padding: 8px 14px;
-                font-size: 9px;
-            }
-            .ids-section-full {
-                grid-column: 1;
-            }
-            .ids-field-row {
-                flex-wrap: wrap;
-            }
-            .ids-field-label {
-                width: 100%;
-                min-width: 100%;
-            }
-            .ids-detail-stats {
-                grid-template-columns: 1fr 1fr;
-            }
-            .ids-page {
-                padding: 16px !important;
-            }
-            .ids-tab-btn {
-                padding: 10px 14px;
-                font-size: 8px;
-            }
-            .ids-modal {
-                width: 95%;
-            }
-            .ids-controls-row {
-                flex-wrap: wrap;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .ids-detail-stats {
-                grid-template-columns: 1fr;
-            }
-            .ids-card-header {
-                flex-direction: column;
-                align-items: center;
-            }
-            .ids-card-photo {
-                width: 70px;
-                height: 90px;
-            }
-            .ids-card-meta {
-                align-items: center;
-                text-align: center;
-            }
-            .ids-card-name {
-                font-size: 16px;
-            }
-            .ids-identity-grid {
-                grid-template-columns: 1fr;
-            }
-            .ids-class-tab {
-                padding: 6px 10px;
-                font-size: 8px;
-                letter-spacing: 1px;
-            }
-        }
+        /* ===== END INJECTED CSS ===== */
     </style>
 </head>
 <body>
+    <div id="root"></div>
 
-    <div id="root" class="ids-body">
-        <!-- The app will be rendered here -->
-    </div>
+    <!-- React + ReactDOM + Babel standalone -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js">
+    </script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js">
+    </script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js">
+    </script>
 
-    <script>
-        // ================================================================
-        //  DATA LAYER — localStorage replacement for useIdentities
-        // ================================================================
-        const STORAGE_KEY = 'identities_data';
+    <script type="text/babel">
+        const { useState, useEffect, useRef, Fragment } = React;
 
-        let identities = [];
-        let nextId = 10000;
-
-        function loadIdentities() {
-            try {
-                const raw = localStorage.getItem(STORAGE_KEY);
-                if (raw) {
-                    const parsed = JSON.parse(raw);
-                    identities = parsed.identities || [];
-                    nextId = parsed.nextId || 10000;
-                } else {
-                    // Seed with demo identities
-                    identities = [
-                        createBlankIdentity('A', {
-                            name: 'JOHN DOE',
-                            alias: 'SHADOW',
-                            priority: 'ECHO',
-                            statusLogic: 'COLD-STATE',
-                            threat: 35,
-                            nationality: 'US',
-                            lastKnown: 'New York, NY'
-                        }),
-                        createBlankIdentity('A', {
-                            name: 'JANE SMITH',
-                            alias: 'PHANTOM',
-                            priority: 'OMEN',
-                            statusLogic: 'RED-CODE',
-                            threat: 72,
-                            nationality: 'UK',
-                            lastKnown: 'London, UK'
-                        }),
-                        createBlankIdentity('B', {
-                            name: 'ALEX CHEN',
-                            alias: 'VIPER',
-                            priority: 'ANCHOR',
-                            statusLogic: 'SIGNAL-LOCK',
-                            threat: 28,
-                            nationality: 'CN',
-                            lastKnown: 'Shanghai, CN'
-                        }),
-                        createBlankIdentity('B', {
-                            name: 'SAM RIVERS',
-                            alias: 'SPECTRE',
-                            priority: 'BLOODLINE',
-                            statusLogic: 'COLD-STATE',
-                            threat: 12,
-                            nationality: 'AU',
-                            lastKnown: 'Sydney, AU'
-                        }),
-                    ];
-                    saveIdentities();
-                }
-            } catch (_) {
-                identities = [];
-                nextId = 10000;
-            }
-        }
-
-        function saveIdentities() {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify({ identities, nextId }));
-        }
-
-        function getIdentities() {
-            return identities.slice();
-        }
-
-        function addIdentity(identity) {
-            const newIdentity = { ...identity, id: 'SRV-' + (nextId++) };
-            identities.push(newIdentity);
-            saveIdentities();
-            return newIdentity;
-        }
-
-        function updateIdentity(id, updates) {
-            const idx = identities.findIndex(i => i.id === id);
-            if (idx === -1) return null;
-            identities[idx] = { ...identities[idx], ...updates };
-            saveIdentities();
-            return identities[idx];
-        }
-
-        function deleteIdentity(id) {
-            const idx = identities.findIndex(i => i.id === id);
-            if (idx === -1) return false;
-            identities.splice(idx, 1);
-            saveIdentities();
-            return true;
-        }
-
-        // ================================================================
-        //  HELPERS
-        // ================================================================
-        function escHtml(str) {
-            if (!str) return '';
-            return String(str).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-        }
-
-        function getThreatLabel(t) {
-            if (t >= 70) return 'CRITICAL';
-            if (t >= 50) return 'HIGH';
-            if (t >= 30) return 'MODERATE';
-            return 'LOW';
-        }
-
-        function getSocialIcon(platform) {
-            if (!platform) return '?';
-            const icons = { 'X (Twitter)': 'X', 'Instagram': 'IG', 'Facebook': 'FB', 'LinkedIn': 'LI', 'Telegram': 'TG',
-                'TikTok': 'TT', 'Discord': 'DC', 'WhatsApp': 'WA', 'YouTube': 'YT', 'Reddit': 'RD', 'GitHub': 'GH',
-                'Twitch': 'TW' };
-            return icons[platform] || platform.substring(0, 2).toUpperCase();
-        }
-
-        // ================================================================
-        //  CONSTANTS
-        // ================================================================
+        // ==================== CONSTANTS ====================
         const priorityOptions = [
             { value: 'K-STATUS', label: 'K-STATUS // TERMINAL', tier: 'hostile' },
             { value: 'VECTOR', label: 'VECTOR // HOSTILE', tier: 'hostile' },
@@ -1500,9 +1274,9 @@
         ];
 
         const PLATFORM_GROUPS = [
-            { group: 'GLOBAL SOCIALS', platforms: ['Facebook', 'Instagram', 'X (Twitter)', 'Threads', 'Snapchat', 'Pinterest',
-                    'LinkedIn', 'Tumblr', 'Reddit', 'Mastodon', 'Bluesky', 'WhatsApp', 'Telegram', 'Discord', 'YouTube',
-                    'TikTok'
+            { group: 'GLOBAL SOCIALS', platforms: ['Facebook', 'Instagram', 'X (Twitter)', 'Threads', 'Snapchat',
+                    'Pinterest', 'LinkedIn', 'Tumblr', 'Reddit', 'Mastodon', 'Bluesky', 'WhatsApp', 'Telegram',
+                    'Discord', 'YouTube', 'TikTok'
                 ] },
             { group: 'DATING & SOCIAL DISCOVERY', platforms: ['Tinder', 'Bumble', 'Hinge', 'OkCupid', 'Badoo', 'Grindr',
                     'Plenty of Fish', 'Facebook Dating', 'The League', 'TimeLeft', 'AdultFriendFinder',
@@ -1527,17 +1301,17 @@
             { group: 'OTHER', platforms: ['Other'] },
         ];
 
-        function createBlankIdentity(classification, overrides) {
+        function blankIdentity(classification = 'A') {
             return {
                 id: 'SRV-' + Math.floor(Math.random() * 90000 + 10000),
-                classification: classification || 'A',
-                name: overrides?.name || 'NEW SUBJECT',
-                alias: overrides?.alias || 'UNNAMED',
+                classification,
+                name: 'NEW SUBJECT',
+                alias: 'UNNAMED',
                 status: 'ACTIVE',
-                statusLogic: overrides?.statusLogic || 'COLD-STATE',
-                priority: overrides?.priority || 'ECHO',
-                threat: overrides?.threat || 0,
-                nationality: overrides?.nationality || '',
+                statusLogic: 'COLD-STATE',
+                priority: 'ECHO',
+                threat: 0,
+                nationality: '',
                 dob: '',
                 age: '',
                 height: '',
@@ -1555,7 +1329,7 @@
                 religion: '',
                 maritalStatus: '',
                 children: '',
-                lastKnown: overrides?.lastKnown || '',
+                lastKnown: '',
                 citizenship: '',
                 passport: '',
                 visa: '',
@@ -1572,1289 +1346,1049 @@
             };
         }
 
-        // ================================================================
-        //  STATE
-        // ================================================================
-        let state = {
-            currentClass: 'A',
-            view: 'home', // 'home' | 'detail'
-            currentId: null,
-            activeTab: 'profile',
-            openDropdown: null,
-            confirm: null,
-            modal: null,
-            showModal: false,
-            // Social modal state
-            socialModal: {
-                open: false,
-                selectedPlatform: null,
-                platformFilter: '',
-                handle: '',
-                url: '',
-                status: 'ACTIVE',
-                customName: '',
-            },
-            // Folder modal
-            folderModal: { open: false, name: '' },
-            // Notes state
-            noteEditor: { currentNoteId: null, title: '', content: '' },
-            // Move file modal
-            movingFile: null,
-            // Image viewer
-            viewingFile: null,
-            // Update form
-            updateForm: { date: new Date().toISOString().split('T')[0], type: 'INTEL', title: '', content: '' },
-            // Confirm dialog
-            confirmDialog: null,
-        };
-
-        let rootEl = document.getElementById('root');
-
-        // ================================================================
-        //  RENDER
-        // ================================================================
-        function render() {
-            const s = state;
-            const filtered = identities.filter(i => i.classification === s.currentClass);
-            const currentIdentity = identities.find(i => i.id === s.currentId);
-
-            function priorityInfo(p) {
-                return priorityOptions.find(o => o.value === p) || { label: 'UNDEFINED', tier: 'neutral' };
-            }
-
-            function statusInfo(sl) {
-                return statusLogicOptions.find(o => o.value === sl) || { label: 'UNKNOWN', css: '' };
-            }
-
-            // --- Build home view ---
-            let homeHtml = '';
-            if (s.view === 'home') {
-                let cardsHtml = '';
-                filtered.forEach(identity => {
-                    const pi = priorityInfo(identity.priority);
-                    const isOpen = s.openDropdown === identity.id;
-                    cardsHtml += `
-                        <div class="ids-card" data-id="${identity.id}">
-                            <div class="ids-card-menu" data-stop-propagation>
-                                <button class="ids-menu-btn" data-dropdown-toggle="${identity.id}">...</button>
-                                <div class="ids-dropdown ${isOpen ? 'open' : ''}" data-dropdown="${identity.id}">
-                                    <button class="ids-dropdown-item" data-delete="${identity.id}">Delete</button>
-                                </div>
-                            </div>
-                            <div class="ids-card-header">
-                                <div class="ids-card-photo">
-                                    ${identity.photo ? `<img src="${escHtml(identity.photo)}" alt="${escHtml(identity.name)}" />` : '<span style="font-size:24px;color:#333;">?</span>'}
-                                </div>
-                                <div class="ids-card-meta">
-                                    <div class="ids-card-id">${escHtml(identity.id)}</div>
-                                    <div class="ids-card-name">${escHtml(identity.name)}</div>
-                                    <div class="ids-card-alias">"${escHtml(identity.alias)}"</div>
-                                    <div class="ids-priority-badge ${pi.tier}">${pi.value}</div>
-                                </div>
-                            </div>
-                            <div class="ids-card-intel">
-                                <div><span class="ids-intel-label">Threat</span><span class="ids-intel-value">${getThreatLabel(identity.threat)}</span></div>
-                                <div><span class="ids-intel-label">Age</span><span class="ids-intel-value">${identity.age ? identity.age + ' yrs' : '—'}</span></div>
-                                <div><span class="ids-intel-label">Nationality</span><span class="ids-intel-value">${identity.nationality?.split('/')[0]?.trim() || '—'}</span></div>
-                                <div><span class="ids-intel-label">Location</span><span class="ids-intel-value">${identity.lastKnown?.split(',')[0] || '—'}</span></div>
-                            </div>
-                        </div>
-                    `;
-                });
-
-                homeHtml = `
-                    <div class="ids-page" style="padding:28px 36px 48px;">
-                        <div class="ids-class-tabs">
-                            ${['A', 'B'].map(cls => `
-                                <button class="ids-class-tab ${s.currentClass === cls ? 'active' : ''}" data-class="${cls}">Class ${cls}</button>
-                            `).join('')}
-                        </div>
-                        <div style="display:flex;justify-content:flex-end;margin-bottom:18px;">
-                            <button class="ids-add-btn" id="addIdentityBtn">+ Add Identity</button>
-                        </div>
-                        ${filtered.length === 0 ? `
-                            <div class="ids-empty-state">
-                                <div style="font-size:36px;margin-bottom:12px;opacity:0.25;"></div>
-                                <div class="ids-empty-text">No identities in Class ${s.currentClass}</div>
-                            </div>
-                        ` : `
-                            <div class="ids-identity-grid">${cardsHtml}</div>
-                        `}
-                    </div>
-                `;
-            }
-
-            // --- Build detail view ---
-            let detailHtml = '';
-            if (s.view === 'detail' && currentIdentity) {
-                const pi = priorityInfo(currentIdentity.priority);
-                const si = statusInfo(currentIdentity.statusLogic);
-                const threatColor = currentIdentity.threat >= 70 ? '#FF3D00' : currentIdentity.threat >= 50 ? '#FFD60A' :
-                '#34C759';
-
-                // --- Profile tab ---
-                let profileHtml = `
-                    <div class="ids-profile-grid">
-                        <div class="ids-section ids-section-full">
-                            <div class="ids-section-title">Classification & Threat</div>
-                            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:8px 24px;">
-                                <div class="ids-field-row">
-                                    <span class="ids-field-label">Class</span>
-                                    <select class="ids-field-select" data-field="classification">
-                                        <option value="A" ${currentIdentity.classification === 'A' ? 'selected' : ''}>Class A</option>
-                                        <option value="B" ${currentIdentity.classification === 'B' ? 'selected' : ''}>Class B</option>
-                                    </select>
-                                </div>
-                                <div class="ids-field-row">
-                                    <span class="ids-field-label">Priority</span>
-                                    <select class="ids-field-select" data-field="priority">
-                                        ${priorityOptions.map(o => `<option value="${o.value}" ${currentIdentity.priority === o.value ? 'selected' : ''}>${o.label}</option>`).join('')}
-                                    </select>
-                                </div>
-                                <div class="ids-field-row">
-                                    <span class="ids-field-label">Status Logic</span>
-                                    <select class="ids-field-select" data-field="statusLogic">
-                                        ${statusLogicOptions.map(o => `<option value="${o.value}" ${currentIdentity.statusLogic === o.value ? 'selected' : ''}>${o.label}</option>`).join('')}
-                                    </select>
-                                </div>
-                                <div class="ids-field-row">
-                                    <span class="ids-field-label">Admin Status</span>
-                                    <input class="ids-field-input" data-field="status" value="${escHtml(currentIdentity.status)}" />
-                                </div>
-                                <div class="ids-field-row">
-                                    <span class="ids-field-label">Threat %</span>
-                                    <div style="flex:1;display:flex;align-items:center;gap:8px;min-width:0;">
-                                        <div class="ids-threat-track">
-                                            <div class="ids-threat-fill" style="width:${currentIdentity.threat}%;background:${threatColor};"></div>
-                                        </div>
-                                        <input type="number" min="0" max="100" class="ids-threat-num" data-field="threat" value="${currentIdentity.threat}" />
-                                        <span style="color:${threatColor};font-weight:600;font-size:11px;flex-shrink:0;">%</span>
-                                    </div>
-                                </div>
-                                <div class="ids-field-row">
-                                    <span class="ids-field-label">Criminal Record</span>
-                                    <input class="ids-field-input" data-field="criminalRecord" value="${escHtml(currentIdentity.criminalRecord)}" />
-                                </div>
-                                <div class="ids-field-row">
-                                    <span class="ids-field-label">Political Affiliation</span>
-                                    <input class="ids-field-input" data-field="politicalAffiliation" value="${escHtml(currentIdentity.politicalAffiliation)}" />
-                                </div>
-                            </div>
-                        </div>
-                        <div class="ids-section">
-                            <div class="ids-section-title">Biographic Data</div>
-                            ${['name','alias','dob','age','gender','birthPlace','religion','maritalStatus','children'].map(f => `
-                                <div class="ids-field-row">
-                                    <span class="ids-field-label">${f.replace(/([A-Z])/g,' $1').toUpperCase().trim()}</span>
-                                    <input class="ids-field-input" data-field="${f}" value="${escHtml(currentIdentity[f] || '')}" />
-                                </div>
-                            `).join('')}
-                        </div>
-                        <div class="ids-section">
-                            <div class="ids-section-title">Physical</div>
-                            ${['height','weight','eyes','hair','bloodType','marks'].map(f => `
-                                <div class="ids-field-row">
-                                    <span class="ids-field-label">${f.replace(/([A-Z])/g,' $1').toUpperCase().trim()}</span>
-                                    <input class="ids-field-input" data-field="${f}" value="${escHtml(currentIdentity[f] || '')}" />
-                                </div>
-                            `).join('')}
-                        </div>
-                        <div class="ids-section">
-                            <div class="ids-section-title">Citizenship & Travel</div>
-                            ${['nationality','citizenship','passport','visa','lastKnown'].map(f => `
-                                <div class="ids-field-row">
-                                    <span class="ids-field-label">${f.replace(/([A-Z])/g,' $1').toUpperCase().trim()}</span>
-                                    <input class="ids-field-input" data-field="${f}" value="${escHtml(currentIdentity[f] || '')}" />
-                                </div>
-                            `).join('')}
-                        </div>
-                        <div class="ids-section">
-                            <div class="ids-section-title">Professional</div>
-                            ${['occupation','employer','education','languages'].map(f => `
-                                <div class="ids-field-row">
-                                    <span class="ids-field-label">${f.replace(/([A-Z])/g,' $1').toUpperCase().trim()}</span>
-                                    <input class="ids-field-input" data-field="${f}" value="${escHtml(currentIdentity[f] || '')}" />
-                                </div>
-                            `).join('')}
-                        </div>
-                        <div class="ids-section">
-                            <div class="ids-section-title">Financial</div>
-                            ${['financialWorth','banking','assets'].map(f => `
-                                <div class="ids-field-row">
-                                    <span class="ids-field-label">${f.replace(/([A-Z])/g,' $1').toUpperCase().trim()}</span>
-                                    <input class="ids-field-input" data-field="${f}" value="${escHtml(currentIdentity[f] || '')}" />
-                                </div>
-                            `).join('')}
-                        </div>
-                    </div>
-                `;
-
-                // --- Imagery tab ---
-                let foldersHtml = '';
-                if (currentIdentity.folders.length > 0) {
-                    foldersHtml += `
-                        <div style="margin-bottom:28px;">
-                            <div style="font-size:9px;color:#333;letter-spacing:2px;margin-bottom:12px;text-transform:uppercase;font-family:'IBM Plex Mono',monospace;">FOLDERS</div>
-                            <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;">
-                                ${currentIdentity.folders.map((folder, idx) => `
-                                    <div class="ids-folder-card" data-folder-open="${idx}">
-                                        <svg style="width:48px;height:38px;margin:0 auto 10px;color:#555;display:block;" viewBox="0 0 64 50" fill="none" stroke="currentColor" stroke-width="1.5">
-                                            <path d="M2 10 C2 7,4 5,7 5 L22 5 L26 10 L57 10 C60 10,62 12,62 15 L62 43 C62 46,60 48,57 48 L7 48 C4 48,2 46,2 43 L2 10Z" />
-                                        </svg>
-                                        <div style="font-size:11px;color:#c0c0c0;margin-bottom:3px;font-weight:500;font-family:'IBM Plex Mono',monospace;">${escHtml(folder.name)}</div>
-                                        <div style="font-size:9px;color:#333;font-family:'IBM Plex Mono',monospace;">${folder.files.length} FILES</div>
-                                    </div>
-                                `).join('')}
-                            </div>
-                        </div>
-                    `;
-                }
-
-                let allFiles = currentIdentity.folders.flatMap((f, fi) => f.files.map(file => ({ ...file, folderIdx: fi,
-                    folderName: f.name })));
-
-                let allMediaHtml = '';
-                if (allFiles.length > 0) {
-                    allMediaHtml = `
-                        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px;">
-                            ${allFiles.map(file => `
-                                <div class="ids-media-card" data-file-view='${JSON.stringify({id:file.id,name:file.name,type:file.type,data:file.data,folderIdx:file.folderIdx})}'>
-                                    <div style="width:100%;height:100%;position:absolute;inset:0;">
-                                        ${file.type?.startsWith('video') ? `<video src="${escHtml(file.data)}" muted />` : `<img src="${escHtml(file.data)}" alt="${escHtml(file.name)}" />`}
-                                    </div>
-                                    <div class="ids-media-overlay">
-                                        <span class="ids-media-name">${escHtml(file.name)}</span>
-                                        <button class="ids-media-action" data-move-file='${JSON.stringify({id:file.id,name:file.name,type:file.type,data:file.data,folderIdx:file.folderIdx})}'>MOVE</button>
-                                        <button class="ids-media-action del" data-delete-file='${JSON.stringify({id:file.id,folderIdx:file.folderIdx})}'>DEL</button>
-                                    </div>
-                                </div>
-                            `).join('')}
-                        </div>
-                    `;
-                } else {
-                    allMediaHtml = `
-                        <div class="ids-empty-state">
-                            <div style="font-size:28px;margin-bottom:10px;opacity:0.3;">📷</div>
-                            <div class="ids-empty-text">No media — click Upload to add</div>
-                        </div>
-                    `;
-                }
-
-                let folderContentHtml = '';
-                if (state.openFolderIdx !== null && state.openFolderIdx !== undefined) {
-                    const folder = currentIdentity.folders[state.openFolderIdx];
-                    if (folder) {
-                        folderContentHtml = `
-                            <div class="ids-breadcrumb">
-                                <span class="ids-breadcrumb-link" data-folder-back>ALL ASSETS</span>
-                                <span>/</span>
-                                <span style="color:#c0c0c0;">${escHtml(folder.name)}</span>
-                            </div>
-                            <div style="font-size:9px;color:#333;letter-spacing:2px;margin-bottom:12px;text-transform:uppercase;font-family:'IBM Plex Mono',monospace;">${folder.files.length} FILES</div>
-                            ${folder.files.length > 0 ? `
-                                <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px;">
-                                    ${folder.files.map(file => `
-                                        <div class="ids-media-card" data-file-view='${JSON.stringify({id:file.id,name:file.name,type:file.type,data:file.data,folderIdx:state.openFolderIdx})}'>
-                                            <div style="width:100%;height:100%;position:absolute;inset:0;">
-                                                ${file.type?.startsWith('video') ? `<video src="${escHtml(file.data)}" muted />` : `<img src="${escHtml(file.data)}" alt="${escHtml(file.name)}" />`}
-                                            </div>
-                                            <div class="ids-media-overlay">
-                                                <span class="ids-media-name">${escHtml(file.name)}</span>
-                                                <button class="ids-media-action" data-move-file='${JSON.stringify({id:file.id,name:file.name,type:file.type,data:file.data,folderIdx:state.openFolderIdx})}'>MOVE</button>
-                                                <button class="ids-media-action del" data-delete-file='${JSON.stringify({id:file.id,folderIdx:state.openFolderIdx})}'>DEL</button>
-                                            </div>
-                                        </div>
-                                    `).join('')}
-                                </div>
-                            ` : `
-                                <div class="ids-empty-state">
-                                    <div class="ids-empty-text">Folder is empty</div>
-                                </div>
-                            `}
-                        `;
-                    }
-                }
-
-                let imageryHtml = `
-                    <div>
-                        <div style="display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap;">
-                            <button class="ids-toolbar-btn" id="uploadBtn">+ Upload</button>
-                            <button class="ids-toolbar-btn" id="newFolderBtn">+ New Folder</button>
-                            ${state.openFolderIdx !== null && state.openFolderIdx !== undefined ? `
-                                <button class="ids-toolbar-btn" data-folder-back>← Back</button>
-                            ` : ''}
-                            <input type="file" id="fileInput" multiple accept="image/*,video/*" style="display:none;" />
-                        </div>
-                        ${state.openFolderIdx !== null && state.openFolderIdx !== undefined ? folderContentHtml : `
-                            ${foldersHtml}
-                            <div>
-                                <div style="font-size:9px;color:#333;letter-spacing:2px;margin-bottom:12px;text-transform:uppercase;font-family:'IBM Plex Mono',monospace;">ALL MEDIA (${allFiles.length})</div>
-                                ${allMediaHtml}
-                            </div>
-                        `}
-                    </div>
-                `;
-
-                // --- Socials tab ---
-                let socialsHtml = `
-                    <div>
-                        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:8px;margin-bottom:20px;">
-                            ${currentIdentity.socials.map(s => `
-                                <div class="ids-social-card">
-                                    <div class="ids-social-icon">${getSocialIcon(s.platform)}</div>
-                                    <div style="flex:1;min-width:0;">
-                                        <div class="ids-social-platform">${escHtml(s.platform)}</div>
-                                        <div class="ids-social-handle">${escHtml(s.handle)}</div>
-                                    </div>
-                                    <div class="ids-social-status ${s.status === 'ACTIVE' ? 'active-s' : s.status === 'SUSPENDED' ? 'suspended' : ''}">${s.status}</div>
-                                    <button data-remove-social="${s.id}" style="background:transparent;border:none;color:#333;cursor:pointer;font-size:16px;padding:0 4px;transition:color 0.15s;flex-shrink:0;">×</button>
-                                </div>
-                            `).join('')}
-                            <div class="ids-add-social-btn" id="addSocialBtn">+ Add Social Profile</div>
-                        </div>
-                    </div>
-                `;
-
-                // --- Notes tab ---
-                const currentNote = currentIdentity.notes.find(n => n.id === state.noteEditor.currentNoteId);
-                const noteTitle = state.noteEditor.currentNoteId !== null ? (currentNote ? currentNote.title : '') : state
-                    .noteEditor.title;
-                const noteContent = state.noteEditor.currentNoteId !== null ? (currentNote ? currentNote.content : '') : state
-                    .noteEditor.content;
-
-                let notesHtml = `
-                    <div class="ids-notes-container">
-                        <div class="ids-note-editor">
-                            <div class="ids-editor-header">
-                                <button class="ids-editor-btn" id="noteNewBtn">+ New</button>
-                                <button class="ids-editor-btn" id="noteSaveBtn">Save</button>
-                                <button class="ids-editor-btn danger" id="noteDeleteBtn">Delete</button>
-                                <div style="width:1px;background:#1a1a1a;margin:2px 2px;"></div>
-                                <button class="ids-editor-btn" data-format="bold" title="Bold"><b style="font-family:serif;">B</b></button>
-                                <button class="ids-editor-btn" data-format="italic" title="Italic"><i style="font-family:serif;">I</i></button>
-                                <button class="ids-editor-btn" data-format="underline" title="Underline"><u>U</u></button>
-                                <button class="ids-editor-btn" data-format="strikeThrough" title="Strikethrough"><s>S</s></button>
-                                <div style="width:1px;background:#1a1a1a;margin:2px 2px;"></div>
-                                <button class="ids-editor-btn" data-format="insertUnorderedList" title="Bullet list">• List</button>
-                                <button class="ids-editor-btn" data-format="insertOrderedList" title="Numbered list">1. List</button>
-                                <div style="width:1px;background:#1a1a1a;margin:2px 2px;"></div>
-                                <button class="ids-editor-btn" id="noteImgBtn">📎 IMG</button>
-                                <input type="file" id="noteImgInput" accept="image/*" style="display:none;" />
-                            </div>
-                            <input class="ids-note-title-input" id="noteTitleInput" placeholder="Note title..." value="${escHtml(noteTitle)}" />
-                            <div id="noteContentEditor" class="ids-note-content" contenteditable="true" data-placeholder="Start typing your note...">${noteContent}</div>
-                        </div>
-                        <div class="ids-notes-list">
-                            <div class="ids-notes-list-header">SAVED NOTES (${currentIdentity.notes.length})</div>
-                            ${currentIdentity.notes.length > 0 ? currentIdentity.notes.map(note => `
-                                <div class="ids-note-item ${note.id === state.noteEditor.currentNoteId ? 'active-note' : ''}" data-note-select="${note.id}">
-                                    <div class="ids-note-item-title">${escHtml(note.title)}</div>
-                                    <div class="ids-note-item-date">${note.date}</div>
-                                </div>
-                            `).join('') : `
-                                <div class="ids-empty-state"><div class="ids-empty-text">No notes yet</div></div>
-                            `}
-                        </div>
-                    </div>
-                `;
-
-                // --- Updates tab ---
-                let updatesHtml = `
-                    <div style="max-width:880px;">
-                        <div style="background:#0a0a0a;border:1px solid #1a1a1a;padding:20px;margin-bottom:24px;">
-                            <div style="font-size:9px;color:#333;letter-spacing:2px;margin-bottom:14px;text-transform:uppercase;font-family:'IBM Plex Mono',monospace;">LOG NEW UPDATE</div>
-                            <div style="display:flex;gap:14px;margin-bottom:12px;">
-                                <div style="flex:1;">
-                                    <label style="display:block;font-size:9px;color:#333;margin-bottom:6px;letter-spacing:2px;text-transform:uppercase;font-family:'IBM Plex Mono',monospace;">Date</label>
-                                    <input type="date" class="ids-form-input" id="updateDate" value="${state.updateForm.date}" />
-                                </div>
-                                <div style="flex:1;">
-                                    <label style="display:block;font-size:9px;color:#333;margin-bottom:6px;letter-spacing:2px;text-transform:uppercase;font-family:'IBM Plex Mono',monospace;">Type</label>
-                                    <select class="ids-form-select" id="updateType">
-                                        ${['INTEL','CRITICAL','ROUTINE','SURVEILLANCE'].map(t => `<option value="${t}" ${state.updateForm.type === t ? 'selected' : ''}>${t}</option>`).join('')}
-                                    </select>
-                                </div>
-                            </div>
-                            <div style="margin-bottom:12px;">
-                                <label style="display:block;font-size:9px;color:#333;margin-bottom:6px;letter-spacing:2px;text-transform:uppercase;font-family:'IBM Plex Mono',monospace;">Title</label>
-                                <input class="ids-form-input" id="updateTitle" placeholder="Update title..." value="${escHtml(state.updateForm.title)}" />
-                            </div>
-                            <div style="margin-bottom:16px;">
-                                <label style="display:block;font-size:9px;color:#333;margin-bottom:6px;letter-spacing:2px;text-transform:uppercase;font-family:'IBM Plex Mono',monospace;">Content</label>
-                                <textarea class="ids-form-textarea" id="updateContent" placeholder="Describe the update...">${escHtml(state.updateForm.content)}</textarea>
-                            </div>
-                            <button class="ids-submit-btn" id="logUpdateBtn">LOG UPDATE</button>
-                        </div>
-                        <div style="font-size:9px;color:#333;letter-spacing:2px;margin-bottom:14px;text-transform:uppercase;font-family:'IBM Plex Mono',monospace;">UPDATE HISTORY</div>
-                        ${currentIdentity.updates.length > 0 ? currentIdentity.updates.map(u => `
-                            <div class="ids-update-entry">
-                                <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;">
-                                    <div>
-                                        <div class="ids-update-date">${u.date}</div>
-                                        <div class="ids-update-type ${u.type.toLowerCase()}">${u.type}</div>
-                                    </div>
-                                    <button data-delete-update="${u.id}" style="background:transparent;border:none;color:#333;cursor:pointer;font-size:16px;padding:4px;transition:color 0.15s;">×</button>
-                                </div>
-                                <div class="ids-update-title">${escHtml(u.title)}</div>
-                                <div class="ids-update-content">${escHtml(u.content)}</div>
-                            </div>
-                        `).join('') : `
-                            <div class="ids-empty-state">
-                                <div style="font-size:24px;margin-bottom:10px;opacity:0.3;">📋</div>
-                                <div class="ids-empty-text">No updates logged</div>
-                            </div>
-                        `}
-                    </div>
-                `;
-
-                // --- Tabs ---
-                const TAB_NAMES = ['profile', 'imagery', 'socials', 'notes', 'updates'];
-                const TAB_HTML = { profile: profileHtml, imagery: imageryHtml, socials: socialsHtml, notes: notesHtml,
-                    updates: updatesHtml };
-
-                let tabsNavHtml = TAB_NAMES.map(tab => `
-                    <button class="ids-tab-btn ${s.activeTab === tab ? 'active' : ''}" data-tab="${tab}">${tab.charAt(0).toUpperCase() + tab.slice(1)}</button>
-                `).join('');
-
-                let tabsContentHtml = TAB_NAMES.map(tab => `
-                    <div class="ids-tab-content ${s.activeTab === tab ? 'active' : ''}" data-tab-content="${tab}">
-                        ${TAB_HTML[tab] || ''}
-                    </div>
-                `).join('');
-
-                // --- Detail view assembly ---
-                detailHtml = `
-                    <div class="ids-page" style="padding:28px 36px;">
-                        <div style="max-width:1400px;margin:0 auto;">
-                            <div style="display:flex;align-items:center;gap:14px;margin-bottom:20px;">
-                                <button class="ids-back-btn" id="backToHomeBtn">← Database</button>
-                                <div style="margin-left:auto;display:flex;gap:8px;">
-                                    <button class="ids-action-btn" id="saveIdentityBtn">Save</button>
-                                    <button class="ids-action-btn danger" id="deleteIdentityBtn">Delete</button>
-                                </div>
-                            </div>
-
-                            <div class="ids-detail-header">
-                                <div style="position:relative;">
-                                    <div class="ids-detail-photo" id="detailPhotoClick">
-                                        ${currentIdentity.photo ? `<img src="${escHtml(currentIdentity.photo)}" alt="${escHtml(currentIdentity.name)}" />` : ''}
-                                        <div class="ids-photo-overlay">
-                                            <button style="background:transparent;border:1px solid #555;color:#888;padding:4px 10px;font-size:9px;cursor:pointer;font-family:'IBM Plex Mono',monospace;letter-spacing:1px;">CHANGE PHOTO</button>
-                                        </div>
-                                    </div>
-                                    <input type="file" id="detailPhotoInput" accept="image/*" style="display:none;" />
-                                </div>
-                                <div style="flex:1;display:flex;flex-direction:column;justify-content:center;min-width:0;">
-                                    <h1 class="ids-detail-name">${escHtml(currentIdentity.name)}</h1>
-                                    <div class="ids-detail-alias">"${escHtml(currentIdentity.alias)}"</div>
-                                    <div class="ids-detail-stats">
-                                        <div><span class="ids-stat-label">Priority</span><span class="ids-stat-value"><span class="ids-priority-badge ${pi.tier}">${pi.value}</span></span></div>
-                                        <div><span class="ids-stat-label">Status</span><span class="ids-stat-value"><span class="ids-status-badge ${si.css}">${currentIdentity.statusLogic}</span></span></div>
-                                        <div><span class="ids-stat-label">Threat</span><span class="ids-stat-value" style="color:${threatColor}">${currentIdentity.threat}%</span></div>
-                                        <div><span class="ids-stat-label">Class</span><span class="ids-stat-value">${currentIdentity.classification}</span></div>
-                                        <div><span class="ids-stat-label">Location</span><span class="ids-stat-value">${currentIdentity.lastKnown || '—'}</span></div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div style="background:#050505;border:1px solid #1a1a1a;">
-                                <div class="ids-tabs-nav">${tabsNavHtml}</div>
-                                ${tabsContentHtml}
-                            </div>
-                        </div>
-                    </div>
-                `;
-            }
-
-            // --- Build confirm dialog ---
-            let confirmHtml = '';
-            if (s.confirmDialog) {
-                confirmHtml = `
-                    <div class="ids-modal-overlay open" id="confirmOverlay">
-                        <div class="ids-modal" style="max-width:380px;">
-                            <div class="ids-modal-header">
-                                <span class="ids-modal-title">⚠ CONFIRM</span>
-                                <button class="ids-modal-close" id="confirmCancelBtn">×</button>
-                            </div>
-                            <div class="ids-modal-body">
-                                <p style="font-size:12px;color:#888;line-height:1.7;font-family:'IBM Plex Mono',monospace;">${escHtml(s.confirmDialog.message)}</p>
-                            </div>
-                            <div class="ids-modal-actions">
-                                <button class="ids-modal-btn secondary" id="confirmCancelBtn2">CANCEL</button>
-                                <button class="ids-modal-btn danger-btn" id="confirmOkBtn">CONFIRM</button>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            }
-
-            // --- Build social modal ---
-            let socialModalHtml = '';
-            if (state.socialModal.open) {
-                const filteredGroups = PLATFORM_GROUPS.map(g => ({
-                    ...g,
-                    platforms: g.platforms.filter(p => p.toLowerCase().includes(state.socialModal.platformFilter
-                    .toLowerCase())),
-                })).filter(g => g.platforms.length > 0);
-
-                socialModalHtml = `
-                    <div class="ids-modal-overlay open" id="socialModalOverlay">
-                        <div class="ids-modal">
-                            <div class="ids-modal-header">
-                                <span class="ids-modal-title">ADD SOCIAL PROFILE</span>
-                                <button class="ids-modal-close" id="socialModalClose">×</button>
-                            </div>
-                            <div class="ids-modal-body">
-                                <div style="margin-bottom:14px;">
-                                    <label class="ids-modal-label">Search Platform</label>
-                                    <input class="ids-modal-input" id="socialPlatformFilter" style="margin-bottom:8px;" placeholder="Filter platforms..." value="${escHtml(state.socialModal.platformFilter)}" autofocus />
-                                    <div class="ids-platform-list">
-                                        ${filteredGroups.map(g => `
-                                            <div class="ids-platform-group-header">${g.group}</div>
-                                            ${g.platforms.map(p => `
-                                                <div class="ids-platform-item ${state.socialModal.selectedPlatform === p ? 'selected' : ''}" data-social-platform="${p}">${p}</div>
-                                            `).join('')}
-                                        `).join('')}
-                                    </div>
-                                </div>
-                                ${state.socialModal.selectedPlatform === 'Other' ? `
-                                    <div style="margin-bottom:14px;">
-                                        <label class="ids-modal-label">Platform Name</label>
-                                        <input class="ids-modal-input" id="socialCustomName" placeholder="Enter platform name" value="${escHtml(state.socialModal.customName)}" />
-                                    </div>
-                                ` : ''}
-                                <div style="margin-bottom:14px;">
-                                    <label class="ids-modal-label">Username / Handle</label>
-                                    <input class="ids-modal-input" id="socialHandle" placeholder="@username" value="${escHtml(state.socialModal.handle)}" />
-                                </div>
-                                <div style="margin-bottom:14px;">
-                                    <label class="ids-modal-label">Profile URL</label>
-                                    <input class="ids-modal-input" id="socialUrl" placeholder="https://..." value="${escHtml(state.socialModal.url)}" />
-                                </div>
-                                <div style="margin-bottom:6px;">
-                                    <label class="ids-modal-label">Status</label>
-                                    <select class="ids-modal-input" id="socialStatus">
-                                        ${['ACTIVE','SUSPENDED','DELETED','MONITORED'].map(s => `<option value="${s}" ${state.socialModal.status === s ? 'selected' : ''}>${s}</option>`).join('')}
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="ids-modal-actions">
-                                <button class="ids-modal-btn secondary" id="socialModalCancel">CANCEL</button>
-                                <button class="ids-modal-btn primary" id="socialModalAdd">ADD PROFILE</button>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            }
-
-            // --- Build folder modal ---
-            let folderModalHtml = '';
-            if (state.folderModal.open) {
-                folderModalHtml = `
-                    <div class="ids-modal-overlay open" id="folderModalOverlay">
-                        <div class="ids-modal" style="max-width:360px;">
-                            <div class="ids-modal-header">
-                                <span class="ids-modal-title">NEW FOLDER</span>
-                                <button class="ids-modal-close" id="folderModalClose">×</button>
-                            </div>
-                            <div class="ids-modal-body">
-                                <label class="ids-modal-label">Folder Name</label>
-                                <input class="ids-modal-input" id="folderNameInput" placeholder="Enter name..." value="${escHtml(state.folderModal.name)}" autofocus />
-                            </div>
-                            <div class="ids-modal-actions">
-                                <button class="ids-modal-btn secondary" id="folderModalCancel">CANCEL</button>
-                                <button class="ids-modal-btn primary" id="folderModalCreate">CREATE</button>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            }
-
-            // --- Build move file modal ---
-            let moveFileHtml = '';
-            if (state.movingFile && currentIdentity) {
-                moveFileHtml = `
-                    <div class="ids-modal-overlay open" id="moveFileOverlay">
-                        <div class="ids-modal" style="max-width:360px;">
-                            <div class="ids-modal-header">
-                                <span class="ids-modal-title">MOVE FILE</span>
-                                <button class="ids-modal-close" id="moveFileClose">×</button>
-                            </div>
-                            <div class="ids-modal-body">
-                                <p style="font-size:11px;color:#555;margin-bottom:14px;font-family:'IBM Plex Mono',monospace;line-height:1.6;">
-                                    Moving: <span style="color:#c0c0c0;">${escHtml(state.movingFile.name)}</span>
-                                </p>
-                                <label class="ids-modal-label">Select destination folder</label>
-                                <div class="ids-platform-list">
-                                    ${currentIdentity.folders.map((f, idx) => idx !== state.movingFile.folderIdx ? `
-                                        <div class="ids-platform-item" data-move-target="${idx}">${escHtml(f.name)}</div>
-                                    ` : '').join('')}
-                                    ${currentIdentity.folders.filter((_, i) => i !== state.movingFile.folderIdx).length === 0 ? `
-                                        <div style="padding:14px;font-size:11px;color:#444;font-family:'IBM Plex Mono',monospace;">No other folders exist</div>
-                                    ` : ''}
-                                </div>
-                            </div>
-                            <div class="ids-modal-actions">
-                                <button class="ids-modal-btn secondary" id="moveFileCancel">CANCEL</button>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            }
-
-            // --- Build image viewer ---
-            let viewerHtml = '';
-            if (state.viewingFile) {
-                const file = state.viewingFile;
-                viewerHtml = `
-                    <div class="ids-viewer-overlay" id="viewerOverlay">
-                        <div class="ids-viewer-box">
-                            <div class="ids-viewer-corner tl"></div>
-                            <div class="ids-viewer-corner tr"></div>
-                            <div class="ids-viewer-corner bl"></div>
-                            <div class="ids-viewer-corner br"></div>
-                            <div class="ids-viewer-header">
-                                <span class="ids-viewer-title">${escHtml(file.name)}</span>
-                                <button class="ids-viewer-close" id="viewerClose">×</button>
-                            </div>
-                            <div class="ids-viewer-media">
-                                ${file.type?.startsWith('video') ? `<video src="${escHtml(file.data)}" controls autoplay style="max-width:85vw;max-height:75vh;"></video>` : `<img src="${escHtml(file.data)}" alt="${escHtml(file.name)}" />`}
-                            </div>
-                            <div class="ids-viewer-footer">
-                                <span>FILE: ${escHtml(file.name)}</span>
-                                <span>TYPE: ${file.type || 'IMAGE'}</span>
-                                <span>STATUS: SECURE</span>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            }
-
-            // --- Assemble final HTML ---
-            rootEl.innerHTML = `
-                ${homeHtml}
-                ${detailHtml}
-                ${confirmHtml}
-                ${socialModalHtml}
-                ${folderModalHtml}
-                ${moveFileHtml}
-                ${viewerHtml}
-            `;
-
-            // ================================================================
-            //  BIND EVENTS
-            // ================================================================
-
-            // --- Home view events ---
-            document.querySelectorAll('.ids-class-tab[data-class]').forEach(el => {
-                el.addEventListener('click', () => {
-                    state.currentClass = el.dataset.class;
-                    render();
-                });
-            });
-
-            const addBtn = document.getElementById('addIdentityBtn');
-            if (addBtn) {
-                addBtn.addEventListener('click', () => {
-                    const newIdentity = createBlankIdentity(state.currentClass);
-                    addIdentity(newIdentity);
-                    state.currentId = newIdentity.id;
-                    state.view = 'detail';
-                    state.activeTab = 'profile';
-                    render();
-                });
-            }
-
-            document.querySelectorAll('.ids-card[data-id]').forEach(el => {
-                el.addEventListener('click', (e) => {
-                    if (e.target.closest('.ids-card-menu')) return;
-                    state.currentId = el.dataset.id;
-                    state.view = 'detail';
-                    state.activeTab = 'profile';
-                    render();
-                });
-            });
-
-            // Dropdown toggle
-            document.querySelectorAll('[data-dropdown-toggle]').forEach(el => {
-                el.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    const id = el.dataset.dropdownToggle;
-                    state.openDropdown = state.openDropdown === id ? null : id;
-                    render();
-                });
-            });
-
-            document.querySelectorAll('[data-delete]').forEach(el => {
-                el.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    const id = el.dataset.delete;
-                    state.confirmDialog = {
-                        message: `Delete identity? This cannot be undone.`,
-                        onConfirm: () => {
-                            deleteIdentity(id);
-                            if (state.currentId === id) { state.view = 'home';
-                                state.currentId = null; }
-                            state.confirmDialog = null;
-                            render();
-                        },
-                    };
-                    render();
-                });
-            });
-
-            // --- Detail view events ---
-            const backBtn = document.getElementById('backToHomeBtn');
-            if (backBtn) {
-                backBtn.addEventListener('click', () => {
-                    state.view = 'home';
-                    state.currentId = null;
-                    state.openDropdown = null;
-                    render();
-                });
-            }
-
-            const saveBtn = document.getElementById('saveIdentityBtn');
-            if (saveBtn) {
-                saveBtn.addEventListener('click', () => {
-                    alert('Identity saved.');
-                });
-            }
-
-            const deleteBtn = document.getElementById('deleteIdentityBtn');
-            if (deleteBtn) {
-                deleteBtn.addEventListener('click', () => {
-                    if (!currentIdentity) return;
-                    state.confirmDialog = {
-                        message: `Delete identity? This cannot be undone.`,
-                        onConfirm: () => {
-                            deleteIdentity(currentIdentity.id);
-                            state.view = 'home';
-                            state.currentId = null;
-                            state.confirmDialog = null;
-                            render();
-                        },
-                    };
-                    render();
-                });
-            }
-
-            // Profile fields
-            document.querySelectorAll('[data-field]').forEach(el => {
-                el.addEventListener('change', () => {
-                    if (!currentIdentity) return;
-                    const field = el.dataset.field;
-                    let value = el.value;
-                    if (field === 'threat') {
-                        value = Math.min(100, Math.max(0, parseInt(value) || 0));
-                    }
-                    updateIdentity(currentIdentity.id, { [field]: value });
-                    render();
-                });
-                el.addEventListener('input', () => {
-                    if (!currentIdentity) return;
-                    const field = el.dataset.field;
-                    let value = el.value;
-                    if (field === 'threat') {
-                        value = Math.min(100, Math.max(0, parseInt(value) || 0));
-                    }
-                    updateIdentity(currentIdentity.id, { [field]: value });
-                });
-            });
-
-            // Photo upload
-            const photoClick = document.getElementById('detailPhotoClick');
-            const photoInput = document.getElementById('detailPhotoInput');
-            if (photoClick && photoInput) {
-                photoClick.addEventListener('click', () => photoInput.click());
-                photoInput.addEventListener('change', (e) => {
-                    const file = e.target.files[0];
-                    if (!file) return;
-                    const reader = new FileReader();
-                    reader.onload = (ev) => {
-                        if (currentIdentity) {
-                            updateIdentity(currentIdentity.id, { photo: ev.target.result });
-                            render();
-                        }
-                    };
-                    reader.readAsDataURL(file);
-                });
-            }
-
-            // --- Tabs ---
-            document.querySelectorAll('[data-tab]').forEach(el => {
-                el.addEventListener('click', () => {
-                    state.activeTab = el.dataset.tab;
-                    render();
-                });
-            });
-
-            // --- Imagery tab events ---
-            const uploadBtn = document.getElementById('uploadBtn');
-            const fileInput = document.getElementById('fileInput');
-            if (uploadBtn && fileInput) {
-                uploadBtn.addEventListener('click', () => fileInput.click());
-                fileInput.addEventListener('change', (e) => {
-                    const files = Array.from(e.target.files);
-                    if (!currentIdentity) return;
-                    let folders = currentIdentity.folders.length > 0 ? [...currentIdentity.folders] : [{ name: 'General',
-                        files: [] }];
-                    const targetIdx = state.openFolderIdx !== null && state.openFolderIdx !== undefined ?
-                        state.openFolderIdx : 0;
-                    files.forEach(file => {
-                        const reader = new FileReader();
-                        reader.onload = (ev) => {
-                            const newFile = { id: Date.now() + Math.random(), name: file.name, type: file
-                                    .type, data: ev.target.result };
-                            folders = folders.map((f, i) => i === targetIdx ? { ...f, files: [...f.files,
-                                    newFile] } : f);
-                            updateIdentity(currentIdentity.id, { folders });
-                            render();
-                        };
-                        reader.readAsDataURL(file);
-                    });
-                    e.target.value = '';
-                });
-            }
-
-            // New folder
-            const newFolderBtn = document.getElementById('newFolderBtn');
-            if (newFolderBtn) {
-                newFolderBtn.addEventListener('click', () => {
-                    state.folderModal = { open: true, name: '' };
-                    render();
-                });
-            }
-
-            // Folder open
-            document.querySelectorAll('[data-folder-open]').forEach(el => {
-                el.addEventListener('click', () => {
-                    state.openFolderIdx = parseInt(el.dataset.folderOpen, 10);
-                    render();
-                });
-            });
-
-            // Folder back
-            document.querySelectorAll('[data-folder-back]').forEach(el => {
-                el.addEventListener('click', () => {
-                    state.openFolderIdx = null;
-                    render();
-                });
-            });
-
-            // File view
-            document.querySelectorAll('[data-file-view]').forEach(el => {
-                el.addEventListener('click', (e) => {
-                    if (e.target.closest('.ids-media-overlay')) return;
-                    try {
-                        const file = JSON.parse(el.dataset.fileView);
-                        state.viewingFile = file;
-                        render();
-                    } catch (_) {}
-                });
-            });
-
-            // Delete file
-            document.querySelectorAll('[data-delete-file]').forEach(el => {
-                el.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    if (!currentIdentity) return;
-                    try {
-                        const { id, folderIdx } = JSON.parse(el.dataset.deleteFile);
-                        state.confirmDialog = {
-                            message: 'Permanently delete this file?',
-                            onConfirm: () => {
-                                const updated = currentIdentity.folders.map((f, i) =>
-                                    i === folderIdx ? { ...f, files: f.files.filter(fi => fi.id !==
-                                            id) } : f
-                                );
-                                updateIdentity(currentIdentity.id, { folders: updated });
-                                state.confirmDialog = null;
-                                render();
-                            },
-                        };
-                        render();
-                    } catch (_) {}
-                });
-            });
-
-            // Move file
-            document.querySelectorAll('[data-move-file]').forEach(el => {
-                el.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    try {
-                        const file = JSON.parse(el.dataset.moveFile);
-                        state.movingFile = file;
-                        render();
-                    } catch (_) {}
-                });
-            });
-
-            // --- Socials tab events ---
-            const addSocialBtn = document.getElementById('addSocialBtn');
-            if (addSocialBtn) {
-                addSocialBtn.addEventListener('click', () => {
-                    state.socialModal = { open: true, selectedPlatform: null, platformFilter: '', handle: '',
-                        url: '', status: 'ACTIVE', customName: '' };
-                    render();
-                });
-            }
-
-            document.querySelectorAll('[data-remove-social]').forEach(el => {
-                el.addEventListener('click', () => {
-                    if (!currentIdentity) return;
-                    const id = parseInt(el.dataset.removeSocial, 10);
-                    state.confirmDialog = {
-                        message: 'Remove this social profile entry?',
-                        onConfirm: () => {
-                            updateIdentity(currentIdentity.id, { socials: currentIdentity.socials.filter(s =>
-                                    s.id !== id) });
-                            state.confirmDialog = null;
-                            render();
-                        },
-                    };
-                    render();
-                });
-            });
-
-            // --- Notes tab events ---
-            const noteNewBtn = document.getElementById('noteNewBtn');
-            if (noteNewBtn) {
-                noteNewBtn.addEventListener('click', () => {
-                    state.noteEditor = { currentNoteId: null, title: '', content: '' };
-                    render();
-                });
-            }
-
-            const noteSaveBtn = document.getElementById('noteSaveBtn');
-            if (noteSaveBtn) {
-                noteSaveBtn.addEventListener('click', () => {
-                    if (!currentIdentity) return;
-                    const titleEl = document.getElementById('noteTitleInput');
-                    const contentEl = document.getElementById('noteContentEditor');
-                    const t = (titleEl ? titleEl.value : '').trim() || 'Untitled Note';
-                    const content = contentEl ? contentEl.innerHTML : '';
-                    if (state.noteEditor.currentNoteId) {
-                        updateIdentity(currentIdentity.id, {
-                            notes: currentIdentity.notes.map(n =>
-                                n.id === state.noteEditor.currentNoteId ? { ...n, title: t, content,
-                                    date: new Date().toISOString().split('T')[0] } : n
-                            )
-                        });
-                    } else {
-                        const newId = Date.now();
-                        updateIdentity(currentIdentity.id, {
-                            notes: [{ id: newId, title: t, content, date: new Date().toISOString().split(
-                                    'T')[0] }, ...currentIdentity.notes]
-                        });
-                        state.noteEditor.currentNoteId = newId;
-                    }
-                    render();
-                });
-            }
-
-            const noteDeleteBtn = document.getElementById('noteDeleteBtn');
-            if (noteDeleteBtn) {
-                noteDeleteBtn.addEventListener('click', () => {
-                    if (!currentIdentity || !state.noteEditor.currentNoteId) return;
-                    state.confirmDialog = {
-                        message: 'Delete this note permanently?',
-                        onConfirm: () => {
-                            updateIdentity(currentIdentity.id, {
-                                notes: currentIdentity.notes.filter(n => n.id !== state.noteEditor
-                                    .currentNoteId)
-                            });
-                            state.noteEditor = { currentNoteId: null, title: '', content: '' };
-                            state.confirmDialog = null;
-                            render();
-                        },
-                    };
-                    render();
-                });
-            }
-
-            // Note format buttons
-            document.querySelectorAll('[data-format]').forEach(el => {
-                el.addEventListener('click', () => {
-                    const contentEl = document.getElementById('noteContentEditor');
-                    if (!contentEl) return;
-                    contentEl.focus();
-                    document.execCommand(el.dataset.format, false, null);
-                });
-            });
-
-            // Note image attach
-            const noteImgBtn = document.getElementById('noteImgBtn');
-            const noteImgInput = document.getElementById('noteImgInput');
-            if (noteImgBtn && noteImgInput) {
-                noteImgBtn.addEventListener('click', () => noteImgInput.click());
-                noteImgInput.addEventListener('change', (e) => {
-                    const file = e.target.files[0];
-                    if (!file) return;
-                    const reader = new FileReader();
-                    reader.onload = (ev) => {
-                        const contentEl = document.getElementById('noteContentEditor');
-                        if (!contentEl) return;
-                        contentEl.focus();
-                        document.execCommand('insertHTML', false,
-                            `<img src="${ev.target.result}" alt="${file.name}" style="max-width:100%;border:1px solid #1a1a1a;margin:6px 0;display:block;">`
-                            );
-                    };
-                    reader.readAsDataURL(file);
-                    e.target.value = '';
-                });
-            }
-
-            // Note select
-            document.querySelectorAll('[data-note-select]').forEach(el => {
-                el.addEventListener('click', () => {
-                    const id = parseInt(el.dataset.noteSelect, 10);
-                    state.noteEditor.currentNoteId = id;
-                    render();
-                });
-            });
-
-            // --- Updates tab events ---
-            const logUpdateBtn = document.getElementById('logUpdateBtn');
-            if (logUpdateBtn) {
-                logUpdateBtn.addEventListener('click', () => {
-                    if (!currentIdentity) return;
-                    const date = document.getElementById('updateDate')?.value || new Date().toISOString().split(
-                    'T')[0];
-                    const type = document.getElementById('updateType')?.value || 'INTEL';
-                    const title = document.getElementById('updateTitle')?.value || '';
-                    const content = document.getElementById('updateContent')?.value || '';
-                    if (!title.trim() || !content.trim()) return;
-                    updateIdentity(currentIdentity.id, {
-                        updates: [{ id: Date.now(), date, type, title, content }, ...currentIdentity
-                            .updates]
-                    });
-                    state.updateForm = { date, type, title: '', content: '' };
-                    render();
-                });
-            }
-
-            document.querySelectorAll('[data-delete-update]').forEach(el => {
-                el.addEventListener('click', () => {
-                    if (!currentIdentity) return;
-                    const id = parseInt(el.dataset.deleteUpdate, 10);
-                    state.confirmDialog = {
-                        message: 'Delete this update entry?',
-                        onConfirm: () => {
-                            updateIdentity(currentIdentity.id, {
-                                updates: currentIdentity.updates.filter(u => u.id !== id)
-                            });
-                            state.confirmDialog = null;
-                            render();
-                        },
-                    };
-                    render();
-                });
-            });
-
-            // --- Confirm dialog ---
-            document.querySelectorAll('#confirmCancelBtn, #confirmCancelBtn2').forEach(el => {
-                el?.addEventListener('click', () => {
-                    state.confirmDialog = null;
-                    render();
-                });
-            });
-
-            const confirmOk = document.getElementById('confirmOkBtn');
-            if (confirmOk) {
-                confirmOk.addEventListener('click', () => {
-                    if (state.confirmDialog && state.confirmDialog.onConfirm) {
-                        state.confirmDialog.onConfirm();
-                    }
-                });
-            }
-
-            const confirmOverlay = document.getElementById('confirmOverlay');
-            if (confirmOverlay) {
-                confirmOverlay.addEventListener('click', (e) => {
-                    if (e.target === e.currentTarget) {
-                        state.confirmDialog = null;
-                        render();
-                    }
-                });
-            }
-
-            // --- Social modal ---
-            const socialModalClose = document.getElementById('socialModalClose');
-            const socialModalCancel = document.getElementById('socialModalCancel');
-            const socialModalOverlay = document.getElementById('socialModalOverlay');
-            [socialModalClose, socialModalCancel, socialModalOverlay].forEach(el => {
-                el?.addEventListener('click', (e) => {
-                    if (e.target === e.currentTarget) {
-                        state.socialModal.open = false;
-                        render();
-                    }
-                });
-            });
-
-            document.querySelectorAll('[data-social-platform]').forEach(el => {
-                el.addEventListener('click', () => {
-                    state.socialModal.selectedPlatform = el.textContent.trim();
-                    render();
-                });
-            });
-
-            const socialPlatformFilter = document.getElementById('socialPlatformFilter');
-            if (socialPlatformFilter) {
-                socialPlatformFilter.addEventListener('input', (e) => {
-                    state.socialModal.platformFilter = e.target.value;
-                    render();
-                });
-            }
-
-            const socialAddBtn = document.getElementById('socialModalAdd');
-            if (socialAddBtn) {
-                socialAddBtn.addEventListener('click', () => {
-                    if (!currentIdentity) return;
-                    let platform = state.socialModal.selectedPlatform;
-                    if (platform === 'Other') {
-                        const custom = document.getElementById('socialCustomName')?.value.trim();
-                        if (!custom) { alert('Please enter a platform name.'); return; }
-                        platform = custom;
-                    } else if (!platform) { alert('Please select a platform.'); return; }
-                    const handle = document.getElementById('socialHandle')?.value.trim();
-                    if (!handle) { alert('Please enter a username/handle.'); return; }
-                    const url = document.getElementById('socialUrl')?.value || '';
-                    const status = document.getElementById('socialStatus')?.value || 'ACTIVE';
-                    updateIdentity(currentIdentity.id, {
-                        socials: [...currentIdentity.socials, { id: Date.now(), platform, handle, url,
-                            status }]
-                    });
-                    state.socialModal.open = false;
-                    render();
-                });
-            }
-
-            // --- Folder modal ---
-            const folderModalClose = document.getElementById('folderModalClose');
-            const folderModalCancel = document.getElementById('folderModalCancel');
-            const folderModalOverlay = document.getElementById('folderModalOverlay');
-            [folderModalClose, folderModalCancel, folderModalOverlay].forEach(el => {
-                el?.addEventListener('click', (e) => {
-                    if (e.target === e.currentTarget) {
-                        state.folderModal.open = false;
-                        render();
-                    }
-                });
-            });
-
-            const folderNameInput = document.getElementById('folderNameInput');
-            if (folderNameInput) {
-                folderNameInput.addEventListener('input', (e) => {
-                    state.folderModal.name = e.target.value;
-                });
-                folderNameInput.addEventListener('keydown', (e) => {
-                    if (e.key === 'Enter') {
-                        document.getElementById('folderModalCreate')?.click();
-                    }
-                });
-            }
-
-            const folderModalCreate = document.getElementById('folderModalCreate');
-            if (folderModalCreate) {
-                folderModalCreate.addEventListener('click', () => {
-                    if (!currentIdentity) return;
-                    if (!state.folderModal.name.trim()) return;
-                    updateIdentity(currentIdentity.id, {
-                        folders: [...currentIdentity.folders, { name: state.folderModal.name.toUpperCase(),
-                            files: [] }]
-                    });
-                    state.folderModal.open = false;
-                    render();
-                });
-            }
-
-            // --- Move file modal ---
-            const moveFileClose = document.getElementById('moveFileClose');
-            const moveFileCancel = document.getElementById('moveFileCancel');
-            const moveFileOverlay = document.getElementById('moveFileOverlay');
-            [moveFileClose, moveFileCancel, moveFileOverlay].forEach(el => {
-                el?.addEventListener('click', (e) => {
-                    if (e.target === e.currentTarget) {
-                        state.movingFile = null;
-                        render();
-                    }
-                });
-            });
-
-            document.querySelectorAll('[data-move-target]').forEach(el => {
-                el.addEventListener('click', () => {
-                    if (!currentIdentity || !state.movingFile) return;
-                    const toIdx = parseInt(el.dataset.moveTarget, 10);
-                    if (state.movingFile.folderIdx === toIdx) {
-                        state.movingFile = null;
-                        render();
-                        return;
-                    }
-                    const updated = currentIdentity.folders.map((folder, i) => {
-                        if (i === state.movingFile.folderIdx) {
-                            return { ...folder, files: folder.files.filter(f => f.id !== state
-                                    .movingFile.id) };
-                        }
-                        if (i === toIdx) {
-                            return { ...folder, files: [...folder.files, state.movingFile] };
-                        }
-                        return folder;
-                    });
-                    updateIdentity(currentIdentity.id, { folders: updated });
-                    state.movingFile = null;
-                    render();
-                });
-            });
-
-            // --- Image viewer ---
-            const viewerClose = document.getElementById('viewerClose');
-            const viewerOverlay = document.getElementById('viewerOverlay');
-            [viewerClose, viewerOverlay].forEach(el => {
-                el?.addEventListener('click', (e) => {
-                    if (e.target === e.currentTarget) {
-                        state.viewingFile = null;
-                        render();
-                    }
-                });
-            });
-
-            // Keyboard: Escape to close modals
-            document.addEventListener('keydown', (e) => {
-                if (e.key === 'Escape') {
-                    if (state.viewingFile) { state.viewingFile = null;
-                        render(); }
-                    if (state.movingFile) { state.movingFile = null;
-                        render(); }
-                    if (state.socialModal.open) { state.socialModal.open = false;
-                        render(); }
-                    if (state.folderModal.open) { state.folderModal.open = false;
-                        render(); }
-                    if (state.confirmDialog) { state.confirmDialog = null;
-                        render(); }
-                }
-            });
-
-            // --- Stop propagation for dropdown menus ---
-            document.querySelectorAll('[data-stop-propagation]').forEach(el => {
-                el.addEventListener('click', (e) => e.stopPropagation());
-            });
-
-            // Close dropdowns on outside click
-            document.addEventListener('click', (e) => {
-                if (state.openDropdown && !e.target.closest('.ids-card-menu')) {
-                    state.openDropdown = null;
-                    render();
-                }
-            });
+        function getThreatLabel(t) {
+            if (t >= 70) return 'CRITICAL';
+            if (t >= 50) return 'HIGH';
+            if (t >= 30) return 'MODERATE';
+            return 'LOW';
         }
 
-        // ================================================================
-        //  INIT
-        // ================================================================
-        loadIdentities();
-        render();
-    </script>
+        function getSocialIcon(platform) {
+            if (!platform) return '?';
+            const icons = { 'X (Twitter)': 'X', 'Instagram': 'IG', 'Facebook': 'FB', 'LinkedIn': 'LI', 'Telegram': 'TG',
+                'TikTok': 'TT', 'Discord': 'DC', 'WhatsApp': 'WA', 'YouTube': 'YT', 'Reddit': 'RD', 'GitHub': 'GH',
+                'Twitch': 'TW' };
+            return icons[platform] || platform.substring(0, 2).toUpperCase();
+        }
 
+        // ==================== useIdentities (localStorage) ====================
+        function useIdentities() {
+            const [identities, setIdentities] = useState([]);
+            const [loading, setLoading] = useState(true);
+
+            useEffect(() => {
+                const stored = localStorage.getItem('aida_identities');
+                if (stored) {
+                    try { setIdentities(JSON.parse(stored)); } catch (_) { setIdentities([]); }
+                } else {
+                    // seed with one sample
+                    const sample = blankIdentity('A');
+                    sample.name = 'JANE DOE';
+                    sample.alias = 'GHOST';
+                    sample.priority = 'VECTOR';
+                    sample.threat = 45;
+                    sample.nationality = 'USA';
+                    sample.lastKnown = 'Chicago, IL';
+                    sample.age = '34';
+                    setIdentities([sample]);
+                }
+                setLoading(false);
+            }, []);
+
+            useEffect(() => {
+                if (!loading) {
+                    localStorage.setItem('aida_identities', JSON.stringify(identities));
+                }
+            }, [identities, loading]);
+
+            const addIdentity = (identity) => {
+                setIdentities(prev => [...prev, identity]);
+            };
+
+            const updateIdentity = (id, data) => {
+                setIdentities(prev => prev.map(i => i.id === id ? data : i));
+            };
+
+            const deleteIdentity = (id) => {
+                setIdentities(prev => prev.filter(i => i.id !== id));
+            };
+
+            return { identities, loading, addIdentity, updateIdentity, deleteIdentity };
+        }
+
+        // ==================== COMPONENTS ====================
+
+        // --- ConfirmDialog ---
+        function ConfirmDialog({ message, onConfirm, onCancel }) {
+            return (
+                <div className="ids-modal-overlay open" onClick={e => { if (e.target === e.currentTarget) onCancel(); }}>
+                    <div className="ids-modal" style={{ maxWidth: 380 }}>
+                        <div className="ids-modal-header">
+                            <span className="ids-modal-title">⚠ CONFIRM</span>
+                            <button className="ids-modal-close" onClick={onCancel}>×</button>
+                        </div>
+                        <div className="ids-modal-body">
+                            <p style={{ fontSize: 12, color: '#888', lineHeight: 1.7, fontFamily: 'IBM Plex Mono, monospace' }}>{message}</p>
+                        </div>
+                        <div className="ids-modal-actions">
+                            <button className="ids-modal-btn secondary" onClick={onCancel}>CANCEL</button>
+                            <button className="ids-modal-btn danger-btn" onClick={onConfirm}>CONFIRM</button>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        // --- ImageViewer ---
+        function ImageViewer({ file, onClose }) {
+            useEffect(() => {
+                const handler = e => { if (e.key === 'Escape') onClose(); };
+                window.addEventListener('keydown', handler);
+                return () => window.removeEventListener('keydown', handler);
+            }, []);
+            return (
+                <div className="ids-viewer-overlay" onClick={e => { if (e.target === e.currentTarget) onClose(); }}>
+                    <div className="ids-viewer-box">
+                        <div className="ids-viewer-corner tl" />
+                        <div className="ids-viewer-corner tr" />
+                        <div className="ids-viewer-corner bl" />
+                        <div className="ids-viewer-corner br" />
+                        <div className="ids-viewer-header">
+                            <span className="ids-viewer-title">{file.name}</span>
+                            <button className="ids-viewer-close" onClick={onClose}>×</button>
+                        </div>
+                        <div className="ids-viewer-media">
+                            {file.type?.startsWith('video') ?
+                                <video src={file.data} controls autoPlay style={{ maxWidth: '85vw', maxHeight: '75vh' }} /> :
+                                <img src={file.data} alt={file.name} />
+                            }
+                        </div>
+                        <div className="ids-viewer-footer">
+                            <span>FILE: {file.name}</span>
+                            <span>TYPE: {file.type || 'IMAGE'}</span>
+                            <span>STATUS: SECURE</span>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        // --- ProfileTab ---
+        function ProfileTab({ identity, onChange }) {
+            const tf = identity.threat;
+            const threatColor = tf >= 70 ? '#FF3D00' : tf >= 50 ? '#FFD60A' : '#34C759';
+
+            function field(label, key) {
+                return (
+                    <div className="ids-field-row" key={key}>
+                        <span className="ids-field-label">{label}</span>
+                        <input className="ids-field-input" value={identity[key] ?? ''} onChange={e => onChange(key, e
+                            .target.value)} />
+                    </div>
+                );
+            }
+
+            function dropdown(label, key, options) {
+                return (
+                    <div className="ids-field-row" key={key}>
+                        <span className="ids-field-label">{label}</span>
+                        <select className="ids-field-select" value={identity[key] ?? ''} onChange={e => onChange(key, e
+                                .target.value)}>
+                            {options.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+                        </select>
+                    </div>
+                );
+            }
+
+            return (
+                <div className="ids-profile-grid">
+                    <div className="ids-section ids-section-full">
+                        <div className="ids-section-title">Classification & Threat</div>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '8px 24px' }}>
+                            <div className="ids-field-row">
+                                <span className="ids-field-label">Class</span>
+                                <select className="ids-field-select" value={identity.classification ?? 'A'} onChange={e =>
+                                        onChange('classification', e.target.value)}>
+                                    <option value="A">Class A</option>
+                                    <option value="B">Class B</option>
+                                </select>
+                            </div>
+                            {dropdown('Priority', 'priority', priorityOptions)}
+                            {dropdown('Status Logic', 'statusLogic', statusLogicOptions)}
+                            {field('Admin Status', 'status')}
+                            <div className="ids-field-row">
+                                <span className="ids-field-label">Threat %</span>
+                                <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 8, minWidth: 0 }}>
+                                    <div className="ids-threat-track">
+                                        <div className="ids-threat-fill" style={{ width: `${tf}%`, background: threatColor }} />
+                                    </div>
+                                    <input
+                                        type="number" min={0} max={100}
+                                        className="ids-threat-num"
+                                        value={tf}
+                                        onChange={e => onChange('threat', Math.min(100, Math.max(0, parseInt(e.target
+                                            .value) || 0)))}
+                                    />
+                                    <span style={{ color: threatColor, fontWeight: 600, fontSize: 11, flexShrink: 0 }}>%</span>
+                                </div>
+                            </div>
+                            {field('Criminal Record', 'criminalRecord')}
+                            {field('Political Affiliation', 'politicalAffiliation')}
+                        </div>
+                    </div>
+
+                    <div className="ids-section">
+                        <div className="ids-section-title">Biographic Data</div>
+                        {field('Full Name', 'name')}
+                        {field('Alias', 'alias')}
+                        {field('Date of Birth', 'dob')}
+                        {field('Age', 'age')}
+                        {field('Gender', 'gender')}
+                        {field('Birth Place', 'birthPlace')}
+                        {field('Religion', 'religion')}
+                        {field('Marital Status', 'maritalStatus')}
+                        {field('Children', 'children')}
+                    </div>
+
+                    <div className="ids-section">
+                        <div className="ids-section-title">Physical</div>
+                        {field('Height', 'height')}
+                        {field('Weight', 'weight')}
+                        {field('Eye Color', 'eyes')}
+                        {field('Hair Color', 'hair')}
+                        {field('Blood Type', 'bloodType')}
+                        {field('Marks', 'marks')}
+                    </div>
+
+                    <div className="ids-section">
+                        <div className="ids-section-title">Citizenship & Travel</div>
+                        {field('Nationality', 'nationality')}
+                        {field('Citizenship', 'citizenship')}
+                        {field('Passport', 'passport')}
+                        {field('Visa Status', 'visa')}
+                        {field('Last Known Location', 'lastKnown')}
+                    </div>
+
+                    <div className="ids-section">
+                        <div className="ids-section-title">Professional</div>
+                        {field('Occupation', 'occupation')}
+                        {field('Employer', 'employer')}
+                        {field('Education', 'education')}
+                        {field('Languages', 'languages')}
+                    </div>
+
+                    <div className="ids-section">
+                        <div className="ids-section-title">Financial</div>
+                        {field('Net Worth', 'financialWorth')}
+                        {field('Banking', 'banking')}
+                        {field('Known Assets', 'assets')}
+                    </div>
+                </div>
+            );
+        }
+
+        // --- ImageryTab ---
+        function ImageryTab({ identity, onChange }) {
+            const [showFolderModal, setShowFolderModal] = useState(false);
+            const [folderName, setFolderName] = useState('');
+            const [openFolderIdx, setOpenFolderIdx] = useState(null);
+            const [viewingFile, setViewingFile] = useState(null);
+            const [movingFile, setMovingFile] = useState(null);
+            const [confirm, setConfirm] = useState(null);
+            const fileRef = useRef();
+
+            function handleFileUpload(e) {
+                const files = Array.from(e.target.files);
+                let folders = identity.folders.length > 0 ? [...identity.folders] : [{ name: 'General', files: [] }];
+                const targetIdx = openFolderIdx !== null ? openFolderIdx : 0;
+
+                files.forEach(file => {
+                    const reader = new FileReader();
+                    reader.onload = ev => {
+                        const newFile = { id: Date.now() + Math.random(), name: file.name, type: file.type,
+                            data: ev.target.result };
+                        folders = folders.map((f, i) => i === targetIdx ? { ...f, files: [...f.files, newFile] } :
+                        f);
+                        onChange('folders', folders);
+                    };
+                    reader.readAsDataURL(file);
+                });
+                e.target.value = '';
+            }
+
+            function addFolder() {
+                if (!folderName.trim()) return;
+                onChange('folders', [...identity.folders, { name: folderName.toUpperCase(), files: [] }]);
+                setFolderName('');
+                setShowFolderModal(false);
+            }
+
+            function deleteFile(folderIdx, fileId) {
+                setConfirm({
+                    message: 'Permanently delete this file?',
+                    onConfirm: () => {
+                        const updated = identity.folders.map((f, i) =>
+                            i === folderIdx ? { ...f, files: f.files.filter(fi => fi.id !== fileId) } : f
+                        );
+                        onChange('folders', updated);
+                        setConfirm(null);
+                    },
+                });
+            }
+
+            function doMove(toIdx) {
+                if (!movingFile || movingFile.folderIdx === toIdx) return;
+                const updated = identity.folders.map((folder, i) => {
+                    if (i === movingFile.folderIdx) return { ...folder, files: folder.files.filter(f => f.id !==
+                            movingFile.id) };
+                    if (i === toIdx) return { ...folder, files: [...folder.files, movingFile] };
+                    return folder;
+                });
+                onChange('folders', updated);
+                setMovingFile(null);
+            }
+
+            const currentFolder = openFolderIdx !== null ? identity.folders[openFolderIdx] : null;
+            const allFiles = identity.folders.flatMap((f, fi) => f.files.map(file => ({ ...file, folderIdx: fi,
+                folderName: f.name })));
+
+            function renderGrid(files, folderIdx) {
+                return (
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: 10 }}>
+                        {files.map(file => (
+                            <div className="ids-media-card" key={file.id}>
+                                <div onClick={() => setViewingFile(file)} style={{ width: '100%', height: '100%',
+                                        position: 'absolute', inset: 0 }}>
+                                    {file.type?.startsWith('video') ? <video src={file.data} muted /> : <img src={file
+                                            .data} alt={file.name} />}
+                                </div>
+                                <div className="ids-media-overlay">
+                                    <span className="ids-media-name">{file.name}</span>
+                                    <button className="ids-media-action" onClick={e => { e.stopPropagation();
+                                            setMovingFile({ ...file, folderIdx: folderIdx ?? file.folderIdx }); }}>MOVE</button>
+                                    <button className="ids-media-action del" onClick={e => { e.stopPropagation();
+                                            deleteFile(folderIdx ?? file.folderIdx, file.id); }}>DEL</button>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                );
+            }
+
+            return (
+                <div>
+                    <div style={{ display: 'flex', gap: 8, marginBottom: 18, flexWrap: 'wrap' }}>
+                        <button className="ids-toolbar-btn" onClick={() => fileRef.current.click()}>+ Upload</button>
+                        <button className="ids-toolbar-btn" onClick={() => setShowFolderModal(true)}>+ New Folder</button>
+                        {openFolderIdx !== null && (
+                            <button className="ids-toolbar-btn" onClick={() => setOpenFolderIdx(null)}>← Back</button>
+                        )}
+                        <input ref={fileRef} type="file" multiple accept="image/*,video/*" style={{ display: 'none' }}
+                            onChange={handleFileUpload} />
+                    </div>
+
+                    {openFolderIdx !== null && (
+                        <div className="ids-breadcrumb">
+                            <span className="ids-breadcrumb-link" onClick={() => setOpenFolderIdx(null)}>ALL ASSETS</span>
+                            <span>/</span>
+                            <span style={{ color: '#c0c0c0' }}>{currentFolder?.name}</span>
+                        </div>
+                    )}
+
+                    {openFolderIdx === null && (
+                        <>
+                            {identity.folders.length > 0 && (
+                                <div style={{ marginBottom: 28 }}>
+                                    <div style={{ fontSize: 9, color: '#333', letterSpacing: 2, marginBottom: 12,
+                                            textTransform: 'uppercase', fontFamily: 'IBM Plex Mono, monospace' }}>FOLDERS</div>
+                                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))',
+                                            gap: 12 }}>
+                                        {identity.folders.map((folder, idx) => (
+                                            <div className="ids-folder-card" key={idx} onClick={() =>
+                                                    setOpenFolderIdx(idx)}>
+                                                <svg style={{ width: 48, height: 38, margin: '0 auto 10px',
+                                                        color: '#555', display: 'block' }} viewBox="0 0 64 50"
+                                                    fill="none" stroke="currentColor" strokeWidth="1.5">
+                                                    <path d="M2 10 C2 7,4 5,7 5 L22 5 L26 10 L57 10 C60 10,62 12,62 15 L62 43 C62 46,60 48,57 48 L7 48 C4 48,2 46,2 43 L2 10Z" />
+                                                </svg>
+                                                <div style={{ fontSize: 11, color: '#c0c0c0', marginBottom: 3,
+                                                        fontWeight: 500, fontFamily: 'IBM Plex Mono, monospace' }}>{folder
+                                                        .name}</div>
+                                                <div style={{ fontSize: 9, color: '#333', fontFamily: 'IBM Plex Mono, monospace' }}>{folder
+                                                        .files.length} FILES</div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+                            <div>
+                                <div style={{ fontSize: 9, color: '#333', letterSpacing: 2, marginBottom: 12,
+                                        textTransform: 'uppercase', fontFamily: 'IBM Plex Mono, monospace' }}>ALL MEDIA ({allFiles
+                                        .length})</div>
+                                {allFiles.length > 0 ? renderGrid(allFiles, null) : (
+                                    <div className="ids-empty-state">
+                                        <div style={{ fontSize: 28, marginBottom: 10, opacity: 0.3 }}>📷</div>
+                                        <div className="ids-empty-text">No media — click Upload to add</div>
+                                    </div>
+                                )}
+                            </div>
+                        </>
+                    )}
+
+                    {openFolderIdx !== null && (
+                        <div>
+                            <div style={{ fontSize: 9, color: '#333', letterSpacing: 2, marginBottom: 12,
+                                    textTransform: 'uppercase', fontFamily: 'IBM Plex Mono, monospace' }}>
+                                {currentFolder?.files.length || 0} FILES
+                            </div>
+                            {currentFolder?.files.length > 0 ? renderGrid(currentFolder.files, openFolderIdx) : (
+                                <div className="ids-empty-state">
+                                    <div className="ids-empty-text">Folder is empty</div>
+                                </div>
+                            )}
+                        </div>
+                    )}
+
+                    {viewingFile && <ImageViewer file={viewingFile} onClose={() => setViewingFile(null)} />}
+
+                    {movingFile && (
+                        <div className="ids-modal-overlay open" onClick={e => { if (e.target === e.currentTarget)
+                                setMovingFile(null); }}>
+                            <div className="ids-modal" style={{ maxWidth: 360 }}>
+                                <div className="ids-modal-header">
+                                    <span className="ids-modal-title">MOVE FILE</span>
+                                    <button className="ids-modal-close" onClick={() => setMovingFile(null)}>×</button>
+                                </div>
+                                <div className="ids-modal-body">
+                                    <p style={{ fontSize: 11, color: '#555', marginBottom: 14, fontFamily: 'IBM Plex Mono, monospace',
+                                            lineHeight: 1.6 }}>
+                                        Moving: <span style={{ color: '#c0c0c0' }}>{movingFile.name}</span>
+                                    </p>
+                                    <label className="ids-modal-label">Select destination folder</label>
+                                    <div className="ids-platform-list">
+                                        {identity.folders.map((f, idx) => idx !== movingFile.folderIdx && (
+                                            <div key={idx} className="ids-platform-item" onClick={() => doMove(idx)}>{f
+                                                    .name}</div>
+                                        ))}
+                                        {identity.folders.filter((_, i) => i !== movingFile.folderIdx).length === 0 && (
+                                            <div style={{ padding: 14, fontSize: 11, color: '#444', fontFamily: 'IBM Plex Mono, monospace' }}>No
+                                                other folders exist</div>
+                                        )}
+                                    </div>
+                                </div>
+                                <div className="ids-modal-actions">
+                                    <button className="ids-modal-btn secondary" onClick={() => setMovingFile(null)}>CANCEL</button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {showFolderModal && (
+                        <div className="ids-modal-overlay open" onClick={e => { if (e.target === e.currentTarget)
+                                setShowFolderModal(false); }}>
+                            <div className="ids-modal" style={{ maxWidth: 360 }}>
+                                <div className="ids-modal-header">
+                                    <span className="ids-modal-title">NEW FOLDER</span>
+                                    <button className="ids-modal-close" onClick={() => setShowFolderModal(false)}>×</button>
+                                </div>
+                                <div className="ids-modal-body">
+                                    <label className="ids-modal-label">Folder Name</label>
+                                    <input className="ids-modal-input" value={folderName} onChange={e => setFolderName(e
+                                            .target.value)} onKeyDown={e => e.key === 'Enter' && addFolder()}
+                                        placeholder="Enter name..." autoFocus />
+                                </div>
+                                <div className="ids-modal-actions">
+                                    <button className="ids-modal-btn secondary" onClick={() => setShowFolderModal(false)}>CANCEL</button>
+                                    <button className="ids-modal-btn primary" onClick={addFolder}>CREATE</button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {confirm && <ConfirmDialog message={confirm.message} onConfirm={confirm.onConfirm} onCancel={() =>
+                            setConfirm(null)} />}
+                </div>
+            );
+        }
+
+        // --- SocialsTab ---
+        function SocialsTab({ identity, onChange }) {
+            const [showModal, setShowModal] = useState(false);
+            const [selectedPlatform, setSelectedPlatform] = useState(null);
+            const [platformFilter, setPlatformFilter] = useState('');
+            const [handle, setHandle] = useState('');
+            const [url, setUrl] = useState('');
+            const [status, setStatus] = useState('ACTIVE');
+            const [customName, setCustomName] = useState('');
+            const [confirm, setConfirm] = useState(null);
+
+            const filteredGroups = PLATFORM_GROUPS.map(g => ({
+                ...g,
+                platforms: g.platforms.filter(p => p.toLowerCase().includes(platformFilter.toLowerCase())),
+            })).filter(g => g.platforms.length > 0);
+
+            function addSocial() {
+                let platform = selectedPlatform;
+                if (platform === 'Other') {
+                    if (!customName.trim()) { alert('Please enter a platform name.'); return; }
+                    platform = customName;
+                } else if (!platform) { alert('Please select a platform.'); return; }
+                if (!handle.trim()) { alert('Please enter a username/handle.'); return; }
+                onChange('socials', [...identity.socials, { id: Date.now(), platform, handle, url, status }]);
+                setShowModal(false);
+                setSelectedPlatform(null);
+                setHandle('');
+                setUrl('');
+                setStatus('ACTIVE');
+                setCustomName('');
+                setPlatformFilter('');
+            }
+
+            function removeSocial(id) {
+                setConfirm({
+                    message: 'Remove this social profile entry?',
+                    onConfirm: () => { onChange('socials', identity.socials.filter(s => s.id !== id));
+                        setConfirm(null); },
+                });
+            }
+
+            return (
+                <div>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(270px, 1fr))', gap: 8,
+                            marginBottom: 20 }}>
+                        {identity.socials.map(s => (
+                            <div className="ids-social-card" key={s.id || s.platform + s.handle}>
+                                <div className="ids-social-icon">{getSocialIcon(s.platform)}</div>
+                                <div style={{ flex: 1, minWidth: 0 }}>
+                                    <div className="ids-social-platform">{s.platform}</div>
+                                    <div className="ids-social-handle">{s.handle}</div>
+                                </div>
+                                <div className={`ids-social-status ${s.status === 'ACTIVE' ? 'active-s' : s.status ===
+                                        'SUSPENDED' ? 'suspended' : ''}`}>{s.status}</div>
+                                <button
+                                    onClick={() => removeSocial(s.id)}
+                                    style={{ background: 'transparent', border: 'none', color: '#333', cursor: 'pointer',
+                                        fontSize: 16, padding: '0 4px', transition: 'color 0.15s', flexShrink: 0 }}
+                                    onMouseEnter={e => e.target.style.color = '#FF3D00'}
+                                    onMouseLeave={e => e.target.style.color = '#333'}
+                                >×</button>
+                            </div>
+                        ))}
+                        <div className="ids-add-social-btn" onClick={() => setShowModal(true)}>+ Add Social Profile</div>
+                    </div>
+
+                    {showModal && (
+                        <div className="ids-modal-overlay open" onClick={e => { if (e.target === e.currentTarget)
+                                setShowModal(false); }}>
+                            <div className="ids-modal">
+                                <div className="ids-modal-header">
+                                    <span className="ids-modal-title">ADD SOCIAL PROFILE</span>
+                                    <button className="ids-modal-close" onClick={() => setShowModal(false)}>×</button>
+                                </div>
+                                <div className="ids-modal-body">
+                                    <div style={{ marginBottom: 14 }}>
+                                        <label className="ids-modal-label">Search Platform</label>
+                                        <input className="ids-modal-input" style={{ marginBottom: 8 }} value={platformFilter}
+                                            onChange={e => setPlatformFilter(e.target.value)} placeholder="Filter platforms..."
+                                            autoFocus />
+                                        <div className="ids-platform-list">
+                                            {filteredGroups.map(g => (
+                                                <Fragment key={g.group}>
+                                                    <div className="ids-platform-group-header">{g.group}</div>
+                                                    {g.platforms.map(p => (
+                                                        <div key={p} className={`ids-platform-item ${selectedPlatform ===
+                                                                p ? 'selected' : ''}`} onClick={() =>
+                                                                setSelectedPlatform(p)}>{p}</div>
+                                                    ))}
+                                                </Fragment>
+                                            ))}
+                                        </div>
+                                    </div>
+                                    {selectedPlatform === 'Other' && (
+                                        <div style={{ marginBottom: 14 }}>
+                                            <label className="ids-modal-label">Platform Name</label>
+                                            <input className="ids-modal-input" value={customName} onChange={e =>
+                                                    setCustomName(e.target.value)} placeholder="Enter platform name" />
+                                        </div>
+                                    )}
+                                    <div style={{ marginBottom: 14 }}>
+                                        <label className="ids-modal-label">Username / Handle</label>
+                                        <input className="ids-modal-input" value={handle} onChange={e => setHandle(e.target
+                                                .value)} placeholder="@username" />
+                                    </div>
+                                    <div style={{ marginBottom: 14 }}>
+                                        <label className="ids-modal-label">Profile URL</label>
+                                        <input className="ids-modal-input" value={url} onChange={e => setUrl(e.target.value)}
+                                            placeholder="https://..." />
+                                    </div>
+                                    <div style={{ marginBottom: 6 }}>
+                                        <label className="ids-modal-label">Status</label>
+                                        <select className="ids-modal-input" value={status} onChange={e => setStatus(e.target
+                                                .value)}>
+                                            {['ACTIVE', 'SUSPENDED', 'DELETED', 'MONITORED'].map(s => <option key={s}
+                                                    value={s}>{s}</option>)}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div className="ids-modal-actions">
+                                    <button className="ids-modal-btn secondary" onClick={() => setShowModal(false)}>CANCEL</button>
+                                    <button className="ids-modal-btn primary" onClick={addSocial}>ADD PROFILE</button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                    {confirm && <ConfirmDialog message={confirm.message} onConfirm={confirm.onConfirm} onCancel={() =>
+                            setConfirm(null)} />}
+                </div>
+            );
+        }
+
+        // --- NotesTab ---
+        function NotesTab({ identity, onChange }) {
+            const [currentNoteId, setCurrentNoteId] = useState(null);
+            const [title, setTitle] = useState('');
+            const contentRef = useRef(null);
+            const imgInputRef = useRef(null);
+            const [confirm, setConfirm] = useState(null);
+
+            useEffect(() => {
+                const note = identity.notes.find(n => n.id === currentNoteId);
+                setTitle(note ? note.title : '');
+                if (contentRef.current) {
+                    contentRef.current.innerHTML = note ? note.content : '';
+                }
+            }, [currentNoteId]);
+
+            function saveNote() {
+                const t = title.trim() || 'Untitled Note';
+                const content = contentRef.current?.innerHTML || '';
+                if (currentNoteId) {
+                    onChange('notes', identity.notes.map(n => n.id === currentNoteId ? { ...n, title: t, content,
+                            date: new Date().toISOString().split('T')[0] } : n));
+                } else {
+                    const newId = Date.now();
+                    onChange('notes', [{ id: newId, title: t, content, date: new Date().toISOString().split('T')[0] },
+                        ...identity.notes
+                    ]);
+                    setCurrentNoteId(newId);
+                }
+            }
+
+            function newNote() {
+                setCurrentNoteId(null);
+                setTitle('');
+                if (contentRef.current) contentRef.current.innerHTML = '';
+            }
+
+            function deleteNote() {
+                if (!currentNoteId) return;
+                setConfirm({
+                    message: 'Delete this note permanently?',
+                    onConfirm: () => {
+                        onChange('notes', identity.notes.filter(n => n.id !== currentNoteId));
+                        setCurrentNoteId(null);
+                        setTitle('');
+                        if (contentRef.current) contentRef.current.innerHTML = '';
+                        setConfirm(null);
+                    },
+                });
+            }
+
+            function fmt(cmd, val = null) {
+                contentRef.current?.focus();
+                document.execCommand(cmd, false, val);
+            }
+
+            function handleImgAttach(e) {
+                const file = e.target.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = ev => {
+                    contentRef.current?.focus();
+                    document.execCommand('insertHTML', false,
+                        `<img src="${ev.target.result}" alt="${file.name}" style="max-width:100%;border:1px solid #1a1a1a;margin:6px 0;display:block;">`
+                        );
+                };
+                reader.readAsDataURL(file);
+                e.target.value = '';
+            }
+
+            return (
+                <div className="ids-notes-container">
+                    <div className="ids-note-editor">
+                        <div className="ids-editor-header">
+                            <button className="ids-editor-btn" onClick={newNote}>+ New</button>
+                            <button className="ids-editor-btn" onClick={saveNote}>Save</button>
+                            <button className="ids-editor-btn danger" onClick={deleteNote}>Delete</button>
+                            <div style={{ width: 1, background: '#1a1a1a', margin: '2px 2px' }} />
+                            <button className="ids-editor-btn" onClick={() => fmt('bold')} title="Bold"><b style={{
+                                        fontFamily: 'serif' }}>B</b></button>
+                            <button className="ids-editor-btn" onClick={() => fmt('italic')} title="Italic"><i style={{
+                                        fontFamily: 'serif' }}>I</i></button>
+                            <button className="ids-editor-btn" onClick={() => fmt('underline')} title="Underline"><u>U</u></button>
+                            <button className="ids-editor-btn" onClick={() => fmt('strikeThrough')} title="Strikethrough"><s>S</s></button>
+                            <div style={{ width: 1, background: '#1a1a1a', margin: '2px 2px' }} />
+                            <button className="ids-editor-btn" onClick={() => fmt('insertUnorderedList')} title="Bullet list">•
+                                List</button>
+                            <button className="ids-editor-btn" onClick={() => fmt('insertOrderedList')} title="Numbered list">1.
+                                List</button>
+                            <div style={{ width: 1, background: '#1a1a1a', margin: '2px 2px' }} />
+                            <button className="ids-editor-btn" onClick={() => imgInputRef.current?.click()} title="Attach image">📎
+                                IMG</button>
+                            <input ref={imgInputRef} type="file" accept="image/*" style={{ display: 'none' }}
+                                onChange={handleImgAttach} />
+                        </div>
+
+                        <input
+                            className="ids-note-title-input"
+                            placeholder="Note title..."
+                            value={title}
+                            onChange={e => setTitle(e.target.value)}
+                        />
+
+                        <div
+                            ref={contentRef}
+                            className="ids-note-content"
+                            contentEditable
+                            suppressContentEditableWarning
+                            data-placeholder="Start typing your note..."
+                            style={{ flex: 1 }}
+                        />
+                    </div>
+
+                    <div className="ids-notes-list">
+                        <div className="ids-notes-list-header">SAVED NOTES ({identity.notes.length})</div>
+                        {identity.notes.length > 0 ? identity.notes.map(note => (
+                            <div key={note.id} className={`ids-note-item ${note.id === currentNoteId ? 'active-note' :
+                                    ''}`} onClick={() => setCurrentNoteId(note.id)}>
+                                <div className="ids-note-item-title">{note.title}</div>
+                                <div className="ids-note-item-date">{note.date}</div>
+                            </div>
+                        )) : (
+                            <div className="ids-empty-state"><div className="ids-empty-text">No notes yet</div></div>
+                        )}
+                    </div>
+
+                    {confirm && <ConfirmDialog message={confirm.message} onConfirm={confirm.onConfirm} onCancel={() =>
+                            setConfirm(null)} />}
+                </div>
+            );
+        }
+
+        // --- UpdatesTab ---
+        function UpdatesTab({ identity, onChange }) {
+            const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
+            const [type, setType] = useState('INTEL');
+            const [title, setTitle] = useState('');
+            const [content, setContent] = useState('');
+            const [confirm, setConfirm] = useState(null);
+
+            function addUpdate() {
+                if (!title.trim() || !content.trim()) return;
+                onChange('updates', [{ id: Date.now(), date, type, title, content }, ...identity.updates]);
+                setTitle('');
+                setContent('');
+            }
+
+            function deleteUpdate(id) {
+                setConfirm({
+                    message: 'Delete this update entry?',
+                    onConfirm: () => { onChange('updates', identity.updates.filter(u => u.id !== id));
+                        setConfirm(null); },
+                });
+            }
+
+            return (
+                <div style={{ maxWidth: 880 }}>
+                    <div style={{ background: '#0a0a0a', border: '1px solid #1a1a1a', padding: 20, marginBottom: 24 }}>
+                        <div style={{ fontSize: 9, color: '#333', letterSpacing: 2, marginBottom: 14,
+                                textTransform: 'uppercase', fontFamily: 'IBM Plex Mono, monospace' }}>LOG NEW UPDATE</div>
+                        <div style={{ display: 'flex', gap: 14, marginBottom: 12 }}>
+                            <div style={{ flex: 1 }}>
+                                <label style={{ display: 'block', fontSize: 9, color: '#333', marginBottom: 6,
+                                        letterSpacing: 2, textTransform: 'uppercase', fontFamily: 'IBM Plex Mono, monospace' }}>Date</label>
+                                <input type="date" className="ids-form-input" value={date} onChange={e => setDate(e.target
+                                        .value)} />
+                            </div>
+                            <div style={{ flex: 1 }}>
+                                <label style={{ display: 'block', fontSize: 9, color: '#333', marginBottom: 6,
+                                        letterSpacing: 2, textTransform: 'uppercase', fontFamily: 'IBM Plex Mono, monospace' }}>Type</label>
+                                <select className="ids-form-select" value={type} onChange={e => setType(e.target.value)}>
+                                    {['INTEL', 'CRITICAL', 'ROUTINE', 'SURVEILLANCE'].map(t => <option key={t} value={t}>{t}</option>)}
+                                </select>
+                            </div>
+                        </div>
+                        <div style={{ marginBottom: 12 }}>
+                            <label style={{ display: 'block', fontSize: 9, color: '#333', marginBottom: 6,
+                                    letterSpacing: 2, textTransform: 'uppercase', fontFamily: 'IBM Plex Mono, monospace' }}>Title</label>
+                            <input className="ids-form-input" placeholder="Update title..." value={title} onChange={e =>
+                                    setTitle(e.target.value)} />
+                        </div>
+                        <div style={{ marginBottom: 16 }}>
+                            <label style={{ display: 'block', fontSize: 9, color: '#333', marginBottom: 6,
+                                    letterSpacing: 2, textTransform: 'uppercase', fontFamily: 'IBM Plex Mono, monospace' }}>Content</label>
+                            <textarea className="ids-form-textarea" placeholder="Describe the update..." value={content}
+                                onChange={e => setContent(e.target.value)} />
+                        </div>
+                        <button className="ids-submit-btn" onClick={addUpdate}>LOG UPDATE</button>
+                    </div>
+
+                    <div style={{ fontSize: 9, color: '#333', letterSpacing: 2, marginBottom: 14,
+                            textTransform: 'uppercase', fontFamily: 'IBM Plex Mono, monospace' }}>UPDATE HISTORY</div>
+                    {identity.updates.length > 0 ? identity.updates.map(u => (
+                        <div className="ids-update-entry" key={u.id}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start',
+                                    marginBottom: 10 }}>
+                                <div>
+                                    <div className="ids-update-date">{u.date}</div>
+                                    <div className={`ids-update-type ${u.type.toLowerCase()}`}>{u.type}</div>
+                                </div>
+                                <button
+                                    style={{ background: 'transparent', border: 'none', color: '#333', cursor: 'pointer',
+                                        fontSize: 16, padding: 4, transition: 'color 0.15s' }}
+                                    onMouseEnter={e => e.target.style.color = '#FF3D00'}
+                                    onMouseLeave={e => e.target.style.color = '#333'}
+                                    onClick={() => deleteUpdate(u.id)}
+                                >×</button>
+                            </div>
+                            <div className="ids-update-title">{u.title}</div>
+                            <div className="ids-update-content">{u.content}</div>
+                        </div>
+                    )) : (
+                        <div className="ids-empty-state">
+                            <div style={{ fontSize: 24, marginBottom: 10, opacity: 0.3 }}>📋</div>
+                            <div className="ids-empty-text">No updates logged</div>
+                        </div>
+                    )}
+                    {confirm && <ConfirmDialog message={confirm.message} onConfirm={confirm.onConfirm} onCancel={() =>
+                            setConfirm(null)} />}
+                </div>
+            );
+        }
+
+        // ==================== IdentitiesPage ====================
+        function IdentitiesPage() {
+            const { identities, loading, addIdentity, updateIdentity: updateIdentityDb, deleteIdentity } =
+            useIdentities();
+            const [currentClass, setCurrentClass] = useState('A');
+            const [view, setView] = useState('home');
+            const [currentId, setCurrentId] = useState(null);
+            const [activeTab, setActiveTab] = useState('profile');
+            const [openDropdown, setOpenDropdown] = useState(null);
+            const [confirm, setConfirm] = useState(null);
+
+            const currentIdentity = identities.find(i => i.id === currentId);
+
+            function updateIdentity(field, value) {
+                if (!currentIdentity) return;
+                const updated = { ...currentIdentity, [field]: value };
+                updateIdentityDb(currentIdentity.id, updated);
+            }
+
+            function createNew() {
+                const identity = blankIdentity(currentClass);
+                addIdentity(identity);
+                setCurrentId(identity.id);
+                setActiveTab('profile');
+                setView('detail');
+            }
+
+            function deleteById(id) {
+                setConfirm({
+                    message: `Delete identity? This cannot be undone.`,
+                    onConfirm: () => {
+                        deleteIdentity(id);
+                        if (currentId === id) { setView('home');
+                            setCurrentId(null); }
+                        setConfirm(null);
+                    },
+                });
+            }
+
+            function handlePhotoUpload(e) {
+                const file = e.target.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = ev => updateIdentity('photo', ev.target.result);
+                reader.readAsDataURL(file);
+            }
+
+            const filtered = identities.filter(i => i.classification === currentClass);
+            const TABS = ['profile', 'imagery', 'socials', 'notes', 'updates'];
+            const priorityInfo = p => priorityOptions.find(o => o.value === p) || { label: 'UNDEFINED', tier: 'neutral' };
+            const statusInfo = s => statusLogicOptions.find(o => o.value === s) || { label: 'UNKNOWN', css: '' };
+
+            if (loading) {
+                return (
+                    <div className="ids-body" style={{ height: '100vh', overflowY: 'auto', display: 'flex',
+                            alignItems: 'center', justifyContent: 'center' }}>
+                        <div style={{ fontFamily: 'monospace', letterSpacing: '2px', color: '#888' }}>LOADING IDENTITIES...
+                        </div>
+                    </div>
+                );
+            }
+
+            return (
+                <div className="ids-body" style={{ height: '100vh', overflowY: 'auto' }}>
+                    {confirm && <ConfirmDialog message={confirm.message} onConfirm={confirm.onConfirm} onCancel={() =>
+                            setConfirm(null)} />}
+
+                    {view === 'home' && (
+                        <div className="ids-page" style={{ padding: '28px 36px 48px' }}>
+                            <div className="ids-class-tabs">
+                                {['A', 'B'].map(cls => (
+                                    <button key={cls} className={`ids-class-tab ${currentClass === cls ? 'active' :
+                                            ''}`} onClick={() => setCurrentClass(cls)}>
+                                        Class {cls}
+                                    </button>
+                                ))}
+                            </div>
+
+                            <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 18 }}>
+                                <button className="ids-add-btn" onClick={createNew}>+ Add Identity</button>
+                            </div>
+
+                            {filtered.length === 0 ? (
+                                <div className="ids-empty-state">
+                                    <div style={{ fontSize: 36, marginBottom: 12, opacity: 0.25 }}></div>
+                                    <div className="ids-empty-text">No identities in Class {currentClass}</div>
+                                </div>
+                            ) : (
+                                <div className="ids-identity-grid">
+                                    {filtered.map(identity => {
+                                        const pi = priorityInfo(identity.priority);
+                                        return (
+                                            <div className="ids-card" key={identity.id} onClick={() => { setCurrentId(
+                                                        identity.id);
+                                                    setActiveTab('profile');
+                                                    setView('detail'); }}>
+                                                <div className="ids-card-menu" onClick={e => e.stopPropagation()}>
+                                                    <button className="ids-menu-btn" onClick={e => { e
+                                                                .stopPropagation();
+                                                            setOpenDropdown(prev => prev === identity.id ? null :
+                                                                identity.id); }}>...</button>
+                                                    <div className={`ids-dropdown ${openDropdown === identity.id ?
+                                                            'open' : ''}`}>
+                                                        <button className="ids-dropdown-item" onClick={e => { e
+                                                                    .stopPropagation();
+                                                                deleteById(identity.id); }}>Delete</button>
+                                                    </div>
+                                                </div>
+                                                <div className="ids-card-header">
+                                                    <div className="ids-card-photo">
+                                                        {identity.photo ? <img src={identity.photo} alt={identity
+                                                                .name} /> : <span style={{ fontSize: 24,
+                                                                    color: '#333' }}>?</span>}
+                                                    </div>
+                                                    <div className="ids-card-meta">
+                                                        <div className="ids-card-name">{identity.name}</div>
+                                                        <div className="ids-card-alias">"{identity.alias}"</div>
+                                                        <div className={`ids-priority-badge ${pi.tier}`}>{pi.value}</div>
+                                                    </div>
+                                                </div>
+                                                <div className="ids-card-intel">
+                                                    {[
+                                                        ['Threat', getThreatLabel(identity.threat)],
+                                                        ['Age', identity.age ? `${identity.age} yrs` : '—'],
+                                                        ['Nationality', identity.nationality?.split('/')[0]?.trim() ||
+                                                            '—'
+                                                        ],
+                                                        ['Location', identity.lastKnown?.split(',')[0] || '—']
+                                                    ].map(([l, v]) => (
+                                                        <div key={l}><span className="ids-intel-label">{l}</span><span
+                                                                className="ids-intel-value">{v}</span></div>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            )}
+                        </div>
+                    )}
+
+                    {view === 'detail' && currentIdentity && (
+                        <div className="ids-page" style={{ padding: '28px 36px' }}>
+                            <div style={{ maxWidth: 1400, margin: '0 auto' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 20 }}>
+                                    <button className="ids-back-btn" onClick={() => { setView('home');
+                                            setCurrentId(null); }}>← Database</button>
+                                    <div style={{ marginLeft: 'auto', display: 'flex', gap: 8 }}>
+                                        <button className="ids-action-btn" onClick={() => alert('Identity saved.')}>Save</button>
+                                        <button className="ids-action-btn danger" onClick={() => deleteById(
+                                            currentIdentity.id)}>Delete</button>
+                                    </div>
+                                </div>
+
+                                <div className="ids-detail-header">
+                                    <div style={{ position: 'relative' }}>
+                                        <div className="ids-detail-photo" onClick={() => document.getElementById(
+                                                'ids-photo-input').click()}>
+                                            {currentIdentity.photo && <img src={currentIdentity.photo} alt={currentIdentity
+                                                    .name} />}
+                                            <div className="ids-photo-overlay">
+                                                <button style={{ background: 'transparent', border: '1px solid #555',
+                                                        color: '#888', padding: '4px 10px', fontSize: 9,
+                                                        cursor: 'pointer', fontFamily: 'IBM Plex Mono, monospace',
+                                                        letterSpacing: 1 }}>CHANGE PHOTO</button>
+                                            </div>
+                                        </div>
+                                        <input type="file" id="ids-photo-input" accept="image/*" style={{ display: 'none' }}
+                                            onChange={handlePhotoUpload} />
+                                    </div>
+                                    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center',
+                                            minWidth: 0 }}>
+                                        <h1 className="ids-detail-name">{currentIdentity.name}</h1>
+                                        <div className="ids-detail-alias">"{currentIdentity.alias}"</div>
+                                        <div className="ids-detail-stats">
+                                            <div><span className="ids-stat-label">Priority</span><span
+                                                    className="ids-stat-value"><span
+                                                        className={`ids-priority-badge ${priorityInfo(currentIdentity.priority).tier}`}>{priorityInfo(
+                                                            currentIdentity.priority).value}</span></span></div>
+                                            <div><span className="ids-stat-label">Status</span><span
+                                                    className="ids-stat-value"><span
+                                                        className={`ids-status-badge ${statusInfo(currentIdentity.statusLogic).css}`}>{currentIdentity
+                                                            .statusLogic}</span></span></div>
+                                            <div><span className="ids-stat-label">Threat</span><span
+                                                    className="ids-stat-value" style={{ color: currentIdentity.threat >=
+                                                            70 ? '#FF3D00' : currentIdentity.threat >= 50 ?
+                                                            '#FFD60A' : '#34C759' }}>{currentIdentity.threat}%</span>
+                                            </div>
+                                            <div><span className="ids-stat-label">Class</span><span
+                                                    className="ids-stat-value">{currentIdentity.classification}</span>
+                                            </div>
+                                            <div><span className="ids-stat-label">Location</span><span
+                                                    className="ids-stat-value">{currentIdentity.lastKnown || '—'}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div style={{ background: '#050505', border: '1px solid #1a1a1a' }}>
+                                    <div className="ids-tabs-nav">
+                                        {TABS.map(tab => (
+                                            <button key={tab} className={`ids-tab-btn ${activeTab === tab ? 'active' :
+                                                    ''}`} onClick={() => setActiveTab(tab)}>
+                                                {tab.charAt(0).toUpperCase() + tab.slice(1)}
+                                            </button>
+                                        ))}
+                                    </div>
+                                    {TABS.map(tab => (
+                                        <div key={tab} className={`ids-tab-content ${activeTab === tab ? 'active' :
+                                                ''}`}>
+                                            {tab === 'profile' && <ProfileTab identity={currentIdentity} onChange={
+                                                    updateIdentity} />}
+                                            {tab === 'imagery' && <ImageryTab identity={currentIdentity} onChange={
+                                                    updateIdentity} />}
+                                            {tab === 'socials' && <SocialsTab identity={currentIdentity} onChange={
+                                                    updateIdentity} />}
+                                            {tab === 'notes' && <NotesTab identity={currentIdentity} onChange={
+                                                    updateIdentity} />}
+                                            {tab === 'updates' && <UpdatesTab identity={currentIdentity} onChange={
+                                                    updateIdentity} />}
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            );
+        }
+
+        // ==================== RENDER ====================
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<IdentitiesPage />);
+    </script>
 </body>
 </html>
