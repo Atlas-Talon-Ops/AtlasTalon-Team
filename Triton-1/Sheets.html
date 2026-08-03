@@ -1,0 +1,1599 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sheets · AIDA</title>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-base: #050505;
+      --bg-surface: #0a0a0a;
+      --bg-deep: #111;
+      --bg-hover: rgba(255,255,255,0.03);
+      --bg-cell: #050505;
+      --border-main: #1a1a1a;
+      --border-light: #222;
+      --border-hover: #333;
+      --text-main: #e0e0e0;
+      --text-muted: #444;
+      --text-dim: #666;
+      --text-secondary: #888;
+      --accent: #00ffcc;
+      --accent-light: rgba(0,255,204,0.06);
+      --accent-mid: rgba(0,255,204,0.12);
+      --danger: #FF3D00;
+      --success: #34C759;
+      --warning: #FFD60A;
+    }
+    *{margin:0;padding:0;box-sizing:border-box;}
+    html,body{height:100%;overflow:hidden;background:var(--bg-base);}
+    body{font-family:'IBM Plex Mono',monospace;color:var(--text-main);display:flex;flex-direction:column;}
+    ::-webkit-scrollbar{width:4px;height:4px;}
+    ::-webkit-scrollbar-track{background:transparent;}
+    ::-webkit-scrollbar-thumb{background:var(--border-light);border-radius:2px;}
+    ::-webkit-scrollbar-thumb:hover{background:var(--border-hover);}
+
+    /* App Header */
+    .app-header{display:flex;align-items:center;padding:0 16px;height:48px;background:var(--bg-surface);border-bottom:1px solid var(--border-main);gap:16px;flex-shrink:0;}
+    .file-info{display:flex;flex-direction:column;gap:1px;}
+    .file-name{font-size:12px;font-weight:500;cursor:pointer;padding:2px 6px;margin-left:-6px;border-radius:2px;transition:background .15s;letter-spacing:1px;}
+    .file-name:hover{background:var(--bg-hover);}
+    .file-meta{display:flex;align-items:center;gap:12px;font-size:9px;color:var(--text-muted);letter-spacing:1px;text-transform:uppercase;}
+    .header-actions{margin-left:auto;display:flex;align-items:center;gap:8px;}
+    .avatar{width:28px;height:28px;background:var(--accent);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;color:#000;}
+
+    /* Menu Bar */
+    .menu-bar{display:flex;align-items:center;padding:0 8px;height:32px;background:var(--bg-surface);border-bottom:1px solid var(--border-main);gap:0;flex-shrink:0;}
+    .menu-item{position:relative;padding:6px 12px;font-size:10px;color:var(--text-dim);cursor:pointer;transition:all .15s;user-select:none;letter-spacing:2px;text-transform:uppercase;}
+    .menu-item:hover{background:var(--bg-hover);color:var(--text-main);}
+
+    /* Dropdown Menus */
+    .dropdown-menu{position:absolute;top:100%;left:0;background:var(--bg-surface);border:1px solid var(--border-light);min-width:220px;box-shadow:0 8px 32px rgba(0,0,0,.5);z-index:100;display:none;margin-top:2px;}
+    .menu-item:hover>.dropdown-menu,.tool-dropdown:hover>.dropdown-menu{display:block;}
+    .dropdown-item{padding:8px 12px;font-size:10px;color:var(--text-dim);cursor:pointer;display:flex;align-items:center;justify-content:space-between;transition:background .15s;letter-spacing:1px;}
+    .dropdown-item:hover{background:var(--bg-hover);color:var(--text-main);}
+    .dropdown-item.disabled{opacity:.4;pointer-events:none;}
+    .dropdown-item .shortcut{font-size:9px;color:var(--text-muted);margin-left:24px;letter-spacing:1px;}
+    .dropdown-divider{height:1px;background:var(--border-main);margin:4px 0;}
+    .submenu-container{position:relative;}
+    .submenu-container>.dropdown-item::after{content:'\25B6';font-size:8px;color:var(--text-muted);margin-left:8px;}
+    .submenu{position:absolute;left:100%;top:-2px;background:var(--bg-surface);border:1px solid var(--border-light);min-width:180px;box-shadow:0 8px 32px rgba(0,0,0,.5);display:none;padding:4px;}
+    .submenu-container:hover>.submenu{display:block;}
+
+    /* Toolbar */
+    .toolbar{display:flex;align-items:center;padding:4px 8px;gap:2px;background:var(--bg-surface);border-bottom:1px solid var(--border-main);flex-wrap:wrap;flex-shrink:0;min-height:36px;}
+    .toolbar-group{display:flex;align-items:center;gap:1px;}
+    .toolbar-divider{width:1px;height:22px;background:var(--border-main);margin:0 6px;}
+    .tool-btn{width:28px;height:28px;display:flex;align-items:center;justify-content:center;background:none;border:none;color:var(--text-dim);cursor:pointer;transition:all .15s;border-radius:2px;}
+    .tool-btn:hover{background:var(--bg-hover);color:var(--text-main);}
+    .tool-btn.active{background:var(--accent-light);color:var(--accent);}
+    .tool-btn svg{width:14px;height:14px;}
+    .tool-dropdown{position:relative;height:28px;display:flex;align-items:center;}
+
+    /* Custom Dropdowns */
+    .custom-dropdown{position:relative;height:28px;}
+    .custom-dropdown-btn{height:28px;padding:0 22px 0 8px;background:var(--bg-deep);border:1px solid var(--border-main);color:var(--text-dim);font-size:10px;cursor:pointer;display:flex;align-items:center;gap:4px;min-width:50px;font-family:'IBM Plex Mono',monospace;letter-spacing:1px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 5px center;border-radius:2px;}
+    .custom-dropdown-btn:hover{border-color:var(--border-hover);}
+    .custom-dropdown-menu{position:absolute;top:100%;left:0;background:var(--bg-surface);border:1px solid var(--border-light);min-width:120px;box-shadow:0 8px 32px rgba(0,0,0,.5);z-index:100;display:none;margin-top:2px;max-height:260px;overflow-y:auto;padding:4px;}
+    .custom-dropdown:hover>.custom-dropdown-menu{display:block;}
+    .custom-dropdown-item{padding:6px 10px;font-size:10px;color:var(--text-dim);cursor:pointer;transition:background .15s;letter-spacing:1px;}
+    .custom-dropdown-item:hover{background:var(--bg-hover);color:var(--text-main);}
+    .custom-dropdown-item.selected{background:var(--accent-light);color:var(--accent);}
+
+    /* Color Grid */
+    .color-grid{display:grid;grid-template-columns:repeat(10,1fr);gap:1px;padding:4px;}
+    .color-swatch{width:16px;height:16px;cursor:pointer;border:1px solid transparent;transition:transform .1s;}
+    .color-swatch:hover{transform:scale(1.15);border-color:var(--text-main);}
+
+    /* Border Options */
+    .border-options{display:grid;grid-template-columns:repeat(3,1fr);gap:3px;padding:6px;}
+    .border-opt{width:36px;height:36px;background:var(--bg-deep);border:1px solid var(--border-main);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .15s;border-radius:2px;}
+    .border-opt:hover{background:var(--bg-hover);border-color:var(--border-hover);}
+    .border-opt.active{background:var(--accent-light);border-color:var(--accent);}
+    .border-opt svg{width:18px;height:18px;color:var(--text-dim);}
+
+    /* Formula Bar */
+    .formula-bar{display:flex;align-items:center;padding:2px 8px;gap:6px;background:var(--bg-surface);border-bottom:1px solid var(--border-main);height:32px;flex-shrink:0;}
+    .cell-name{width:72px;padding:4px 6px;background:var(--bg-deep);border:1px solid var(--border-main);color:var(--text-main);font-size:10px;font-weight:500;text-align:center;letter-spacing:1px;border-radius:2px;flex-shrink:0;}
+    .fx-label{padding:0 10px;color:var(--text-muted);font-size:10px;font-style:italic;border-right:1px solid var(--border-main);height:18px;display:flex;align-items:center;flex-shrink:0;}
+    .formula-input{flex:1;background:transparent;border:none;outline:none;color:var(--text-main);font-size:11px;padding:4px 6px;font-family:'IBM Plex Mono',monospace;letter-spacing:.5px;}
+    .formula-input:focus{background:var(--bg-deep);border-radius:2px;}
+
+    /* Grid Container */
+    .grid-container{flex:1;overflow:auto;position:relative;background:var(--bg-cell);}
+    .spreadsheet{border-collapse:collapse;table-layout:fixed;}
+    .spreadsheet th,.spreadsheet td{border:1px solid var(--border-main);min-width:100px;height:26px;font-size:11px;color:var(--text-dim);letter-spacing:.3px;}
+    .spreadsheet th.row-header{background:var(--bg-surface);color:var(--text-muted);font-weight:400;font-size:10px;width:44px;min-width:44px;max-width:44px;text-align:center;position:sticky;left:0;z-index:2;user-select:none;letter-spacing:1px;}
+    .spreadsheet th.row-header:hover{background:var(--bg-hover);}
+    .spreadsheet th.col-header{background:var(--bg-surface);color:var(--text-muted);font-weight:400;font-size:10px;text-align:center;position:sticky;top:0;z-index:3;user-select:none;letter-spacing:1px;cursor:default;}
+    .spreadsheet th.col-header:hover{background:var(--bg-hover);}
+    .spreadsheet th.col-header.selected{background:var(--accent-light);color:var(--accent);}
+    .spreadsheet th.corner{background:var(--bg-surface);position:sticky;top:0;left:0;z-index:4;width:44px;min-width:44px;max-width:44px;cursor:pointer;}
+    .spreadsheet th.corner:hover{background:var(--bg-hover);}
+    .spreadsheet td{background:var(--bg-cell);padding:0 5px;cursor:cell;position:relative;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;}
+    .spreadsheet td.selected{background:var(--accent-light);outline:2px solid var(--accent);outline-offset:-1px;z-index:1;}
+    .spreadsheet td.in-range{background:rgba(0,255,204,0.03);}
+    .spreadsheet td.editing{padding:0;overflow:visible;white-space:normal;}
+    .spreadsheet td.editing input{width:100%;height:100%;border:none;background:var(--bg-cell);color:var(--text-main);font-size:11px;padding:0 5px;outline:none;font-family:'IBM Plex Mono',monospace;letter-spacing:.3px;}
+    .col-resize-handle{position:absolute;right:-2px;top:0;bottom:0;width:5px;cursor:col-resize;z-index:5;}
+    .col-resize-handle:hover{background:var(--accent);opacity:.3;}
+
+    /* Sheet Tabs */
+    .sheet-tabs{display:flex;align-items:center;padding:0 8px;height:36px;background:var(--bg-surface);border-top:1px solid var(--border-main);gap:2px;flex-shrink:0;}
+    .tab-btn{width:26px;height:26px;display:flex;align-items:center;justify-content:center;background:none;border:none;color:var(--text-muted);cursor:pointer;border-radius:2px;}
+    .tab-btn:hover{background:var(--bg-hover);color:var(--text-main);}
+    .tab-btn svg{width:12px;height:12px;}
+    .sheet-tab{padding:5px 14px;font-size:10px;color:var(--text-dim);cursor:pointer;transition:all .15s;letter-spacing:1px;border-radius:2px;white-space:nowrap;position:relative;}
+    .sheet-tab:hover{background:var(--bg-hover);color:var(--text-secondary);}
+    .sheet-tab.active{color:var(--text-main);font-weight:500;}
+    .sheet-tab.active::after{content:'';position:absolute;bottom:0;left:0;width:100%;height:1px;background:var(--accent);}
+
+    /* Toast */
+    .toast{position:fixed;bottom:52px;left:50%;transform:translateX(-50%);background:var(--bg-surface);border:1px solid var(--border-light);padding:10px 20px;font-size:10px;color:var(--text-main);box-shadow:0 8px 32px rgba(0,0,0,.5);opacity:0;pointer-events:none;transition:opacity .3s;z-index:1000;letter-spacing:1px;border-radius:2px;}
+    .toast.visible{opacity:1;}
+
+    /* Modal */
+    .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(4px);display:flex;align-items:flex-start;justify-content:center;padding-top:120px;z-index:200;display:none;}
+    .modal-overlay.active{display:flex;}
+    .modal{background:var(--bg-surface);border:1px solid var(--border-light);width:380px;overflow:hidden;box-shadow:0 16px 48px rgba(0,0,0,.6);border-radius:2px;}
+    .modal-header{padding:14px 18px;border-bottom:1px solid var(--border-main);display:flex;justify-content:space-between;align-items:center;}
+    .modal-title{font-size:10px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--accent);}
+    .modal-close{background:none;border:none;color:var(--text-muted);font-size:18px;cursor:pointer;line-height:1;font-family:'IBM Plex Mono',monospace;}
+    .modal-close:hover{color:var(--text-main);}
+    .modal-body{padding:18px;}
+    .modal-input-group{margin-bottom:10px;}
+    .modal-label{display:block;font-size:9px;color:var(--text-muted);margin-bottom:5px;letter-spacing:1px;text-transform:uppercase;}
+    .modal-input{width:100%;background:var(--bg-base);border:1px solid var(--border-main);padding:8px 10px;color:var(--text-main);font-size:11px;outline:none;font-family:'IBM Plex Mono',monospace;letter-spacing:.5px;border-radius:2px;}
+    .modal-input:focus{border-color:var(--accent);}
+    .modal-footer{padding:14px 18px;border-top:1px solid var(--border-main);display:flex;justify-content:flex-end;gap:6px;}
+    .btn{padding:7px 14px;font-size:10px;font-weight:500;cursor:pointer;border:1px solid var(--border-main);background:var(--bg-deep);color:var(--text-dim);letter-spacing:1px;text-transform:uppercase;font-family:'IBM Plex Mono',monospace;border-radius:2px;transition:all .15s;}
+    .btn:hover{background:var(--bg-hover);color:var(--text-main);}
+    .btn-primary{background:var(--accent);color:#000;border-color:var(--accent);font-weight:600;}
+    .btn-primary:hover{background:#00d4aa;border-color:#00d4aa;}
+
+    /* Function item */
+    .function-item{padding:8px 10px;cursor:pointer;transition:background .15s;border-radius:2px;}
+    .function-item:hover{background:var(--bg-hover);}
+    .function-name{font-size:10px;font-weight:600;color:var(--text-main);letter-spacing:1px;}
+    .function-desc{font-size:9px;color:var(--text-muted);margin-top:2px;letter-spacing:.5px;}
+    .section-label{padding:6px 10px;font-size:9px;color:var(--accent);letter-spacing:2px;text-transform:uppercase;}
+
+    /* Checkbox in cell */
+    .cell-checkbox{width:14px;height:14px;border:1px solid var(--border-hover);background:var(--bg-deep);cursor:pointer;display:flex;align-items:center;justify-content:center;border-radius:2px;}
+    .cell-checkbox.checked{background:var(--accent);border-color:var(--accent);}
+    .cell-checkbox.checked::after{content:'\2713';font-size:10px;color:#000;font-weight:700;}
+
+    /* Conditional formatting highlight */
+    .cond-green{background:rgba(52,199,89,0.12)!important;color:var(--success)!important;}
+    .cond-red{background:rgba(255,61,0,0.12)!important;color:var(--danger)!important;}
+    .cond-yellow{background:rgba(255,214,10,0.12)!important;color:var(--warning)!important;}
+  </style>
+</head>
+<body>
+
+  <!-- App Header -->
+  <header class="app-header">
+    <div class="file-info">
+      <div class="file-name" id="fileName" onclick="renameFile()">Untitled Spreadsheet</div>
+      <div class="file-meta">
+        <span id="saveStatus">Saved</span>
+        <span>All changes saved</span>
+      </div>
+    </div>
+    <div class="header-actions">
+      <div class="avatar">A</div>
+    </div>
+  </header>
+
+  <!-- Menu Bar -->
+  <div class="menu-bar">
+    <div class="menu-item">File
+      <div class="dropdown-menu">
+        <div class="dropdown-item" onclick="newFile()"><span>New</span><span class="shortcut">Ctrl+N</span></div>
+        <div class="dropdown-item" onclick="showToast('Opening file browser...')"><span>Open</span><span class="shortcut">Ctrl+O</span></div>
+        <div class="dropdown-divider"></div>
+        <div class="dropdown-item" onclick="makeCopy()"><span>Make a copy</span></div>
+        <div class="dropdown-item" onclick="saveAs()"><span>Save as</span></div>
+      </div>
+    </div>
+    <div class="menu-item">Edit
+      <div class="dropdown-menu">
+        <div class="dropdown-item" onclick="undo()"><span>Undo</span><span class="shortcut">Ctrl+Z</span></div>
+        <div class="dropdown-item" onclick="redo()"><span>Redo</span><span class="shortcut">Ctrl+Y</span></div>
+        <div class="dropdown-divider"></div>
+        <div class="dropdown-item" onclick="cutCell()"><span>Cut</span><span class="shortcut">Ctrl+X</span></div>
+        <div class="dropdown-item" onclick="copyCell()"><span>Copy</span><span class="shortcut">Ctrl+C</span></div>
+        <div class="dropdown-item" onclick="pasteCell()"><span>Paste</span><span class="shortcut">Ctrl+V</span></div>
+        <div class="dropdown-divider"></div>
+        <div class="dropdown-item" onclick="deleteSelection()"><span>Delete</span><span class="shortcut">Del</span></div>
+        <div class="dropdown-item" onclick="renameSheet()"><span>Rename</span></div>
+        <div class="dropdown-divider"></div>
+        <div class="dropdown-item" onclick="selectAll()"><span>Select all</span><span class="shortcut">Ctrl+A</span></div>
+        <div class="dropdown-item" onclick="openFindReplace()"><span>Find and replace</span><span class="shortcut">Ctrl+H</span></div>
+      </div>
+    </div>
+    <div class="menu-item">Insert
+      <div class="dropdown-menu" style="min-width:240px;">
+        <div class="dropdown-item" onclick="insertCells()"><span>Cells</span></div>
+        <div class="dropdown-item" onclick="insertRowAbove()"><span>Rows</span></div>
+        <div class="dropdown-item" onclick="insertColLeft()"><span>Columns</span></div>
+        <div class="dropdown-item" onclick="insertNewSheet()"><span>Sheet</span><span class="shortcut">Shift+F11</span></div>
+        <div class="dropdown-divider"></div>
+        <div class="dropdown-item" onclick="showToast('Inserting chart...')"><span>Chart</span></div>
+        <div class="dropdown-item" onclick="showToast('Creating pivot table...')"><span>Pivot table</span></div>
+        <div class="dropdown-item" onclick="showToast('Inserting image...')"><span>Image</span></div>
+        <div class="dropdown-divider"></div>
+        <div class="submenu-container">
+          <div class="dropdown-item"><span>Function</span></div>
+          <div class="submenu" style="min-width:240px;max-height:300px;overflow-y:auto;">
+            <div class="section-label">Math</div>
+            <div class="function-item" onclick="insertFunction('SUM')"><div class="function-name">SUM</div><div class="function-desc">Add up a range of numbers</div></div>
+            <div class="function-item" onclick="insertFunction('AVERAGE')"><div class="function-name">AVERAGE</div><div class="function-desc">Calculate the mean</div></div>
+            <div class="function-item" onclick="insertFunction('COUNT')"><div class="function-name">COUNT</div><div class="function-desc">Count numeric values</div></div>
+            <div class="function-item" onclick="insertFunction('MAX')"><div class="function-name">MAX</div><div class="function-desc">Find largest value</div></div>
+            <div class="function-item" onclick="insertFunction('MIN')"><div class="function-name">MIN</div><div class="function-desc">Find smallest value</div></div>
+            <div class="section-label">Text</div>
+            <div class="function-item" onclick="insertFunction('CONCATENATE')"><div class="function-name">CONCATENATE</div><div class="function-desc">Join text strings</div></div>
+            <div class="function-item" onclick="insertFunction('UPPER')"><div class="function-name">UPPER</div><div class="function-desc">Convert to uppercase</div></div>
+            <div class="function-item" onclick="insertFunction('LOWER')"><div class="function-name">LOWER</div><div class="function-desc">Convert to lowercase</div></div>
+            <div class="function-item" onclick="insertFunction('TRIM')"><div class="function-name">TRIM</div><div class="function-desc">Remove extra spaces</div></div>
+            <div class="section-label">Logic</div>
+            <div class="function-item" onclick="insertFunction('IF')"><div class="function-name">IF</div><div class="function-desc">Conditional logic</div></div>
+            <div class="function-item" onclick="insertFunction('AND')"><div class="function-name">AND</div><div class="function-desc">Logical AND</div></div>
+            <div class="function-item" onclick="insertFunction('OR')"><div class="function-name">OR</div><div class="function-desc">Logical OR</div></div>
+            <div class="section-label">Date</div>
+            <div class="function-item" onclick="insertFunction('TODAY')"><div class="function-name">TODAY</div><div class="function-desc">Current date</div></div>
+            <div class="function-item" onclick="insertFunction('NOW')"><div class="function-name">NOW</div><div class="function-desc">Current date and time</div></div>
+          </div>
+        </div>
+        <div class="dropdown-item" onclick="insertLink()"><span>Link</span><span class="shortcut">Ctrl+K</span></div>
+        <div class="dropdown-item" onclick="insertCheckbox()"><span>Tick box</span></div>
+        <div class="dropdown-divider"></div>
+        <div class="dropdown-item" onclick="insertComment()"><span>Comment</span><span class="shortcut">Ctrl+Alt+M</span></div>
+        <div class="dropdown-item" onclick="insertNote()"><span>Note</span></div>
+      </div>
+    </div>
+    <div class="menu-item">Format
+      <div class="dropdown-menu" style="min-width:240px;">
+        <div class="dropdown-item" onclick="showToast('Opening theme selector...')"><span>Theme</span></div>
+        <div class="dropdown-divider"></div>
+        <div class="submenu-container">
+          <div class="dropdown-item"><span>Number</span></div>
+          <div class="submenu">
+            <div class="dropdown-item" onclick="formatNumber('auto')">Automatic</div>
+            <div class="dropdown-divider"></div>
+            <div class="dropdown-item" onclick="formatNumber('number')">Number (1,234)</div>
+            <div class="dropdown-item" onclick="formatNumber('numberDecimal')">Number (1,234.00)</div>
+            <div class="dropdown-divider"></div>
+            <div class="dropdown-item" onclick="formatNumber('currency')">Currency ($1.00)</div>
+            <div class="dropdown-item" onclick="formatNumber('currencyRounded')">Currency rounded ($1)</div>
+            <div class="dropdown-divider"></div>
+            <div class="dropdown-item" onclick="formatNumber('percent')">Percent (10%)</div>
+            <div class="dropdown-item" onclick="formatNumber('percentDecimal')">Percent (10.00%)</div>
+            <div class="dropdown-divider"></div>
+            <div class="dropdown-item" onclick="formatNumber('scientific')">Scientific (1.23E+03)</div>
+            <div class="dropdown-divider"></div>
+            <div class="dropdown-item" onclick="formatNumber('date')">Date (01/01/2024)</div>
+            <div class="dropdown-item" onclick="formatNumber('time')">Time (12:00 PM)</div>
+            <div class="dropdown-item" onclick="formatNumber('dateTime')">Date and time</div>
+            <div class="dropdown-divider"></div>
+            <div class="dropdown-item" onclick="formatNumber('text')">Plain text</div>
+          </div>
+        </div>
+        <div class="submenu-container">
+          <div class="dropdown-item"><span>Text</span></div>
+          <div class="submenu">
+            <div class="dropdown-item" onclick="applyFontWeight()">Bold<span class="shortcut">Ctrl+B</span></div>
+            <div class="dropdown-item" onclick="applyFontStyle()">Italic<span class="shortcut">Ctrl+I</span></div>
+            <div class="dropdown-item" onclick="applyTextDecoration()">Underline<span class="shortcut">Ctrl+U</span></div>
+            <div class="dropdown-item" onclick="applyStrikethrough()">Strikethrough</div>
+          </div>
+        </div>
+        <div class="submenu-container">
+          <div class="dropdown-item"><span>Alignment</span></div>
+          <div class="submenu">
+            <div class="dropdown-item" onclick="setAlignment('left')">Align left</div>
+            <div class="dropdown-item" onclick="setAlignment('center')">Align center</div>
+            <div class="dropdown-item" onclick="setAlignment('right')">Align right</div>
+            <div class="dropdown-divider"></div>
+            <div class="dropdown-item" onclick="setVerticalAlignment('top')">Align top</div>
+            <div class="dropdown-item" onclick="setVerticalAlignment('middle')">Align middle</div>
+            <div class="dropdown-item" onclick="setVerticalAlignment('bottom')">Align bottom</div>
+          </div>
+        </div>
+        <div class="submenu-container">
+          <div class="dropdown-item"><span>Wrapping</span></div>
+          <div class="submenu">
+            <div class="dropdown-item" onclick="setTextWrap('overflow')">Overflow</div>
+            <div class="dropdown-item" onclick="setTextWrap('wrap')">Wrap</div>
+            <div class="dropdown-item" onclick="setTextWrap('clip')">Clip</div>
+          </div>
+        </div>
+        <div class="submenu-container">
+          <div class="dropdown-item"><span>Rotation</span></div>
+          <div class="submenu">
+            <div class="dropdown-item" onclick="setRotation(0)">No rotation</div>
+            <div class="dropdown-item" onclick="setRotation(45)">Tilt up (45)</div>
+            <div class="dropdown-item" onclick="setRotation(-45)">Tilt down (45)</div>
+            <div class="dropdown-divider"></div>
+            <div class="dropdown-item" onclick="setRotation(90)">Rotate up (90)</div>
+            <div class="dropdown-item" onclick="setRotation(-90)">Rotate down (90)</div>
+          </div>
+        </div>
+        <div class="dropdown-item" onclick="showToast('Inserting smart chip...')"><span>Smart chips</span></div>
+        <div class="dropdown-divider"></div>
+        <div class="submenu-container">
+          <div class="dropdown-item"><span>Font size</span></div>
+          <div class="submenu" style="max-height:240px;overflow-y:auto;">
+            <div class="dropdown-item" onclick="setFontSize(8)">8</div><div class="dropdown-item" onclick="setFontSize(9)">9</div>
+            <div class="dropdown-item" onclick="setFontSize(10)">10</div><div class="dropdown-item" onclick="setFontSize(11)">11</div>
+            <div class="dropdown-item" onclick="setFontSize(12)">12</div><div class="dropdown-item" onclick="setFontSize(14)">14</div>
+            <div class="dropdown-item" onclick="setFontSize(16)">16</div><div class="dropdown-item" onclick="setFontSize(18)">18</div>
+            <div class="dropdown-item" onclick="setFontSize(20)">20</div><div class="dropdown-item" onclick="setFontSize(22)">22</div>
+            <div class="dropdown-item" onclick="setFontSize(24)">24</div><div class="dropdown-item" onclick="setFontSize(28)">28</div>
+            <div class="dropdown-item" onclick="setFontSize(36)">36</div><div class="dropdown-item" onclick="setFontSize(48)">48</div>
+          </div>
+        </div>
+        <div class="submenu-container">
+          <div class="dropdown-item"><span>Merge cells</span></div>
+          <div class="submenu">
+            <div class="dropdown-item" onclick="mergeCells()">Merge all</div>
+            <div class="dropdown-item" onclick="mergeCellsHorizontal()">Merge horizontally</div>
+            <div class="dropdown-item" onclick="mergeCellsVertical()">Merge vertically</div>
+            <div class="dropdown-divider"></div>
+            <div class="dropdown-item" onclick="unmergeCells()">Unmerge</div>
+          </div>
+        </div>
+        <div class="dropdown-item" onclick="showToast('Converting to table...')"><span>Convert to table</span><span class="shortcut">Ctrl+Alt+T</span></div>
+        <div class="dropdown-item" onclick="openConditionalFormatting()"><span>Conditional formatting</span></div>
+        <div class="dropdown-item" onclick="applyAlternatingColors()"><span>Alternating colours</span></div>
+        <div class="dropdown-divider"></div>
+        <div class="dropdown-item" onclick="clearFormatting()"><span>Clear formatting</span><span class="shortcut">Ctrl+\\</span></div>
+      </div>
+    </div>
+    <div class="menu-item">Data
+      <div class="dropdown-menu" style="min-width:240px;">
+        <div class="submenu-container">
+          <div class="dropdown-item"><span>Sort range</span></div>
+          <div class="submenu">
+            <div class="dropdown-item" onclick="sortRange('asc')">Sort A-Z (ascending)</div>
+            <div class="dropdown-item" onclick="sortRange('desc')">Sort Z-A (descending)</div>
+          </div>
+        </div>
+        <div class="submenu-container">
+          <div class="dropdown-item"><span>Sort sheet</span></div>
+          <div class="submenu">
+            <div class="dropdown-item" onclick="sortSheet('asc')">Sort sheet A-Z</div>
+            <div class="dropdown-item" onclick="sortSheet('desc')">Sort sheet Z-A</div>
+          </div>
+        </div>
+        <div class="dropdown-divider"></div>
+        <div class="submenu-container">
+          <div class="dropdown-item"><span>Create a filter</span></div>
+          <div class="submenu">
+            <div class="dropdown-item" onclick="createFilter()">Create a filter</div>
+            <div class="dropdown-item" onclick="removeFilter()">Remove filter</div>
+            <div class="dropdown-divider"></div>
+            <div class="dropdown-item" onclick="filterByCondition()">Filter by condition</div>
+            <div class="dropdown-item" onclick="filterByValues()">Filter by values</div>
+          </div>
+        </div>
+        <div class="dropdown-item" onclick="showToast('Filter views...')"><span>Filter views</span></div>
+        <div class="dropdown-divider"></div>
+        <div class="dropdown-item" onclick="showToast('Grouping...')"><span>Group</span></div>
+        <div class="dropdown-item" onclick="showToast('Ungrouping...')"><span>Ungroup</span></div>
+        <div class="dropdown-divider"></div>
+        <div class="dropdown-item" onclick="showToast('Randomise range...')"><span>Randomise range</span></div>
+        <div class="dropdown-item" onclick="showToast('Removing duplicates...')"><span>Remove duplicates</span></div>
+        <div class="dropdown-divider"></div>
+        <div class="dropdown-item" onclick="showToast('Split text to columns...')"><span>Split text to columns</span></div>
+        <div class="dropdown-item" onclick="showToast('Trim whitespace...')"><span>Trim whitespace</span></div>
+        <div class="dropdown-divider"></div>
+        <div class="dropdown-item" onclick="showToast('Data validation...')"><span>Data validation</span></div>
+        <div class="dropdown-item" onclick="showToast('Named ranges...')"><span>Named ranges</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toolbar -->
+  <div class="toolbar" id="toolbar">
+    <div class="toolbar-group">
+      <button class="tool-btn" title="Undo (Ctrl+Z)" onclick="undo()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"/></svg>
+      </button>
+      <button class="tool-btn" title="Redo (Ctrl+Y)" onclick="redo()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 7v6h-6"/><path d="M3 17a9 9 0 0 1 9-9 9 9 0 0 1 6 2.3L21 13"/></svg>
+      </button>
+      <div class="tool-dropdown">
+        <button class="tool-btn" title="Print">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+        </button>
+        <div class="dropdown-menu" style="min-width:140px;">
+          <div class="dropdown-item" onclick="showToast('Printing...')">Print</div>
+          <div class="dropdown-item" onclick="showToast('Print preview...')">Print preview</div>
+        </div>
+      </div>
+      <button class="tool-btn" id="paintFmtBtn" title="Paint format" onclick="paintFormat()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 3H5a2 2 0 0 0-2 2v4a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2z"/><path d="M12 11v10"/><path d="M8 21h8"/></svg>
+      </button>
+    </div>
+    <div class="toolbar-divider"></div>
+    <div class="toolbar-group">
+      <div class="custom-dropdown">
+        <button class="custom-dropdown-btn" id="zoomBtn">100%</button>
+        <div class="custom-dropdown-menu" style="min-width:70px;" id="zoomMenu"></div>
+      </div>
+    </div>
+    <div class="toolbar-divider"></div>
+    <div class="toolbar-group">
+      <div class="custom-dropdown">
+        <button class="custom-dropdown-btn" id="fontBtn" style="min-width:110px;">IBM Plex Mono</button>
+        <div class="custom-dropdown-menu" style="min-width:140px;" id="fontMenu"></div>
+      </div>
+      <div class="custom-dropdown">
+        <button class="custom-dropdown-btn" id="fontSizeBtn" style="min-width:36px;">12</button>
+        <div class="custom-dropdown-menu" style="min-width:50px;" id="fontSizeMenu"></div>
+      </div>
+    </div>
+    <div class="toolbar-divider"></div>
+    <div class="toolbar-group">
+      <button class="tool-btn" id="boldBtn" title="Bold (Ctrl+B)" onclick="applyFontWeight()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M6 4h8a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z"/><path d="M6 12h9a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z"/></svg>
+      </button>
+      <button class="tool-btn" id="italicBtn" title="Italic (Ctrl+I)" onclick="applyFontStyle()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="4" x2="10" y2="4"/><line x1="14" y1="20" x2="5" y2="20"/><line x1="15" y1="4" x2="9" y2="20"/></svg>
+      </button>
+      <button class="tool-btn" id="underlineBtn" title="Underline (Ctrl+U)" onclick="applyTextDecoration()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3v7a6 6 0 0 0 6 6 6 6 0 0 0 6-6V3"/><line x1="4" y1="21" x2="20" y2="21"/></svg>
+      </button>
+      <button class="tool-btn" id="strikeBtn" title="Strikethrough" onclick="applyStrikethrough()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.3 4.9c-2.3-.6-4.4-1-6.2-.8-2.7.3-4.3 1.9-4.3 3.8 0 1.5 1.1 2.7 3.1 3.1"/><line x1="4" y1="12" x2="20" y2="12"/><path d="M6.7 15.1c.3 2.3 2.2 3.9 4.8 3.9 2.6 0 4.8-1.7 5-4"/></svg>
+      </button>
+    </div>
+    <div class="toolbar-divider"></div>
+    <div class="toolbar-group">
+      <div class="tool-dropdown">
+        <button class="tool-btn" title="Text color" style="position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px;"><path d="M4 7V4h16v3"/><path d="M9 20h6"/><path d="M12 4v16"/></svg>
+          <div style="width:13px;height:2px;background:var(--text-main);border-radius:1px;" id="textColorInd"></div>
+        </button>
+        <div class="dropdown-menu" style="min-width:200px;padding:6px;">
+          <div style="font-size:9px;color:var(--text-muted);margin-bottom:4px;padding:0 2px;letter-spacing:1px;text-transform:uppercase;">Text Color</div>
+          <div class="color-grid" id="textColorGrid"></div>
+        </div>
+      </div>
+      <div class="tool-dropdown">
+        <button class="tool-btn" title="Fill color" style="position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px;"><path d="M19 11H5m14 0a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-6a2 2 0 0 1 2-2m14 0V9a2 2 0 0 0-2-2M5 11V9a2 2 0 0 1 2-2m0 0V5a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v2M7 7h10"/></svg>
+          <div style="width:13px;height:2px;background:var(--accent);border-radius:1px;" id="fillColorInd"></div>
+        </button>
+        <div class="dropdown-menu" style="min-width:200px;padding:6px;">
+          <div style="font-size:9px;color:var(--text-muted);margin-bottom:4px;padding:0 2px;letter-spacing:1px;text-transform:uppercase;">Fill Color</div>
+          <div class="color-grid" id="fillColorGrid"></div>
+        </div>
+      </div>
+    </div>
+    <div class="toolbar-divider"></div>
+    <div class="toolbar-group">
+      <div class="tool-dropdown">
+        <button class="tool-btn" title="Borders">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
+        </button>
+        <div class="dropdown-menu" style="min-width:140px;">
+          <div class="border-options" id="borderOptions"></div>
+        </div>
+      </div>
+    </div>
+    <div class="toolbar-divider"></div>
+    <div class="toolbar-group">
+      <button class="tool-btn" id="alignLeftBtn" title="Align left" onclick="setAlignment('left')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="15" y2="12"/><line x1="3" y1="18" x2="18" y2="18"/></svg>
+      </button>
+      <button class="tool-btn" id="alignCenterBtn" title="Align center" onclick="setAlignment('center')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="6" y1="12" x2="18" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/></svg>
+      </button>
+      <button class="tool-btn" id="alignRightBtn" title="Align right" onclick="setAlignment('right')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="9" y1="12" x2="21" y2="12"/><line x1="6" y1="18" x2="21" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="toolbar-divider"></div>
+    <div class="toolbar-group">
+      <div class="tool-dropdown">
+        <button class="tool-btn" title="Merge cells">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="1"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="3" x2="9" y2="21"/></svg>
+        </button>
+        <div class="dropdown-menu" style="min-width:160px;">
+          <div class="dropdown-item" onclick="mergeCells()">Merge all</div>
+          <div class="dropdown-item" onclick="mergeCellsHorizontal()">Merge horizontally</div>
+          <div class="dropdown-item" onclick="mergeCellsVertical()">Merge vertically</div>
+          <div class="dropdown-divider"></div>
+          <div class="dropdown-item" onclick="unmergeCells()">Unmerge</div>
+        </div>
+      </div>
+    </div>
+    <div class="toolbar-divider"></div>
+    <div class="toolbar-group">
+      <div class="custom-dropdown">
+        <button class="custom-dropdown-btn" style="min-width:60px;font-size:9px;" title="Functions">fx</button>
+        <div class="custom-dropdown-menu" style="min-width:220px;max-height:280px;overflow-y:auto;" id="fxMenu"></div>
+      </div>
+    </div>
+    <div class="toolbar-divider"></div>
+    <div class="toolbar-group">
+      <div class="custom-dropdown">
+        <button class="custom-dropdown-btn" id="wrapBtn" style="min-width:70px;font-size:9px;" title="Text wrap">OVERFLOW</button>
+        <div class="custom-dropdown-menu" style="min-width:90px;">
+          <div class="custom-dropdown-item" onclick="setTextWrap('overflow')">Overflow</div>
+          <div class="custom-dropdown-item" onclick="setTextWrap('wrap')">Wrap</div>
+          <div class="custom-dropdown-item" onclick="setTextWrap('clip')">Clip</div>
+        </div>
+      </div>
+    </div>
+    <div class="toolbar-divider"></div>
+    <div class="toolbar-group">
+      <button class="tool-btn" title="Conditional formatting" onclick="openConditionalFormatting()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+      </button>
+      <button class="tool-btn" title="Filter" onclick="createFilter()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Formula Bar -->
+  <div class="formula-bar">
+    <div class="cell-name" id="cellName">A1</div>
+    <div class="fx-label">fx</div>
+    <input class="formula-input" id="formulaInput" spellcheck="false" />
+  </div>
+
+  <!-- Grid Container -->
+  <div class="grid-container" id="gridContainer">
+    <table class="spreadsheet" id="spreadsheet"></table>
+  </div>
+
+  <!-- Sheet Tabs -->
+  <div class="sheet-tabs" id="sheetTabs">
+    <button class="tab-btn" title="Add sheet" onclick="insertNewSheet()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+    </button>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+  <!-- Find & Replace Modal -->
+  <div class="modal-overlay" id="findReplaceModal">
+    <div class="modal">
+      <div class="modal-header">
+        <span class="modal-title">Find and Replace</span>
+        <button class="modal-close" onclick="closeFindReplace()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="modal-input-group">
+          <label class="modal-label">Find</label>
+          <input class="modal-input" id="findInput" />
+        </div>
+        <div class="modal-input-group">
+          <label class="modal-label">Replace with</label>
+          <input class="modal-input" id="replaceInput" />
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn" onclick="findNext()">Find</button>
+        <button class="btn" onclick="replaceOne()">Replace</button>
+        <button class="btn btn-primary" onclick="replaceAll()">Replace all</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+// ==================== STATE ====================
+const ROWS = 100, COLS = 26;
+const defaultFormat = () => ({bold:false,italic:false,underline:false,strikethrough:false,color:'',bgColor:'',fontFamily:'IBM Plex Mono',fontSize:12,align:'',vAlign:'',wrap:'overflow',rotation:0,numberFormat:'auto',borderTop:'',borderRight:'',borderBottom:'',borderLeft:''});
+
+const S = {
+  sheets:[{name:'Sheet1',data:{},colWidths:{},rowHeights:{},merges:[],condFormat:[]}],
+  cur:0,
+  sel:{row:0,col:0},
+  range:null,
+  editing:false,
+  editCell:null,
+  undoStack:[],
+  redoStack:[],
+  clipboard:null,
+  zoom:100,
+  paintMode:false,
+  paintStyle:null,
+  findResults:[],
+  findIdx:-1
+};
+
+function sheet(){ return S.sheets[S.cur]; }
+function cellKey(r,c){ return colToLetter(c)+(r+1); }
+function getCell(r,c,s){ s=s||sheet(); const k=cellKey(r,c); return s.data[k]||null; }
+function getOrCreateCell(r,c,s){ s=s||sheet(); const k=cellKey(r,c); if(!s.data[k]) s.data[k]={value:'',formula:null,format:defaultFormat(),checkbox:false}; return s.data[k]; }
+function getCellValue(r,c,s){ const cell=getCell(r,c,s); if(!cell) return ''; if(cell.checkbox) return cell.value?'TRUE':'FALSE'; if(cell.formula) return evalFormula(cell.formula,s||sheet()); return cell.value; }
+function getCellDisplay(r,c,s){ let v=getCellValue(r,c,s); const cell=getCell(r,c,s); if(cell&&cell.format){ const nf=cell.format.numberFormat; if(nf!=='auto'&&nf!=='text'&&v!==''&&!isNaN(v)){ const n=parseFloat(v); switch(nf){ case'number':return n.toLocaleString('en-US',{maximumFractionDigits:0}); case'numberDecimal':return n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}); case'currency':return'$'+n.toFixed(2); case'currencyRounded':return'$'+Math.round(n); case'percent':return(n*100).toFixed(0)+'%'; case'percentDecimal':return(n*100).toFixed(2)+'%'; case'scientific':return n.toExponential(2); } } } return v==='#ERROR!'?'#ERROR!':v==null?'':String(v); }
+
+// ==================== UTILITIES ====================
+function colToLetter(c){ let l=''; while(c>=0){l=String.fromCharCode(65+(c%26))+l;c=Math.floor(c/26)-1;} return l; }
+function letterToCol(l){ let c=0; for(let i=0;i<l.length;i++) c=c*26+(l.charCodeAt(i)-64); return c-1; }
+function parseRef(ref){ const m=ref.match(/^([A-Z]+)(\d+)$/); if(!m) return null; return {row:parseInt(m[2])-1,col:letterToCol(m[1])}; }
+function parseRange(r){ const m=r.match(/^([A-Z]+)(\d+):([A-Z]+)(\d+)$/); if(!m) return null; return {r1:parseInt(m[2])-1,c1:letterToCol(m[1]),r2:parseInt(m[4])-1,c2:letterToCol(m[3])}; }
+
+// ==================== FORMULA ENGINE ====================
+function evalFormula(f, s){
+  if(!f||!f.startsWith('=')) return f;
+  let expr=f.substring(1).trim().toUpperCase();
+  try{ return evalExpr(expr,s); }catch(e){ return '#ERROR!'; }
+}
+
+function evalExpr(expr,s){
+  let iters=50;
+  while(iters-->0 && /[A-Z_]+\(/.test(expr)){
+    const m=expr.match(/([A-Z_]+)\(([^()]*)\)/);
+    if(!m) break;
+    expr=expr.replace(m[0], evalFunc(m[1],m[2],s));
+  }
+  expr=expr.replace(/([A-Z]+)(\d+)/g,(_,col,row)=>{
+    const v=getCellValue(letterToCol(col)-1,parseInt(row)-1,s);
+    if(v===''||v==null) return '0';
+    const n=parseFloat(v); return isNaN(n)?'"'+v+'"':String(n);
+  });
+  expr=expr.replace(/TRUE/g,'true').replace(/FALSE/g,'false');
+  try{ return Function('"use strict";return('+expr+')')(); }catch(e){ return '#ERROR!'; }
+}
+
+function evalFunc(name,args,s){
+  const getArgs=()=>args.split(',').map(a=>a.trim());
+  const getNums=(rangeArgs)=>{
+    const nums=[];
+    rangeArgs.split(',').forEach(a=>{
+      a=a.trim();
+      if(a.includes(':')){
+        const rng=parseRange(a);
+        if(rng){ for(let r=rng.r1;r<=rng.r2;r++) for(let c=rng.c1;c<=rng.c2;c++){ const v=parseFloat(getCellValue(r,c,s)); if(!isNaN(v)) nums.push(v); } }
+      } else {
+        const n=parseFloat(a); if(!isNaN(n)) nums.push(n);
+        else { const ref=parseRef(a); if(ref){ const v=parseFloat(getCellValue(ref.row,ref.col,s)); if(!isNaN(v)) nums.push(v); } }
+      }
+    });
+    return nums;
+  };
+  switch(name){
+    case'SUM': return getNums(args).reduce((a,b)=>a+b,0);
+    case'AVERAGE':{ const n=getNums(args); return n.length?n.reduce((a,b)=>a+b,0)/n.length:0; }
+    case'COUNT': return getNums(args).length;
+    case'MAX':{ const n=getNums(args); return n.length?Math.max(...n):0; }
+    case'MIN':{ const n=getNums(args); return n.length?Math.min(...n):0; }
+    case'IF':{ const a=getArgs(); return a.length>=3? evalExpr(a[0],s)?evalExpr(a[1],s):evalExpr(a[2],s):'#ERROR!'; }
+    case'AND':{ const a=getArgs(); return a.every(x=>evalExpr(x,s))?true:false; }
+    case'OR':{ const a=getArgs(); return a.some(x=>evalExpr(x,s))?true:false; }
+    case'CONCATENATE':{ return getArgs().map(a=>String(evalExpr(a,s))).join(''); }
+    case'UPPER': return String(evalExpr(args,s)).toUpperCase();
+    case'LOWER': return String(evalExpr(args,s)).toLowerCase();
+    case'TRIM': return String(evalExpr(args,s)).replace(/\s+/g,' ').trim();
+    case'TODAY':{ const d=new Date(); return (d.getMonth()+1)+'/'+d.getDate()+'/'+d.getFullYear(); }
+    case'NOW':{ const d=new Date(); return (d.getMonth()+1)+'/'+d.getDate()+'/'+d.getFullYear()+' '+d.toLocaleTimeString('en-US'); }
+    default: return '#ERROR!';
+  }
+}
+
+// ==================== UNDO / REDO ====================
+function saveUndo(){
+  S.undoStack.push(JSON.parse(JSON.stringify(S.sheets)));
+  if(S.undoStack.length>50) S.undoStack.shift();
+  S.redoStack=[];
+  markDirty();
+}
+function undo(){
+  if(!S.undoStack.length) return;
+  S.redoStack.push(JSON.parse(JSON.stringify(S.sheets)));
+  S.sheets=S.undoStack.pop();
+  renderGrid(); updateFormulaBar(); showToast('Undo');
+}
+function redo(){
+  if(!S.redoStack.length) return;
+  S.undoStack.push(JSON.parse(JSON.stringify(S.sheets)));
+  S.sheets=S.redoStack.pop();
+  renderGrid(); updateFormulaBar(); showToast('Redo');
+}
+
+// ==================== CLIPBOARD ====================
+function copyCell(){
+  const cells=getSelectedCells();
+  S.clipboard={cells:JSON.parse(JSON.stringify(cells)),cut:false,range:S.range?{...S.range}:{r1:S.sel.row,c1:S.sel.col,r2:S.sel.row,c2:S.sel.col}};
+  showToast('Copied to clipboard');
+}
+function cutCell(){
+  const cells=getSelectedCells();
+  S.clipboard={cells:JSON.parse(JSON.stringify(cells)),cut:true,range:S.range?{...S.range}:{r1:S.sel.row,c1:S.sel.col,r2:S.sel.row,c2:S.sel.col}};
+  showToast('Cut to clipboard');
+}
+function pasteCell(){
+  if(!S.clipboard) return;
+  saveUndo();
+  const sr=S.clipboard.range;
+  const dr=S.sel.row, dc=S.sel.col;
+  const rh=sr.r2-sr.r1, ch=sr.c2-sr.c1;
+  for(let r=0;r<=rh;r++) for(let c=0;c<=ch;c++){
+    const srcKey=cellKey(sr.r1+r,sr.c1+c);
+    const src=S.clipboard.cells[srcKey];
+    if(src){
+      const dest=getOrCreateCell(dr+r,dc+c);
+      dest.value=src.value; dest.formula=src.formula; dest.format=JSON.parse(JSON.stringify(src.format)); dest.checkbox=src.checkbox;
+      if(S.clipboard.cut) delete sheet().data[srcKey];
+    }
+  }
+  if(S.clipboard.cut) S.clipboard=null;
+  renderGrid(); updateFormulaBar();
+}
+
+function getSelectedCells(){
+  const cells={};
+  const rng=getEffectiveRange();
+  for(let r=rng.r1;r<=rng.r2;r++) for(let c=rng.c1;c<=rng.c2;c++){
+    const cell=getCell(r,c);
+    if(cell) cells[cellKey(r,c)]=JSON.parse(JSON.stringify(cell));
+  }
+  return cells;
+}
+
+function getEffectiveRange(){
+  if(S.range) return {r1:Math.min(S.range.r1,S.range.r2),c1:Math.min(S.range.c1,S.range.c2),r2:Math.max(S.range.r1,S.range.r2),c2:Math.max(S.range.c1,S.range.c2)};
+  return {r1:S.sel.row,c1:S.sel.col,r2:S.sel.row,c2:S.sel.col};
+}
+
+// ==================== SELECTION ====================
+function selectCell(r,c,extend){
+  r=Math.max(0,Math.min(ROWS-1,r));
+  c=Math.max(0,Math.min(COLS-1,c));
+  if(extend){
+    if(!S.range) S.range={r1:S.sel.row,c1:S.sel.col,r2:r,c2:c};
+    else { S.range.r2=r; S.range.c2=c; }
+  } else {
+    S.sel={row:r,col:c}; S.range=null;
+  }
+  highlightSelection();
+  updateFormulaBar();
+  updateToolbarState();
+  scrollCellIntoView(r,c);
+}
+
+function highlightSelection(){
+  document.querySelectorAll('.spreadsheet td').forEach(td=>{
+    td.classList.remove('selected','in-range');
+  });
+  document.querySelectorAll('.spreadsheet th.col-header').forEach(th=>th.classList.remove('selected'));
+  if(S.range){
+    const rng=getEffectiveRange();
+    for(let r=rng.r1;r<=rng.r2;r++) for(let c=rng.c1;c<=rng.c2;c++){
+      const td=getTd(r,c); if(td) td.classList.add(r===S.sel.row&&c===S.sel.col?'selected':'in-range');
+    }
+  }
+  const td=getTd(S.sel.row,S.sel.col);
+  if(td){ td.classList.add('selected'); td.focus(); }
+  // Highlight col header
+  const colHeaders=document.querySelectorAll('.spreadsheet th.col-header');
+  if(colHeaders[S.sel.col]) colHeaders[S.sel.col].classList.add('selected');
+}
+
+function getTd(r,c){ return document.querySelector(`td[data-r="${r}"][data-c="${c}"]`); }
+function scrollCellIntoView(r,c){
+  const td=getTd(r,c); if(td) td.scrollIntoView({block:'nearest',inline:'nearest'});
+}
+
+// ==================== EDITING ====================
+function startEditing(r,c,clearContent){
+  if(S.editing) finishEditing();
+  S.editing=true; S.editCell={row:r,col:c};
+  const td=getTd(r,c); if(!td) return;
+  const cell=getOrCreateCell(r,c);
+  td.classList.add('editing');
+  td.innerHTML='';
+  const inp=document.createElement('input');
+  inp.value=clearContent?'':(cell.formula||cell.value);
+  inp.style.cssText='width:100%;height:100%;border:none;background:var(--bg-cell);color:var(--text-main);font-size:11px;padding:0 5px;outline:none;font-family:IBM Plex Mono,monospace;letter-spacing:.3px;';
+  if(cell.format){
+    if(cell.format.bold) inp.style.fontWeight='600';
+    if(cell.format.italic) inp.style.fontStyle='italic';
+    if(cell.format.color) inp.style.color=cell.format.color;
+  }
+  td.appendChild(inp);
+  inp.focus();
+  if(!clearContent) inp.setSelectionRange(inp.value.length,inp.value.length);
+  document.getElementById('formulaInput').value=inp.value;
+  inp.addEventListener('keydown',handleEditKey);
+  inp.addEventListener('input',()=>{ document.getElementById('formulaInput').value=inp.value; });
+}
+
+function finishEditing(){
+  if(!S.editing) return;
+  const {row,col}=S.editCell;
+  const td=getTd(row,col);
+  if(td){
+    const inp=td.querySelector('input');
+    if(inp){
+      saveUndo();
+      const cell=getOrCreateCell(row,col);
+      const val=inp.value.trim();
+      if(val.startsWith('=')) cell.formula=val; else { cell.formula=null; cell.value=val; }
+    }
+  }
+  S.editing=false; S.editCell=null;
+  renderGrid(); highlightSelection(); updateFormulaBar();
+}
+
+function cancelEditing(){
+  if(!S.editing) return;
+  S.editing=false; S.editCell=null;
+  renderGrid(); highlightSelection(); updateFormulaBar();
+}
+
+function handleEditKey(e){
+  if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); finishEditing(); selectCell(S.sel.row+1,S.sel.col); }
+  else if(e.key==='Tab'){ e.preventDefault(); finishEditing(); selectCell(S.sel.row,S.sel.col+(e.shiftKey?-1:1)); }
+  else if(e.key==='Escape'){ e.preventDefault(); cancelEditing(); }
+}
+
+// ==================== FORMATTING ====================
+function applyFormatProp(prop,val){
+  saveUndo();
+  const rng=getEffectiveRange();
+  for(let r=rng.r1;r<=rng.r2;r++) for(let c=rng.c1;c<=rng.c2;c++){
+    const cell=getOrCreateCell(r,c);
+    cell.format[prop]=val;
+  }
+  renderGrid(); highlightSelection(); updateToolbarState();
+}
+function applyFontWeight(){ applyFormatProp('bold',!getToggleState('bold')); }
+function applyFontStyle(){ applyFormatProp('italic',!getToggleState('italic')); }
+function applyTextDecoration(){ applyFormatProp('underline',!getToggleState('underline')); }
+function applyStrikethrough(){ applyFormatProp('strikethrough',!getToggleState('strikethrough')); }
+function setTextColor(c){ applyFormatProp('color',c); document.getElementById('textColorInd').style.background=c; }
+function setFillColor(c){ applyFormatProp('bgColor',c); document.getElementById('fillColorInd').style.background=c; }
+function setFontFamily(f){ applyFormatProp('fontFamily',f); document.getElementById('fontBtn').textContent=f; }
+function setFontSize(s){ s=parseInt(s); applyFormatProp('fontSize',s); document.getElementById('fontSizeBtn').textContent=s; }
+function setAlignment(a){ applyFormatProp('align',a); }
+function setVerticalAlignment(a){ applyFormatProp('vAlign',a); }
+function setTextWrap(w){ applyFormatProp('wrap',w); document.getElementById('wrapBtn').textContent=w.toUpperCase(); }
+function setRotation(r){ applyFormatProp('rotation',parseInt(r)); }
+function formatNumber(type){ applyFormatProp('numberFormat',type); }
+function clearFormatting(){
+  saveUndo();
+  const rng=getEffectiveRange();
+  for(let r=rng.r1;r<=rng.r2;r++) for(let c=rng.c1;c<=rng.c2;c++){
+    const cell=getCell(r,c);
+    if(cell) cell.format=defaultFormat();
+  }
+  renderGrid(); highlightSelection(); updateToolbarState();
+  showToast('Formatting cleared');
+}
+
+function getToggleState(prop){
+  const cell=getCell(S.sel.row,S.sel.col);
+  return cell&&cell.format&&cell.format[prop];
+}
+
+function updateToolbarState(){
+  document.getElementById('boldBtn').classList.toggle('active',getToggleState('bold'));
+  document.getElementById('italicBtn').classList.toggle('active',getToggleState('italic'));
+  document.getElementById('underlineBtn').classList.toggle('active',getToggleState('underline'));
+  document.getElementById('strikeBtn').classList.toggle('active',getToggleState('strikethrough'));
+  const cell=getCell(S.sel.row,S.sel.col);
+  if(cell&&cell.format){
+    document.getElementById('fontBtn').textContent=cell.format.fontFamily||'IBM Plex Mono';
+    document.getElementById('fontSizeBtn').textContent=cell.format.fontSize||12;
+    document.getElementById('wrapBtn').textContent=(cell.format.wrap||'overflow').toUpperCase();
+    if(cell.format.color) document.getElementById('textColorInd').style.background=cell.format.color;
+    else document.getElementById('textColorInd').style.background='var(--text-main)';
+    if(cell.format.bgColor) document.getElementById('fillColorInd').style.background=cell.format.bgColor;
+    else document.getElementById('fillColorInd').style.background='var(--accent)';
+    ['alignLeft','alignCenter','alignRight'].forEach(id=>document.getElementById(id+'Btn').classList.remove('active'));
+    if(cell.format.align==='left') document.getElementById('alignLeftBtn').classList.add('active');
+    else if(cell.format.align==='center') document.getElementById('alignCenterBtn').classList.add('active');
+    else if(cell.format.align==='right') document.getElementById('alignRightBtn').classList.add('active');
+  }
+}
+
+// ==================== BORDERS ====================
+function setBorders(type){
+  saveUndo();
+  const rng=getEffectiveRange();
+  for(let r=rng.r1;r<=rng.r2;r++) for(let c=rng.c1;c<=rng.c2;c++){
+    const cell=getOrCreateCell(r,c);
+    const b=type==='none'?'':'1px solid var(--border-hover)';
+    switch(type){
+      case'all': cell.format.borderTop=b;cell.format.borderRight=b;cell.format.borderBottom=b;cell.format.borderLeft=b;break;
+      case'outer':
+        if(r===rng.r1) cell.format.borderTop=b;
+        if(r===rng.r2) cell.format.borderBottom=b;
+        if(c===rng.c1) cell.format.borderLeft=b;
+        if(c===rng.c2) cell.format.borderRight=b;
+        break;
+      case'inner':
+        if(r>rng.r1) cell.format.borderTop=b;
+        if(r<rng.r2) cell.format.borderBottom=b;
+        if(c>rng.c1) cell.format.borderLeft=b;
+        if(c<rng.c2) cell.format.borderRight=b;
+        break;
+      case'horizontal': cell.format.borderTop=b;cell.format.borderBottom=b;break;
+      case'vertical': cell.format.borderLeft=b;cell.format.borderRight=b;break;
+      case'top': cell.format.borderTop=b;break;
+      case'bottom': cell.format.borderBottom=b;break;
+      case'left': cell.format.borderLeft=b;break;
+      case'right': cell.format.borderRight=b;break;
+      case'none': cell.format.borderTop='';cell.format.borderRight='';cell.format.borderBottom='';cell.format.borderLeft='';break;
+    }
+  }
+  renderGrid(); highlightSelection();
+}
+
+// ==================== MERGE ====================
+function mergeCells(){ mergeCellsDir('all'); }
+function mergeCellsHorizontal(){ mergeCellsDir('horizontal'); }
+function mergeCellsVertical(){ mergeCellsDir('vertical'); }
+function mergeCellsDir(dir){
+  if(!S.range) return;
+  saveUndo();
+  const rng=getEffectiveRange();
+  if(dir==='horizontal') rng.r1=rng.r2=S.sel.row;
+  if(dir==='vertical') rng.c1=rng.c2=S.sel.col;
+  sheet().merges.push({r1:rng.r1,c1:rng.c1,r2:rng.r2,c2:rng.c2});
+  renderGrid(); highlightSelection();
+  showToast('Cells merged');
+}
+function unmergeCells(){
+  if(!S.range) return;
+  saveUndo();
+  const rng=getEffectiveRange();
+  sheet().merges=sheet().merges.filter(m=>!(m.r1===rng.r1&&m.c1===rng.c1&&m.r2===rng.r2&&m.c2===rng.c2));
+  renderGrid(); highlightSelection();
+  showToast('Cells unmerged');
+}
+
+function isMerged(r,c){
+  return sheet().merges.find(m=>r>=m.r1&&r<=m.r2&&c>=m.c1&&c<=m.c2);
+}
+function isMergeOrigin(r,c){
+  const m=isMerged(r,c);
+  return m&&m.r1===r&&m.c1===c;
+}
+
+// ==================== ROW/COL OPERATIONS ====================
+function insertRowAbove(){
+  saveUndo(); const r=S.sel.row;
+  const newData={};
+  Object.keys(sheet().data).forEach(k=>{
+    const ref=parseRef(k); if(!ref) return;
+    if(ref.row>=r){ newData[cellKey(ref.row+1,ref.col)]=sheet().data[k]; }
+    else newData[k]=sheet().data[k];
+  });
+  sheet().data=newData;
+  sheet().merges=sheet().merges.map(m=>ref.row>=r?{r1:m.r1+1,c1:m.c1,r2:m.r2+1,c2:m.c2}:m);
+  // Fix: use r not ref.row
+  sheet().merges=sheet().merges.map(m=>m.r1>=r?{r1:m.r1+1,c1:m.c1,r2:m.r2+1,c2:m.c2}:m);
+  renderGrid(); showToast('Row inserted');
+}
+function insertRowBelow(){ saveUndo(); S.sel.row++; insertRowAbove(); S.sel.row--; }
+function insertColLeft(){
+  saveUndo(); const c=S.sel.col;
+  const newData={};
+  Object.keys(sheet().data).forEach(k=>{
+    const ref=parseRef(k); if(!ref) return;
+    if(ref.col>=c) newData[cellKey(ref.row,ref.col+1)]=sheet().data[k];
+    else newData[k]=sheet().data[k];
+  });
+  sheet().data=newData;
+  sheet().merges=sheet().merges.map(m=>m.c1>=c?{r1:m.r1,c1:m.c1+1,r2:m.r2,c2:m.c2+1}:m);
+  renderGrid(); showToast('Column inserted');
+}
+function insertColRight(){ saveUndo(); S.sel.col++; insertColLeft(); S.sel.col--; }
+function deleteRow(){
+  saveUndo(); const r=S.sel.row;
+  const newData={};
+  Object.keys(sheet().data).forEach(k=>{
+    const ref=parseRef(k); if(!ref) return;
+    if(ref.row<r) newData[k]=sheet().data[k];
+    else if(ref.row>r) newData[cellKey(ref.row-1,ref.col)]=sheet().data[k];
+  });
+  sheet().data=newData;
+  sheet().merges=sheet().merges.filter(m=>!(m.r1>=r&&m.r2<=r)).map(m=>{
+    if(m.r1>r) return {r1:m.r1-1,c1:m.c1,r2:m.r2-1,c2:m.c2};
+    if(m.r2>r) return {r1:m.r1,c1:m.c1,r2:m.r2-1,c2:m.c2};
+    return m;
+  });
+  renderGrid(); showToast('Row deleted');
+}
+function deleteCol(){
+  saveUndo(); const c=S.sel.col;
+  const newData={};
+  Object.keys(sheet().data).forEach(k=>{
+    const ref=parseRef(k); if(!ref) return;
+    if(ref.col<c) newData[k]=sheet().data[k];
+    else if(ref.col>c) newData[cellKey(ref.row,ref.col-1)]=sheet().data[k];
+  });
+  sheet().data=newData;
+  sheet().merges=sheet().merges.filter(m=>!(m.c1>=c&&m.c2<=c)).map(m=>{
+    if(m.c1>c) return {r1:m.r1,c1:m.c1-1,r2:m.r2,c2:m.c2-1};
+    if(m.c2>c) return {r1:m.r1,c1:m.c1,r2:m.r2,c2:m.c2-1};
+    return m;
+  });
+  renderGrid(); showToast('Column deleted');
+}
+
+// ==================== SORT ====================
+function sortSheet(dir){
+  saveUndo();
+  const rows=[];
+  for(let r=0;r<ROWS;r++){
+    const rowData={idx:r,cells:{}};
+    let hasData=false;
+    for(let c=0;c<COLS;c++){
+      const v=getCellValue(r,c);
+      if(v!=='') hasData=true;
+      rowData.cells[c]=v;
+    }
+    if(hasData) rows.push(rowData);
+  }
+  rows.sort((a,b)=>{
+    for(let c=0;c<COLS;c++){
+      const va=a.cells[c]||'', vb=b.cells[c]||'';
+      const na=parseFloat(va), nb=parseFloat(vb);
+      if(!isNaN(na)&&!isNaN(nb)){ if(na!==nb) return dir==='asc'?na-nb:nb-na; }
+      else { const cmp=String(va).localeCompare(String(vb)); if(cmp!==0) return dir==='asc'?cmp:-cmp; }
+    }
+    return 0;
+  });
+  // Rebuild data
+  const newData={};
+  rows.forEach((row,i)=>{
+    for(let c=0;c<COLS;c++){
+      const k=cellKey(row.idx,c);
+      if(sheet().data[k]) newData[cellKey(i,c)]=sheet().data[k];
+    }
+  });
+  sheet().data=newData;
+  renderGrid(); showToast('Sheet sorted '+dir);
+}
+function sortRange(dir){
+  if(!S.range) return sortSheet(dir);
+  saveUndo();
+  const rng=getEffectiveRange();
+  const rows=[];
+  for(let r=rng.r1;r<=rng.r2;r++){
+    const rowData={idx:r,cells:{}};
+    for(let c=rng.c1;c<=rng.c2;c++) rowData.cells[c]=getCellValue(r,c);
+    rows.push(rowData);
+  }
+  rows.sort((a,b)=>{
+    for(let c=rng.c1;c<=rng.c2;c++){
+      const va=a.cells[c]||'', vb=b.cells[c]||'';
+      const na=parseFloat(va), nb=parseFloat(vb);
+      if(!isNaN(na)&&!isNaN(nb)){ if(na!==nb) return dir==='asc'?na-nb:nb-na; }
+      else { const cmp=String(va).localeCompare(String(vb)); if(cmp!==0) return dir==='asc'?cmp:-cmp; }
+    }
+    return 0;
+  });
+  const newData={...sheet().data};
+  rows.forEach((row,i)=>{
+    for(let c=rng.c1;c<=rng.c2;c++){
+      const k=cellKey(row.idx,c);
+      if(newData[k]) newData[cellKey(rng.r1+i,c)]=newData[k];
+    }
+  });
+  sheet().data=newData;
+  renderGrid(); showToast('Range sorted '+dir);
+}
+
+// ==================== SHEET MANAGEMENT ====================
+function insertNewSheet(){
+  const n=S.sheets.length+1;
+  S.sheets.push({name:'Sheet'+n,data:{},colWidths:{},rowHeights:{},merges:[],condFormat:[]});
+  S.cur=S.sheets.length-1;
+  S.sel={row:0,col:0}; S.range=null;
+  renderGrid(); renderSheetTabs(); updateFormulaBar();
+  showToast('Sheet added');
+}
+function switchSheet(idx){
+  if(idx<0||idx>=S.sheets.length) return;
+  S.cur=idx; S.sel={row:0,col:0}; S.range=null;
+  renderGrid(); renderSheetTabs(); updateFormulaBar();
+}
+function renameSheet(){
+  const name=prompt('Rename sheet:',sheet().name);
+  if(name){ sheet().name=name; renderSheetTabs(); }
+}
+function deleteSheet(){
+  if(S.sheets.length<=1) return;
+  S.sheets.splice(S.cur,1);
+  if(S.cur>=S.sheets.length) S.cur=S.sheets.length-1;
+  renderGrid(); renderSheetTabs(); updateFormulaBar();
+  showToast('Sheet deleted');
+}
+
+// ==================== FORMULA BAR ====================
+function updateFormulaBar(){
+  const k=cellKey(S.sel.row,S.sel.col);
+  document.getElementById('cellName').textContent=k;
+  const cell=getCell(S.sel.row,S.sel.col);
+  document.getElementById('formulaInput').value=cell?(cell.formula||cell.value):'';
+}
+
+// ==================== RENDER GRID ====================
+function renderGrid(){
+  const table=document.getElementById('spreadsheet');
+  const s=sheet();
+  let html='<thead><tr><th class="corner" onclick="selectAll()"></th>';
+  for(let c=0;c<COLS;c++){
+    const w=s.colWidths[c]||100;
+    html+=`<th class="col-header" style="min-width:${w}px;max-width:${w}px;width:${w}px;" data-col="${c}">${colToLetter(c)}<div class="col-resize-handle" data-col="${c}"></div></th>`;
+  }
+  html+='</tr></thead><tbody>';
+  for(let r=0;r<ROWS;r++){
+    const h=s.rowHeights[r]||26;
+    html+=`<tr><th class="row-header" style="height:${h}px;" data-row="${r}">${r+1}</th>`;
+    for(let c=0;c<COLS;c++){
+      const merge=isMerged(r,c);
+      if(merge&&!isMergeOrigin(r,c)){
+        html+=`<td data-r="${r}" data-c="${c}" style="display:none;"></td>`;
+        continue;
+      }
+      const cell=getCell(r,c);
+      const w=s.colWidths[c]||100;
+      let style=`min-width:${w}px;max-width:${w}px;width:${w}px;height:${h}px;`;
+      let cls='';
+      let content='';
+      if(cell){
+        const f=cell.format;
+        if(f.bold) style+='font-weight:600;';
+        if(f.italic) style+='font-style:italic;';
+        if(f.underline&&f.strikethrough) style+='text-decoration:underline line-through;';
+        else if(f.underline) style+='text-decoration:underline;';
+        else if(f.strikethrough) style+='text-decoration:line-through;';
+        if(f.color) style+=`color:${f.color};`;
+        if(f.bgColor) style+=`background:${f.bgColor};`;
+        if(f.fontFamily) style+=`font-family:'${f.fontFamily}',monospace;`;
+        if(f.fontSize) style+=`font-size:${f.fontSize}px;`;
+        if(f.align) style+=`text-align:${f.align};`;
+        if(f.vAlign) style+=`vertical-align:${f.vAlign};`;
+        if(f.wrap==='wrap') style+='white-space:normal;word-wrap:break-word;';
+        else if(f.wrap==='clip') style+='overflow:hidden;text-overflow:clip;';
+        if(f.rotation) style+=`transform:rotate(${f.rotation}deg);`;
+        if(f.borderTop) style+=`border-top:${f.borderTop};`;
+        if(f.borderRight) style+=`border-right:${f.borderRight};`;
+        if(f.borderBottom) style+=`border-bottom:${f.borderBottom};`;
+        if(f.borderLeft) style+=`border-left:${f.borderLeft};`;
+        if(merge) style+=`position:relative;z-index:1;`;
+        // Conditional formatting
+        const val=getCellValue(r,c);
+        const num=parseFloat(val);
+        s.condFormat.forEach(cf=>{
+          if(!isNaN(num)){
+            if(cf.type==='greaterThan'&&num>cf.value) cls+=' cond-green';
+            else if(cf.type==='lessThan'&&num<cf.value) cls+=' cond-red';
+            else if(cf.type==='between'&&num>=cf.value&&num<=cf.value2) cls+=' cond-yellow';
+          }
+        });
+        if(cell.checkbox){
+          content=`<div class="cell-checkbox ${cell.value?'checked':''}" onclick="event.stopPropagation();toggleCheckbox(${r},${c})"></div>`;
+        } else {
+          content=escapeHtml(getCellDisplay(r,c));
+        }
+      }
+      if(merge){
+        const colspan=merge.c2-merge.c1+1;
+        const rowspan=merge.r2-merge.r1+1;
+        html+=`<td data-r="${r}" data-c="${c}" class="${cls.trim()}" style="${style}" colspan="${colspan}" rowspan="${rowspan}">${content}</td>`;
+      } else {
+        html+=`<td data-r="${r}" data-c="${c}" class="${cls.trim()}" style="${style}">${content}</td>`;
+      }
+    }
+    html+='</tr>';
+  }
+  html+='</tbody>';
+  table.innerHTML=html;
+  table.style.transform=`scale(${S.zoom/100})`;
+  table.style.transformOrigin='top left';
+  document.getElementById('gridContainer').style.paddingBottom=(S.zoom-100)*5+'px';
+  highlightSelection();
+}
+
+function escapeHtml(s){
+  if(s==null) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// ==================== SHEET TABS ====================
+function renderSheetTabs(){
+  const container=document.getElementById('sheetTabs');
+  let html='<button class="tab-btn" title="Add sheet" onclick="insertNewSheet()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>';
+  S.sheets.forEach((s,i)=>{
+    html+=`<div class="sheet-tab ${i===S.cur?'active':''}" onclick="switchSheet(${i})" ondblclick="S.cur=${i};renameSheet();" oncontextmenu="event.preventDefault();if(confirm('Delete ${s.name}?')){S.cur=${i};deleteSheet();}">${s.name}</div>`;
+  });
+  container.innerHTML=html;
+}
+
+// ==================== CHECKBOX ====================
+function toggleCheckbox(r,c){
+  saveUndo();
+  const cell=getOrCreateCell(r,c);
+  cell.checkbox=true;
+  cell.value=!cell.value;
+  renderGrid(); highlightSelection();
+}
+
+// ==================== ZOOM ====================
+function setZoom(z){
+  S.zoom=z;
+  document.getElementById('zoomBtn').textContent=z+'%';
+  document.querySelectorAll('#zoomMenu .custom-dropdown-item').forEach(el=>{
+    el.classList.toggle('selected',parseInt(el.textContent)===z);
+  });
+  renderGrid();
+}
+
+// ==================== PAINT FORMAT ====================
+function paintFormat(){
+  S.paintMode=!S.paintMode;
+  document.getElementById('paintFmtBtn').classList.toggle('active',S.paintMode);
+  if(S.paintMode){
+    const cell=getCell(S.sel.row,S.sel.col);
+    S.paintStyle=cell?JSON.parse(JSON.stringify(cell.format)):defaultFormat();
+    showToast('Paint format: click a cell to apply');
+  } else {
+    S.paintStyle=null;
+  }
+}
+
+// ==================== INSERT OPERATIONS ====================
+function insertCells(){ showToast('Insert cells: shift right'); }
+function insertCheckbox(){ saveUndo(); const cell=getOrCreateCell(S.sel.row,S.sel.col); cell.checkbox=true; cell.value=false; renderGrid(); highlightSelection(); showToast('Checkbox inserted'); }
+function insertLink(){ const url=prompt('Enter URL:'); if(url){ saveUndo(); const cell=getOrCreateCell(S.sel.row,S.sel.col); cell.value=url; renderGrid(); highlightSelection(); } }
+function insertComment(){ showToast('Comment added'); }
+function insertNote(){ showToast('Note added'); }
+function insertFunction(name){
+  const templates={SUM:'=SUM()',AVERAGE:'=AVERAGE()',COUNT:'=COUNT()',MAX:'=MAX()',MIN:'=MIN()',IF:'=IF(,TRUE,FALSE)',AND:'=AND()',OR:'=OR()',CONCATENATE:'=CONCATENATE()',UPPER:'=UPPER()',LOWER:'=LOWER()',TRIM:'=TRIM()',TODAY:'=TODAY()',NOW:'=NOW()'};
+  startEditing(S.sel.row,S.sel.col,true);
+  const td=getTd(S.sel.row,S.sel.col);
+  if(td){ const inp=td.querySelector('input'); if(inp){ inp.value=templates[name]||'='+name+'()'; const pos=inp.value.indexOf('(')+1; inp.setSelectionRange(pos,pos); document.getElementById('formulaInput').value=inp.value; } }
+}
+
+// ==================== FILE OPERATIONS ====================
+function newFile(){
+  if(!confirm('Create new file? Unsaved changes will be lost.')) return;
+  S.sheets=[{name:'Sheet1',data:{},colWidths:{},rowHeights:{},merges:[],condFormat:[]}];
+  S.cur=0; S.sel={row:0,col:0}; S.range=null;
+  S.undoStack=[]; S.redoStack=[];
+  document.getElementById('fileName').textContent='Untitled Spreadsheet';
+  renderGrid(); renderSheetTabs(); updateFormulaBar();
+  showToast('New file created');
+}
+function makeCopy(){ showToast('Copy created'); }
+function saveAs(){ const name=prompt('Save as:',document.getElementById('fileName').textContent); if(name){ document.getElementById('fileName').textContent=name; showToast('Saved as '+name); } }
+function renameFile(){ const name=prompt('Rename file:',document.getElementById('fileName').textContent); if(name) document.getElementById('fileName').textContent=name; }
+
+// ==================== SELECTION OPS ====================
+function selectAll(){ S.range={r1:0,c1:0,r2:ROWS-1,c2:COLS-1}; highlightSelection(); }
+function deleteSelection(){
+  saveUndo();
+  const rng=getEffectiveRange();
+  for(let r=rng.r1;r<=rng.r2;r++) for(let c=rng.c1;c<=rng.c2;c++){
+    const k=cellKey(r,c); if(sheet().data[k]){ sheet().data[k].value=''; sheet().data[k].formula=null; }
+  }
+  renderGrid(); highlightSelection(); updateFormulaBar();
+}
+
+// ==================== FIND & REPLACE ====================
+function openFindReplace(){ document.getElementById('findReplaceModal').classList.add('active'); document.getElementById('findInput').focus(); }
+function closeFindReplace(){ document.getElementById('findReplaceModal').classList.remove('active'); S.findResults=[]; S.findIdx=-1; }
+function findNext(){
+  const q=document.getElementById('findInput').value;
+  if(!q) return;
+  S.findResults=[];
+  Object.keys(sheet().data).forEach(k=>{
+    const cell=sheet().data[k];
+    const v=(cell.formula||cell.value||'');
+    if(v.toLowerCase().includes(q.toLowerCase())) S.findResults.push(k);
+  });
+  if(!S.findResults.length){ showToast('No results found'); return; }
+  S.findIdx=(S.findIdx+1)%S.findResults.length;
+  const ref=parseRef(S.findResults[S.findIdx]);
+  if(ref){ selectCell(ref.row,ref.col); showToast(`Found ${S.findIdx+1} of ${S.findResults.length}`); }
+}
+function replaceOne(){
+  if(!S.findResults.length||S.findIdx<0) findNext();
+  if(S.findIdx<0||!S.findResults[S.findIdx]) return;
+  saveUndo();
+  const k=S.findResults[S.findIdx];
+  const cell=sheet().data[k];
+  const q=document.getElementById('findInput').value;
+  const rep=document.getElementById('replaceInput').value;
+  if(cell.formula) cell.formula=cell.formula.replace(new RegExp(escapeRegExp(q),'i'),rep);
+  else cell.value=cell.value.replace(new RegExp(escapeRegExp(q),'i'),rep);
+  renderGrid(); highlightSelection(); updateFormulaBar();
+  findNext();
+}
+function replaceAll(){
+  const q=document.getElementById('findInput').value;
+  const rep=document.getElementById('replaceInput').value;
+  if(!q) return;
+  saveUndo(); let count=0;
+  Object.keys(sheet().data).forEach(k=>{
+    const cell=sheet().data[k];
+    const re=new RegExp(escapeRegExp(q),'gi');
+    if(cell.formula){ const m=cell.formula.match(re); if(m) count+=m.length; cell.formula=cell.formula.replace(re,rep); }
+    else { const m=cell.value.match(re); if(m) count+=m.length; cell.value=cell.value.replace(re,rep); }
+  });
+  renderGrid(); highlightSelection(); updateFormulaBar();
+  showToast(`Replaced ${count} occurrences`);
+}
+function escapeRegExp(s){ return s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'); }
+
+// ==================== FILTERS & CONDITIONAL ====================
+function createFilter(){ showToast('Filter created'); }
+function removeFilter(){ showToast('Filter removed'); }
+function filterByCondition(){ showToast('Filter by condition'); }
+function filterByValues(){ showToast('Filter by values'); }
+function openConditionalFormatting(){
+  const val=prompt('Highlight cells greater than (number):','');
+  if(val!==null&&!isNaN(val)){
+    saveUndo();
+    sheet().condFormat.push({type:'greaterThan',value:parseFloat(val),value2:0});
+    renderGrid(); highlightSelection();
+    showToast('Conditional formatting applied');
+  }
+}
+function applyAlternatingColors(){
+  saveUndo();
+  for(let r=0;r<ROWS;r++){
+    if(r%2===1){
+      for(let c=0;c<COLS;c++){
+        const cell=getOrCreateCell(r,c);
+        cell.format.bgColor=cell.format.bgColor||'rgba(255,255,255,0.02)';
+      }
+    }
+  }
+  renderGrid(); highlightSelection();
+  showToast('Alternating colours applied');
+}
+
+// ==================== TOAST ====================
+let toastTimer;
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('visible');
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>t.classList.remove('visible'),2000);
+}
+function markDirty(){
+  document.getElementById('saveStatus').textContent='Editing';
+  clearTimeout(markDirty._t);
+  markDirty._t=setTimeout(()=>{ document.getElementById('saveStatus').textContent='Saved'; },1500);
+}
+
+// ==================== COLUMN RESIZE ====================
+let resizingCol=-1, resizeStartX=0, resizeStartW=0;
+document.addEventListener('mousedown',e=>{
+  if(e.target.classList.contains('col-resize-handle')){
+    resizingCol=parseInt(e.target.dataset.col);
+    resizeStartX=e.clientX;
+    resizeStartW=sheet().colWidths[resizingCol]||100;
+    e.preventDefault();
+  }
+});
+document.addEventListener('mousemove',e=>{
+  if(resizingCol>=0){
+    const diff=e.clientX-resizeStartX;
+    sheet().colWidths[resizingCol]=Math.max(40,resizeStartW+diff);
+    renderGrid();
+  }
+});
+document.addEventListener('mouseup',()=>{
+  if(resizingCol>=0){ resizingCol=-1; }
+});
+
+// ==================== GRID EVENT HANDLERS ====================
+document.getElementById('gridContainer').addEventListener('mousedown',e=>{
+  const td=e.target.closest('td');
+  if(!td) return;
+  const r=parseInt(td.dataset.r), c=parseInt(td.dataset.c);
+  if(isNaN(r)||isNaN(c)) return;
+
+  // Paint format
+  if(S.paintMode){
+    saveUndo();
+    const cell=getOrCreateCell(r,c);
+    cell.format=JSON.parse(JSON.stringify(S.paintStyle));
+    S.paintMode=false; S.paintStyle=null;
+    document.getElementById('paintFmtBtn').classList.remove('active');
+    renderGrid(); highlightSelection();
+    return;
+  }
+
+  if(S.editing&&S.editCell&&!(S.editCell.row===r&&S.editCell.col===c)) finishEditing();
+
+  if(e.shiftKey){ selectCell(r,c,true); }
+  else { selectCell(r,c,false); }
+
+  // Start range selection drag
+  if(!e.shiftKey){
+    gridDragStart={row:r,col:c};
+    gridDragging=false;
+  }
+});
+
+let gridDragStart=null, gridDragging=false;
+document.addEventListener('mousemove',e=>{
+  if(!gridDragStart||S.editing) return;
+  const td=document.elementFromPoint(e.clientX,e.clientY)?.closest('td');
+  if(!td) return;
+  const r=parseInt(td.dataset.r), c=parseInt(td.dataset.c);
+  if(isNaN(r)||isNaN(c)) return;
+  if(r!==gridDragStart.row||c!==gridDragStart.col){
+    gridDragging=true;
+    S.range={r1:gridDragStart.row,c1:gridDragStart.col,r2:r,c2:c};
+    highlightSelection();
+  }
+});
+document.addEventListener('mouseup',()=>{ gridDragStart=null; gridDragging=false; });
+
+document.getElementById('gridContainer').addEventListener('dblclick',e=>{
+  const td=e.target.closest('td');
+  if(!td) return;
+  const r=parseInt(td.dataset.r), c=parseInt(td.dataset.c);
+  if(isNaN(r)||isNaN(c)) return;
+  startEditing(r,c,false);
+});
+
+// Column/row header clicks
+document.getElementById('gridContainer').addEventListener('mousedown',e=>{
+  const th=e.target.closest('th.col-header');
+  if(th){
+    const c=parseInt(th.dataset.col);
+    if(!isNaN(c)){
+      if(S.editing) finishEditing();
+      S.range={r1:0,c1:c,r2:ROWS-1,c2:c};
+      S.sel={row:0,col:c};
+      highlightSelection(); updateFormulaBar(); updateToolbarState();
+    }
+  }
+});
+
+// ==================== KEYBOARD HANDLERS ====================
+document.addEventListener('keydown',e=>{
+  // If find/replace modal is open
+  if(document.getElementById('findReplaceModal').classList.contains('active')){
+    if(e.key==='Escape') closeFindReplace();
+    return;
+  }
+
+  // Formula bar focus
+  if(document.activeElement===document.getElementById('formulaInput')){
+    if(e.key==='Enter'){
+      e.preventDefault();
+      const val=document.getElementById('formulaInput').value;
+      saveUndo();
+      const cell=getOrCreateCell(S.sel.row,S.sel.col);
+      if(val.startsWith('=')) cell.formula=val; else { cell.formula=null; cell.value=val; }
+      document.getElementById('formulaInput').blur();
+      renderGrid(); highlightSelection(); updateFormulaBar();
+      selectCell(S.sel.row+1,S.sel.col);
+    }
+    if(e.key==='Escape'){ document.getElementById('formulaInput').blur(); updateFormulaBar(); }
+    return;
+  }
+
+  if(S.editing) return;
+
+  const ctrl=e.ctrlKey||e.metaKey;
+  const shift=e.shiftKey;
+
+  if(ctrl&&e.key==='z'){ e.preventDefault(); undo(); return; }
+  if(ctrl&&e.key==='y'){ e.preventDefault(); redo(); return; }
+  if(ctrl&&e.key==='c'){ e.preventDefault(); copyCell(); return; }
+  if(ctrl&&e.key==='x'){ e.preventDefault(); cutCell(); return; }
+  if(ctrl&&e.key==='v'){ e.preventDefault(); pasteCell(); return; }
+  if(ctrl&&e.key==='a'){ e.preventDefault(); selectAll(); return; }
+  if(ctrl&&e.key==='b'){ e.preventDefault(); applyFontWeight(); return; }
+  if(ctrl&&e.key==='i'){ e.preventDefault(); applyFontStyle(); return; }
+  if(ctrl&&e.key==='u'){ e.preventDefault(); applyTextDecoration(); return; }
+  if(ctrl&&e.key==='h'){ e.preventDefault(); openFindReplace(); return; }
+  if(ctrl&&e.key==='k'){ e.preventDefault(); insertLink(); return; }
+  if(ctrl&&e.key==='\\'){ e.preventDefault(); clearFormatting(); return; }
+  if(e.key==='Delete'||e.key==='Backspace'){ e.preventDefault(); deleteSelection(); return; }
+  if(e.key==='F2'){ e.preventDefault(); startEditing(S.sel.row,S.sel.col,false); return; }
+  if(e.key==='Escape'){ if(S.paintMode){ S.paintMode=false; S.paintStyle=null; document.getElementById('paintFmtBtn').classList.remove('active'); showToast('Paint format cancelled'); } return; }
+  if(e.shiftKey&&e.key==='F11'){ e.preventDefault(); insertNewSheet(); return; }
+
+  // Navigation
+  if(e.key==='ArrowUp'){ e.preventDefault(); selectCell(S.sel.row-1,S.sel.col,shift); return; }
+  if(e.key==='ArrowDown'){ e.preventDefault(); selectCell(S.sel.row+1,S.sel.col,shift); return; }
+  if(e.key==='ArrowLeft'){ e.preventDefault(); selectCell(S.sel.row,S.sel.col-1,shift); return; }
+  if(e.key==='ArrowRight'){ e.preventDefault(); selectCell(S.sel.row,S.sel.col+1,shift); return; }
+  if(e.key==='Tab'){ e.preventDefault(); selectCell(S.sel.row,S.sel.col+(shift?-1:1)); return; }
+  if(e.key==='Enter'){ e.preventDefault(); selectCell(S.sel.row+(shift?-1:1),S.sel.col); return; }
+  if(e.key==='Home'){ e.preventDefault(); selectCell(S.sel.row,0,shift); return; }
+  if(e.key==='End'){ e.preventDefault(); selectCell(S.sel.row,COLS-1,shift); return; }
+  if(ctrl&&e.key==='Home'){ e.preventDefault(); selectCell(0,S.sel.col,shift); return; }
+  if(ctrl&&e.key==='End'){ e.preventDefault(); selectCell(ROWS-1,S.sel.col,shift); return; }
+
+  // Start typing
+  if(e.key.length===1&&!ctrl){
+    startEditing(S.sel.row,S.sel.col,true);
+    const td=getTd(S.sel.row,S.sel.col);
+    if(td){ const inp=td.querySelector('input'); if(inp){ inp.value=e.key; document.getElementById('formulaInput').value=e.key; } }
+  }
+});
+
+// ==================== INIT POPULATE DROPDOWNS ====================
+function initDropdowns(){
+  // Zoom
+  const zoomLevels=[50,75,90,100,125,150,200];
+  document.getElementById('zoomMenu').innerHTML=zoomLevels.map(z=>`<div class="custom-dropdown-item ${z===100?'selected':''}" onclick="setZoom(${z})">${z}%</div>`).join('');
+
+  // Fonts
+  const fonts=['IBM Plex Mono','Inter','Arial','Courier New','Georgia','Times New Roman','Verdana','Comic Sans MS'];
+  document.getElementById('fontMenu').innerHTML=fonts.map(f=>`<div class="custom-dropdown-item ${f==='IBM Plex Mono'?'selected':''}" onclick="setFontFamily('${f}')" style="font-family:'${f}',monospace;">${f}</div>`).join('');
+
+  // Font sizes
+  const sizes=[8,9,10,11,12,14,16,18,20,22,24,28,36,48];
+  document.getElementById('fontSizeMenu').innerHTML=sizes.map(s=>`<div class="custom-dropdown-item ${s===12?'selected':''}" onclick="setFontSize(${s})">${s}</div>`).join('');
+
+  // Colors
+  const colors=[
+    '#000000','#434343','#666666','#999999','#b7b7b7','#cccccc','#d9d9d9','#efefef','#f3f3f3','#ffffff',
+    '#980000','#ff0000','#ff9900','#ffff00','#00ff00','#00ffff','#4a86e8','#0000ff','#9900ff','#ff00ff',
+    '#e6b8af','#f4cccc','#fce5cd','#fff2cc','#d9ead3','#d0e0e3','#c9daf8','#cfe2f3','#d9d2e9','#ead1dc',
+    '#dd7e6b','#ea9999','#f9cb9c','#ffe599','#b6d7a8','#a2c4c9','#a4c2f4','#9fc5e8','#b4a7d6','#d5a6bd',
+    '#cc4125','#e06666','#f6b26b','#ffd966','#93c47d','#76a5af','#6d9eeb','#6fa8dc','#8e7cc3','#c27ba0',
+    '#a61c00','#cc0000','#e69138','#f1c232','#6aa84f','#45818e','#3c78d8','#3d85c6','#674ea7','#a64d79',
+    '#85200c','#990000','#b45f06','#bf9000','#38761d','#134f5c','#1155cc','#0b5394','#351c75','#741b47',
+    '#5b0f00','#660000','#783f04','#7f6000','#274e13','#0c343d','#1c4587','#073763','#20124d','#4c1130'
+  ];
+  const colorHtml=colors.map(c=>`<div class="color-swatch" style="background:${c};" onclick="event.stopPropagation();"></div>`).join('');
+  document.getElementById('textColorGrid').innerHTML=colorHtml.replace(/onclick="event\.stopPropagation\(\);"/g,'onclick="event.stopPropagation();setTextColor(\'$&\'.replace(/onclick=\\"event\\.stopPropagation\\(\\);\\\"/g,\'\'))"');
+  // Simpler approach for color grids
+  document.getElementById('textColorGrid').innerHTML=colors.map(c=>`<div class="color-swatch" style="background:${c};" onclick="event.stopPropagation();setTextColor('${c}')"></div>`).join('');
+  document.getElementById('fillColorGrid').innerHTML=colors.map(c=>`<div class="color-swatch" style="background:${c};" onclick="event.stopPropagation();setFillColor('${c}')"></div>`).join('');
+
+  // Borders
+  const borderTypes=[
+    {type:'all',svg:'<rect x="2" y="2" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5"/>'},
+    {type:'outer',svg:'<rect x="2" y="2" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"/>'},
+    {type:'inner',svg:'<line x1="10" y1="2" x2="10" y2="18" stroke="currentColor" stroke-width="1"/><line x1="2" y1="10" x2="18" y2="10" stroke="currentColor" stroke-width="1"/>'},
+    {type:'horizontal',svg:'<line x1="2" y1="7" x2="18" y2="7" stroke="currentColor" stroke-width="1"/><line x1="2" y1="13" x2="18" y2="13" stroke="currentColor" stroke-width="1"/>'},
+    {type:'vertical',svg:'<line x1="7" y1="2" x2="7" y2="18" stroke="currentColor" stroke-width="1"/><line x1="13" y1="2" x2="13" y2="18" stroke="currentColor" stroke-width="1"/>'},
+    {type:'none',svg:'<rect x="4" y="4" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1" stroke-dasharray="2,2"/>'},
+    {type:'bottom',svg:'<line x1="2" y1="16" x2="18" y2="16" stroke="currentColor" stroke-width="2"/>'},
+    {type:'top',svg:'<line x1="2" y1="4" x2="18" y2="4" stroke="currentColor" stroke-width="2"/>'},
+    {type:'left',svg:'<line x1="4" y1="2" x2="4" y2="18" stroke="currentColor" stroke-width="2"/>'},
+  ];
+  document.getElementById('borderOptions').innerHTML=borderTypes.map(b=>`<div class="border-opt" onclick="setBorders('${b.type}')" title="${b.type}"><svg viewBox="0 0 20 20">${b.svg}</svg></div>`).join('');
+
+  // Fx menu
+  const funcs=[
+    {cat:'Math',items:['SUM','AVERAGE','COUNT','MAX','MIN']},
+    {cat:'Text',items:['CONCATENATE','UPPER','LOWER','TRIM']},
+    {cat:'Logic',items:['IF','AND','OR']},
+    {cat:'Date',items:['TODAY','NOW']}
+  ];
+  let fxHtml='';
+  funcs.forEach(cat=>{
+    fxHtml+=`<div class="section-label">${cat.cat}</div>`;
+    cat.items.forEach(f=>{ fxHtml+=`<div class="function-item" onclick="insertFunction('${f}')"><div class="function-name">${f}</div></div>`; });
+  });
+  document.getElementById('fxMenu').innerHTML=fxHtml;
+}
+
+// ==================== INIT ====================
+initDropdowns();
+renderGrid();
+renderSheetTabs();
+updateFormulaBar();
+updateToolbarState();
+</script>
+</body>
+</html>
