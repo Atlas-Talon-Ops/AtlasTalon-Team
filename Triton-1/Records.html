@@ -1,0 +1,1623 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>RECORDS</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Orbitron:wght@400;700;900&display=swap');
+
+        .rec-root {
+            --bg-primary: #000000;
+            --bg-secondary: #030303;
+            --bg-tertiary: #0a0a0a;
+            --fg-primary: #e0e0e0;
+            --fg-secondary: #666666;
+            --fg-muted: #333333;
+            --accent-active: #ffffff;
+            --accent-danger: #ff3333;
+            --border-glow: rgba(255, 255, 255, 0.08);
+            --glass-bg: rgba(5, 5, 5, 0.98);
+            font-family: 'JetBrains Mono', monospace;
+            background: var(--bg-primary);
+            color: var(--fg-primary);
+            height: 100%;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .rec-tactical-grid {
+            position: absolute;
+            inset: 0;
+            background:
+                linear-gradient(90deg, transparent 49.5%, rgba(255, 255, 255, 0.015) 50%, transparent 50.5%),
+                linear-gradient(0deg, transparent 49.5%, rgba(255, 255, 255, 0.015) 50%, transparent 50.5%);
+            background-size: 50px 50px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .rec-vignette {
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(ellipse at 50% 0%, transparent 0%, rgba(0, 0, 0, 0.4) 50%, #000000 100%);
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .rec-scan-horizon {
+            position: absolute;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.08), transparent);
+            animation: rec-horizonScan 10s linear infinite;
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        @keyframes rec-horizonScan {
+            0% {
+                top: 0;
+                opacity: 0;
+            }
+            5% {
+                opacity: 1;
+            }
+            95% {
+                opacity: 1;
+            }
+            100% {
+                top: 100%;
+                opacity: 0;
+            }
+        }
+
+        .rec-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 24px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(4px);
+            z-index: 10;
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        .rec-header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .rec-header-icon {
+            width: 32px;
+            height: 32px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 0, 0, 0.5);
+        }
+
+        .rec-header-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 14px;
+            letter-spacing: 0.2em;
+            color: white;
+        }
+
+        .rec-sync-badge {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 4px 8px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .rec-sync-dot {
+            width: 6px;
+            height: 6px;
+            background: white;
+            animation: rec-pulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes rec-pulse {
+            0%,
+            100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.3;
+            }
+        }
+
+        .rec-sync-text {
+            font-size: 9px;
+            color: rgba(255, 255, 255, 0.4);
+            letter-spacing: 0.15em;
+        }
+
+        .rec-layout {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+            position: relative;
+            z-index: 10;
+        }
+
+        .rec-sidebar {
+            width: 256px;
+            display: flex;
+            flex-direction: column;
+            background: #020202;
+            border-right: 1px solid rgba(255, 255, 255, 0.05);
+            flex-shrink: 0;
+        }
+
+        .rec-sidebar-top {
+            padding: 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .rec-btn-new {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--accent-active);
+            color: var(--accent-active);
+            padding: 10px;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .rec-btn-new:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .rec-notes-list {
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .rec-note-item {
+            padding: 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .rec-note-item:hover {
+            background: rgba(255, 255, 255, 0.02);
+        }
+        .rec-note-item.active {
+            background: rgba(255, 255, 255, 0.03);
+            border-left: 2px solid var(--accent-active);
+        }
+
+        .rec-note-item-title {
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.8);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            margin-bottom: 4px;
+        }
+
+        .rec-note-item-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .rec-note-item-preview {
+            font-size: 9px;
+            color: rgba(255, 255, 255, 0.3);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            width: 96px;
+        }
+
+        .rec-note-item-date {
+            font-size: 8px;
+            color: rgba(255, 255, 255, 0.2);
+        }
+
+        .rec-sidebar-bottom {
+            padding: 12px;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            background: rgba(0, 0, 0, 0.5);
+        }
+
+        .rec-count-text {
+            font-size: 8px;
+            color: rgba(255, 255, 255, 0.2);
+            text-align: center;
+            letter-spacing: 0.15em;
+        }
+
+        .rec-notes-list::-webkit-scrollbar {
+            width: 3px;
+        }
+        .rec-notes-list::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .rec-notes-list::-webkit-scrollbar-thumb {
+            background: #222;
+        }
+
+        .rec-editor-area {
+            flex: 1;
+            position: relative;
+            background: #030303;
+        }
+
+        .rec-editor-panel {
+            position: absolute;
+            inset: 0;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--border-glow);
+        }
+
+        .rec-toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 16px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            flex-shrink: 0;
+        }
+
+        .rec-toolbar-group {
+            display: flex;
+            gap: 4px;
+            padding-right: 12px;
+            border-right: 1px solid rgba(255, 255, 255, 0.05);
+            align-items: center;
+        }
+        .rec-toolbar-group:last-child {
+            border-right: none;
+            margin-left: auto;
+        }
+
+        .rec-btn-util {
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--fg-secondary);
+            padding: 6px 10px;
+            font-size: 10px;
+            font-family: 'JetBrains Mono', monospace;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+        }
+        .rec-btn-util:hover {
+            border-color: rgba(255, 255, 255, 0.3);
+            color: var(--fg-primary);
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .rec-btn-danger {
+            border-color: rgba(255, 51, 51, 0.3);
+            color: var(--accent-danger);
+        }
+        .rec-btn-danger:hover {
+            background: rgba(255, 51, 51, 0.1);
+            border-color: var(--accent-danger);
+        }
+
+        .rec-editor-container {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .rec-title-input {
+            background: transparent;
+            border: none;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--fg-primary);
+            font-family: 'Orbitron', sans-serif;
+            font-size: 20px;
+            width: 100%;
+            padding: 16px 0;
+            margin-bottom: 16px;
+            outline: none;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            flex-shrink: 0;
+        }
+        .rec-title-input:focus {
+            border-color: var(--accent-active);
+        }
+        .rec-title-input::placeholder {
+            color: var(--fg-muted);
+            text-transform: uppercase;
+        }
+
+        .rec-content-wrapper {
+            flex: 1;
+            overflow-y: auto;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            padding-top: 16px;
+        }
+        .rec-content-wrapper::-webkit-scrollbar {
+            width: 3px;
+        }
+        .rec-content-wrapper::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .rec-content-wrapper::-webkit-scrollbar-thumb {
+            background: #222;
+        }
+
+        .rec-content-editable {
+            background: transparent;
+            width: 100%;
+            min-height: 200px;
+            color: var(--fg-primary);
+            font-size: 13px;
+            line-height: 1.8;
+            outline: none;
+            padding-bottom: 32px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .rec-content-editable img {
+            max-width: 100%;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            margin: 8px 0;
+        }
+        .rec-content-editable h2 {
+            font-size: 16px;
+            font-weight: 700;
+            margin: 12px 0 6px 0;
+            color: white;
+        }
+        .rec-content-editable ul {
+            padding-left: 30px !important;
+            margin: 8px 0 !important;
+            list-style-type: disc !important;
+            list-style-position: outside !important;
+        }
+        .rec-content-editable ol {
+            padding-left: 30px !important;
+            margin: 8px 0 !important;
+            list-style-type: decimal !important;
+            list-style-position: outside !important;
+        }
+        .rec-content-editable li {
+            margin-bottom: 6px !important;
+            display: list-item !important;
+        }
+        .rec-content-editable a {
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: underline;
+        }
+
+        .rec-color-btn-wrap {
+            position: relative;
+            display: inline-flex;
+        }
+
+        .rec-color-popup {
+            position: absolute;
+            top: calc(100% + 6px);
+            left: 0;
+            background: #0a0a0a;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            padding: 10px;
+            z-index: 200;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            min-width: 170px;
+        }
+
+        .rec-color-popup-label {
+            font-size: 8px;
+            color: rgba(255, 255, 255, 0.3);
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+        }
+
+        .rec-color-input-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .rec-color-gradient-box {
+            width: 28px;
+            height: 28px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            flex-shrink: 0;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            background: conic-gradient(red 0deg, yellow 60deg, lime 120deg, cyan 180deg, blue 240deg, magenta 300deg, red 360deg);
+        }
+
+        .rec-native-color {
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            cursor: pointer;
+            width: 100%;
+            height: 100%;
+            padding: 0;
+            border: none;
+        }
+
+        .rec-color-hex {
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--fg-primary);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            padding: 3px 6px;
+            width: 80px;
+            outline: none;
+            flex: 1;
+        }
+        .rec-color-hex:focus {
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .rec-color-preview {
+            width: 28px;
+            height: 28px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            flex-shrink: 0;
+        }
+
+        .rec-color-apply {
+            background: rgba(255, 255, 255, 0.07);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: rgba(255, 255, 255, 0.7);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 9px;
+            padding: 5px 8px;
+            cursor: pointer;
+            letter-spacing: 0.1em;
+            width: 100%;
+        }
+        .rec-color-apply:hover {
+            background: rgba(255, 255, 255, 0.12);
+            color: white;
+        }
+        .rec-color-apply:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .rec-color-clear {
+            background: rgba(255, 51, 51, 0.07);
+            border: 1px solid rgba(255, 51, 51, 0.2);
+            color: rgba(255, 80, 80, 0.7);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 9px;
+            padding: 5px 8px;
+            cursor: pointer;
+            letter-spacing: 0.1em;
+            width: 100%;
+        }
+        .rec-color-clear:hover {
+            background: rgba(255, 51, 51, 0.15);
+            color: #ff5050;
+        }
+
+        .rec-confirm-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.88);
+            z-index: 300;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .rec-confirm-box {
+            background: #080808;
+            border: 1px solid rgba(255, 51, 51, 0.4);
+            width: 340px;
+            padding: 28px 24px 20px;
+            position: relative;
+        }
+        .rec-confirm-box::before,
+        .rec-confirm-box::after {
+            content: '';
+            position: absolute;
+            width: 14px;
+            height: 14px;
+            border-color: #ff3333;
+            border-style: solid;
+        }
+        .rec-confirm-box::before {
+            top: -1px;
+            left: -1px;
+            border-width: 2px 0 0 2px;
+        }
+        .rec-confirm-box::after {
+            bottom: -1px;
+            right: -1px;
+            border-width: 0 2px 2px 0;
+        }
+
+        .rec-confirm-icon {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 14px;
+        }
+
+        .rec-confirm-label {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 11px;
+            letter-spacing: 0.2em;
+            color: #ff3333;
+            text-align: center;
+            margin-bottom: 8px;
+        }
+
+        .rec-confirm-title {
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.8);
+            text-align: center;
+            margin-bottom: 6px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .rec-confirm-sub {
+            font-size: 9px;
+            color: rgba(255, 255, 255, 0.25);
+            text-align: center;
+            letter-spacing: 0.1em;
+            margin-bottom: 22px;
+        }
+
+        .rec-confirm-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .rec-confirm-btn {
+            flex: 1;
+            padding: 10px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            letter-spacing: 0.1em;
+            cursor: pointer;
+            border: none;
+        }
+
+        .rec-confirm-btn-cancel {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+            color: rgba(255, 255, 255, 0.5);
+        }
+        .rec-confirm-btn-cancel:hover {
+            background: rgba(255, 255, 255, 0.08);
+            color: white;
+        }
+
+        .rec-confirm-btn-delete {
+            background: rgba(255, 51, 51, 0.12);
+            border: 1px solid rgba(255, 51, 51, 0.5) !important;
+            color: #ff3333;
+        }
+        .rec-confirm-btn-delete:hover {
+            background: rgba(255, 51, 51, 0.22);
+            border-color: #ff3333 !important;
+        }
+
+        .rec-image-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 8px;
+            max-height: 60vh;
+            overflow-y: auto;
+            padding: 8px;
+        }
+        .rec-image-grid-item {
+            cursor: pointer;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 4px;
+            background: #0a0a0a;
+        }
+        .rec-image-grid-item img {
+            width: 100%;
+            height: 80px;
+            object-fit: cover;
+        }
+        .rec-image-grid-item-name {
+            font-size: 8px;
+            text-align: center;
+            margin-top: 4px;
+            color: #aaa;
+        }
+        .rec-image-empty {
+            color: #888;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .rec-loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            font-family: monospace;
+            letter-spacing: 2px;
+            color: #888;
+        }
+
+        /* ensure full height */
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            background: #000;
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="rec-root" class="rec-root">
+        <div class="rec-tactical-grid"></div>
+        <div class="rec-vignette"></div>
+        <div class="rec-scan-horizon"></div>
+
+        <!-- Confirm Delete overlay (rendered dynamically) -->
+        <div id="rec-confirm-container"></div>
+
+        <header class="rec-header">
+            <div class="rec-header-left">
+                <div class="rec-header-icon">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5" style="opacity:0.7">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                        <polyline points="14 2 14 8 20 8"/>
+                        <line x1="16" y1="13" x2="8" y2="13"/>
+                        <line x1="16" y1="17" x2="8" y2="17"/>
+                    </svg>
+                </div>
+                <div class="rec-header-title">RECORDS</div>
+            </div>
+            <div class="rec-sync-badge">
+                <div class="rec-sync-dot"></div>
+                <span class="rec-sync-text">SYNC ACTIVE</span>
+            </div>
+        </header>
+
+        <div class="rec-layout">
+            <aside class="rec-sidebar">
+                <div class="rec-sidebar-top">
+                    <button class="rec-btn-new" id="rec-btn-new">
+                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="12" y1="5" x2="12" y2="19"/>
+                            <line x1="5" y1="12" x2="19" y2="12"/>
+                        </svg>
+                        NEW ENTRY
+                    </button>
+                </div>
+                <div class="rec-notes-list" id="rec-notes-list"></div>
+                <div class="rec-sidebar-bottom">
+                    <div class="rec-count-text" id="rec-count-text">0 ENTRIES IN DATABASE</div>
+                </div>
+            </aside>
+
+            <main class="rec-editor-area">
+                <div class="rec-editor-panel">
+                    <div class="rec-toolbar">
+                        <div class="rec-toolbar-group">
+                            <button class="rec-btn-util" data-cmd="bold" title="Bold">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M6 4h8a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z"/>
+                                    <path d="M6 12h9a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z"/>
+                                </svg>
+                            </button>
+                            <button class="rec-btn-util" data-cmd="italic" title="Italic">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <line x1="19" y1="4" x2="10" y2="4"/>
+                                    <line x1="14" y1="20" x2="5" y2="20"/>
+                                    <line x1="15" y1="4" x2="9" y2="20"/>
+                                </svg>
+                            </button>
+                            <button class="rec-btn-util" data-cmd="underline" title="Underline">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M6 3v7a6 6 0 0 0 6 6 6 6 0 0 0 6-6V3"/>
+                                    <line x1="4" y1="21" x2="20" y2="21"/>
+                                </svg>
+                            </button>
+                        </div>
+
+                        <div class="rec-toolbar-group">
+                            <button class="rec-btn-util" data-cmd="h2" title="Heading">H</button>
+                            <button class="rec-btn-util" data-cmd="ul" title="Bullet List">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <line x1="9" y1="6" x2="21" y2="6"/>
+                                    <line x1="9" y1="12" x2="21" y2="12"/>
+                                    <line x1="9" y1="18" x2="21" y2="18"/>
+                                    <circle cx="4" cy="6" r="1.5" fill="currentColor" stroke="none"/>
+                                    <circle cx="4" cy="12" r="1.5" fill="currentColor" stroke="none"/>
+                                    <circle cx="4" cy="18" r="1.5" fill="currentColor" stroke="none"/>
+                                </svg>
+                            </button>
+                            <button class="rec-btn-util" data-cmd="ol" title="Numbered List">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <line x1="10" y1="6" x2="21" y2="6"/>
+                                    <line x1="10" y1="12" x2="21" y2="12"/>
+                                    <line x1="10" y1="18" x2="21" y2="18"/>
+                                    <path d="M4 5h1v4" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <path d="M4 9h2" stroke-linecap="round"/>
+                                    <path d="M6 17H4c0-1 2-2 2-3s-1-1.5-2-1" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </button>
+                        </div>
+
+                        <div class="rec-toolbar-group">
+                            <button class="rec-btn-util" id="rec-btn-upload" title="Upload Image">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                    <polyline points="17 8 12 3 7 8"/>
+                                    <line x1="12" y1="3" x2="12" y2="15"/>
+                                </svg>
+                                FILE
+                            </button>
+                            <input type="file" id="rec-file-input" accept="image/*" style="display:none" />
+                            <button class="rec-btn-util" id="rec-btn-image-picker" title="Insert from Imagery">IMG</button>
+                            <button class="rec-btn-util" id="rec-btn-link" title="Insert Link">LINK</button>
+                        </div>
+
+                        <div class="rec-toolbar-group">
+                            <div class="rec-color-btn-wrap" id="rec-highlight-wrap">
+                                <button class="rec-btn-util" id="rec-btn-highlight" title="Text Highlight">
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M12 20h9"/>
+                                        <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+                                    </svg>
+                                    HL
+                                </button>
+                                <div id="rec-color-popup-highlight" style="display:none;"></div>
+                            </div>
+
+                            <div class="rec-color-btn-wrap" id="rec-textcolor-wrap">
+                                <button class="rec-btn-util" id="rec-btn-textcolor" title="Text Color">
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <polyline points="4 20 8 8 12 18 16 8 20 20"/>
+                                        <line x1="4" y1="23" x2="20" y2="23" stroke-width="3"/>
+                                    </svg>
+                                    TC
+                                </button>
+                                <div id="rec-color-popup-textcolor" style="display:none;"></div>
+                            </div>
+                        </div>
+
+                        <div class="rec-toolbar-group">
+                            <button class="rec-btn-util rec-btn-danger" id="rec-btn-delete" title="Delete Entry">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="3 6 5 6 21 6"/>
+                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="rec-editor-container">
+                        <input class="rec-title-input" id="rec-title-input" placeholder="NOTE TITLE" />
+                        <div class="rec-content-wrapper">
+                            <div class="rec-content-editable" id="rec-content-editable" contenteditable="true"></div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+
+        <!-- Image picker modal -->
+        <div id="rec-image-picker-modal" style="display:none;"></div>
+    </div>
+
+    <script>
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        // DATA MANAGER (localStorage)
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+        const RecordsManager = {
+            _notesKey: 'rec_notes_data',
+            _imagesKey: 'rec_images_data',
+
+            getNotes() {
+                try {
+                    const raw = localStorage.getItem(this._notesKey);
+                    if (raw) return JSON.parse(raw);
+                } catch (_) { /* ignore */ }
+                return [];
+            },
+
+            _saveNotes(notes) {
+                localStorage.setItem(this._notesKey, JSON.stringify(notes));
+            },
+
+            saveNote(id, title, content) {
+                const notes = this.getNotes();
+                const idx = notes.findIndex(n => n.id === id);
+                if (idx === -1) return;
+                notes[idx].title = title || 'UNTITLED';
+                notes[idx].content = content || '';
+                notes[idx].updated = Date.now();
+                this._saveNotes(notes);
+            },
+
+            createNote() {
+                const notes = this.getNotes();
+                const id = 'rec_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8);
+                const newNote = {
+                    id,
+                    title: 'UNTITLED',
+                    content: '',
+                    updated: Date.now()
+                };
+                notes.unshift(newNote);
+                this._saveNotes(notes);
+                return id;
+            },
+
+            deleteNote(id) {
+                let notes = this.getNotes();
+                notes = notes.filter(n => n.id !== id);
+                this._saveNotes(notes);
+            },
+
+            getAvailableImages() {
+                try {
+                    const raw = localStorage.getItem(this._imagesKey);
+                    if (raw) return JSON.parse(raw);
+                } catch (_) { /* ignore */ }
+                return [];
+            },
+
+            _saveImages(images) {
+                localStorage.setItem(this._imagesKey, JSON.stringify(images));
+            },
+
+            addImage(data, name) {
+                const images = this.getAvailableImages();
+                const id = 'img_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6);
+                images.push({ id, data, name });
+                this._saveImages(images);
+                return id;
+            },
+
+            deleteImage(id) {
+                let images = this.getAvailableImages();
+                images = images.filter(img => img.id !== id);
+                this._saveImages(images);
+            }
+        };
+
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        // STATE
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+        const state = {
+            notes: [],
+            activeId: null,
+            loading: true,
+            confirmDelete: null, // { id, title } or null
+            openPicker: null, // 'highlight' | 'textcolor' | null
+            showImagePicker: false,
+            availableImages: [],
+            // internal
+            isSwitchingNote: false,
+            lastSavedContent: '',
+            savedRange: null,
+            autoSaveInterval: null
+        };
+
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        // DOM REFS
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+        const $ = (sel, ctx = document) => ctx.querySelector(sel);
+        const $$ = (sel, ctx = document) => [...ctx.querySelectorAll(sel)];
+
+        const refs = {
+            root: $('#rec-root'),
+            notesList: $('#rec-notes-list'),
+            countText: $('#rec-count-text'),
+            titleInput: $('#rec-title-input'),
+            contentEditable: $('#rec-content-editable'),
+            confirmContainer: $('#rec-confirm-container'),
+            imagePickerModal: $('#rec-image-picker-modal'),
+            fileInput: $('#rec-file-input'),
+            highlightWrap: $('#rec-highlight-wrap'),
+            textcolorWrap: $('#rec-textcolor-wrap'),
+            colorPopupHighlight: $('#rec-color-popup-highlight'),
+            colorPopupTextcolor: $('#rec-color-popup-textcolor'),
+        };
+
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        // HELPERS
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+        function stripHtml(html) {
+            const tmp = document.createElement('div');
+            tmp.innerHTML = html;
+            return tmp.textContent || tmp.innerText || '';
+        }
+
+        function saveSelectionRange() {
+            const sel = window.getSelection();
+            if (sel && sel.rangeCount > 0) return sel.getRangeAt(0).cloneRange();
+            return null;
+        }
+
+        function restoreSelectionRange(range) {
+            if (!range) return;
+            const sel = window.getSelection();
+            sel.removeAllRanges();
+            sel.addRange(range);
+        }
+
+        function formatDate(ts) {
+            const d = new Date(ts);
+            return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        }
+
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        // RENDER FUNCTIONS
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+        function renderSidebar() {
+            const list = refs.notesList;
+            const count = refs.countText;
+            const notes = state.notes;
+            const activeId = state.activeId;
+
+            list.innerHTML = notes.map(note => {
+                const date = formatDate(note.updated);
+                const preview = stripHtml(note.content).substring(0, 20);
+                const activeClass = note.id === activeId ? 'active' : '';
+                return `<div class="rec-note-item ${activeClass}" data-id="${note.id}">
+                        <div class="rec-note-item-title">${note.title}</div>
+                        <div class="rec-note-item-meta">
+                            <div class="rec-note-item-preview">${preview}...</div>
+                            <div class="rec-note-item-date">${date}</div>
+                        </div>
+                    </div>`;
+            }).join('');
+
+            count.textContent = notes.length + ' ENTRIES IN DATABASE';
+
+            // attach click events
+            $$('.rec-note-item', list).forEach(el => {
+                el.addEventListener('click', () => {
+                    const id = el.dataset.id;
+                    if (id && id !== state.activeId) selectNote(id);
+                });
+            });
+        }
+
+        function renderEditor() {
+            const activeId = state.activeId;
+            const note = state.notes.find(n => n.id === activeId);
+            if (!note) {
+                refs.titleInput.value = '';
+                refs.contentEditable.innerHTML = '';
+                state.lastSavedContent = '';
+                return;
+            }
+
+            // Only update if switching note (avoid cursor jump during typing)
+            if (state.isSwitchingNote) return;
+
+            const titleVal = note.title === 'UNTITLED' ? '' : note.title;
+            if (refs.titleInput.value !== titleVal) {
+                refs.titleInput.value = titleVal;
+            }
+            const currentContent = refs.contentEditable.innerHTML;
+            const noteContent = note.content || '';
+            if (currentContent !== noteContent) {
+                refs.contentEditable.innerHTML = noteContent;
+                state.lastSavedContent = noteContent;
+            }
+        }
+
+        function renderConfirmDelete() {
+            const container = refs.confirmContainer;
+            const data = state.confirmDelete;
+            if (!data) {
+                container.innerHTML = '';
+                return;
+            }
+            container.innerHTML = `
+                    <div class="rec-confirm-overlay" id="rec-confirm-overlay">
+                        <div class="rec-confirm-box" id="rec-confirm-box">
+                            <div class="rec-confirm-icon">
+                                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#ff3333" stroke-width="1.5">
+                                    <polyline points="3 6 5 6 21 6"/>
+                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                                </svg>
+                            </div>
+                            <div class="rec-confirm-label">// PURGE ENTRY //</div>
+                            <div class="rec-confirm-title">"${data.title}"</div>
+                            <div class="rec-confirm-sub">THIS ACTION CANNOT BE UNDONE</div>
+                            <div class="rec-confirm-actions">
+                                <button class="rec-confirm-btn rec-confirm-btn-cancel" id="rec-confirm-cancel">ABORT</button>
+                                <button class="rec-confirm-btn rec-confirm-btn-delete" id="rec-confirm-delete">PURGE</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            $('#rec-confirm-overlay').addEventListener('click', (e) => {
+                if (e.target === e.currentTarget) setConfirmDelete(null);
+            });
+            $('#rec-confirm-cancel').addEventListener('click', () => setConfirmDelete(null));
+            $('#rec-confirm-delete').addEventListener('click', confirmDeleteExecute);
+        }
+
+        function renderImagePicker() {
+            const modal = refs.imagePickerModal;
+            if (!state.showImagePicker) {
+                modal.style.display = 'none';
+                modal.innerHTML = '';
+                return;
+            }
+            modal.style.display = 'flex';
+            const images = state.availableImages;
+            let gridHtml = '';
+            if (images.length === 0) {
+                gridHtml = '<div class="rec-image-empty">No images found in Imagery vault.</div>';
+            } else {
+                gridHtml = '<div class="rec-image-grid">' +
+                    images.map(img =>
+                        `<div class="rec-image-grid-item" data-id="${img.id}">
+                                <img src="${img.data}" alt="${img.name}" />
+                                <div class="rec-image-grid-item-name">${img.name}</div>
+                            </div>`
+                    ).join('') +
+                    '</div>';
+            }
+            modal.innerHTML = `
+                    <div class="rec-confirm-overlay" id="rec-img-overlay">
+                        <div class="rec-confirm-box" style="width:600px;max-width:90vw;max-height:80vh;overflow:auto;" id="rec-img-box">
+                            <div class="rec-confirm-label">SELECT IMAGE FROM VAULT</div>
+                            ${gridHtml}
+                            <div class="rec-confirm-actions">
+                                <button class="rec-confirm-btn rec-confirm-btn-cancel" id="rec-img-cancel">CANCEL</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            $('#rec-img-overlay').addEventListener('click', (e) => {
+                if (e.target === e.currentTarget) setShowImagePicker(false);
+            });
+            $('#rec-img-cancel').addEventListener('click', () => setShowImagePicker(false));
+            $$('.rec-image-grid-item', modal).forEach(el => {
+                el.addEventListener('click', () => {
+                    const id = el.dataset.id;
+                    const img = state.availableImages.find(i => i.id === id);
+                    if (img) insertImageFromPicker(img);
+                });
+            });
+        }
+
+        function renderColorPopup(type) {
+            const isHighlight = type === 'highlight';
+            const container = isHighlight ? refs.colorPopupHighlight : refs.colorPopupTextcolor;
+            const isOpen = state.openPicker === type;
+            if (!isOpen) {
+                container.style.display = 'none';
+                container.innerHTML = '';
+                return;
+            }
+            container.style.display = 'block';
+            const defaultColor = isHighlight ? '#FFD700' : '#ffffff';
+            let hex = defaultColor;
+            let nativeRef = null;
+
+            // build popup
+            container.innerHTML = `
+                    <div class="rec-color-popup" id="rec-color-popup-inner">
+                        <div class="rec-color-popup-label">${isHighlight ? 'HIGHLIGHT COLOR' : 'TEXT COLOR'}</div>
+                        <div class="rec-color-input-row">
+                            <div class="rec-color-gradient-box" title="Open color picker">
+                                <input type="color" class="rec-native-color" id="rec-native-color-${type}" value="#ffffff" />
+                            </div>
+                            <input class="rec-color-hex" id="rec-color-hex-${type}" value="${defaultColor}" placeholder="#ffffff" maxlength="7" spellcheck="false" />
+                            <div class="rec-color-preview" id="rec-color-preview-${type}" style="background:${defaultColor};"></div>
+                        </div>
+                        <button class="rec-color-apply" id="rec-color-apply-${type}">APPLY</button>
+                        <button class="rec-color-clear" id="rec-color-clear-${type}">CLEAR</button>
+                    </div>
+                `;
+
+            const hexInput = document.getElementById(`rec-color-hex-${type}`);
+            const nativeInput = document.getElementById(`rec-native-color-${type}`);
+            const preview = document.getElementById(`rec-color-preview-${type}`);
+            const applyBtn = document.getElementById(`rec-color-apply-${type}`);
+            const clearBtn = document.getElementById(`rec-color-clear-${type}`);
+            const popupInner = document.getElementById('rec-color-popup-inner');
+
+            // close on outside click handled globally
+            function updatePreview(val) {
+                if (/^#[0-9a-fA-F]{6}$/.test(val)) {
+                    preview.style.background = val;
+                    applyBtn.disabled = false;
+                } else {
+                    preview.style.background = 'transparent';
+                    applyBtn.disabled = true;
+                }
+            }
+
+            hexInput.addEventListener('input', () => {
+                const val = hexInput.value;
+                hex = val;
+                if (/^#[0-9a-fA-F]{6}$/.test(val) && nativeInput) {
+                    nativeInput.value = val;
+                }
+                updatePreview(val);
+            });
+
+            if (nativeInput) {
+                nativeInput.addEventListener('input', () => {
+                    const val = nativeInput.value;
+                    hex = val;
+                    hexInput.value = val;
+                    updatePreview(val);
+                });
+            }
+
+            updatePreview(defaultColor);
+
+            applyBtn.addEventListener('click', () => {
+                const val = hexInput.value;
+                if (/^#[0-9a-fA-F]{6}$/.test(val)) {
+                    if (isHighlight) applyHighlight(val);
+                    else applyTextColor(val);
+                    setOpenPicker(null);
+                }
+            });
+
+            clearBtn.addEventListener('click', () => {
+                if (isHighlight) clearHighlight();
+                else clearTextColor();
+                setOpenPicker(null);
+            });
+
+            // store ref for native
+            popupInner._nativeRef = nativeInput;
+        }
+
+        function renderAll() {
+            renderSidebar();
+            renderEditor();
+            renderConfirmDelete();
+            renderImagePicker();
+            // color popups are rendered on demand via setOpenPicker
+        }
+
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        // STATE MUTATORS (with re-render triggers)
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+        function setNotes(notes) {
+            state.notes = notes;
+            renderAll();
+        }
+
+        function setActiveId(id) {
+            state.activeId = id;
+            renderAll();
+        }
+
+        function setLoading(loading) {
+            state.loading = loading;
+            renderAll();
+        }
+
+        function setConfirmDelete(data) {
+            state.confirmDelete = data;
+            renderConfirmDelete();
+        }
+
+        function setOpenPicker(type) {
+            state.openPicker = type;
+            // render both popups (hide the other)
+            renderColorPopup('highlight');
+            renderColorPopup('textcolor');
+            // also re-render sidebar/editor if needed
+            // but we just need popups
+        }
+
+        function setShowImagePicker(show) {
+            state.showImagePicker = show;
+            if (show) {
+                state.availableImages = RecordsManager.getAvailableImages();
+            }
+            renderImagePicker();
+        }
+
+        function setAvailableImages(images) {
+            state.availableImages = images;
+            renderImagePicker();
+        }
+
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        // BUSINESS LOGIC
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+        function saveCurrentNote() {
+            if (!state.activeId || state.isSwitchingNote) return;
+            const title = refs.titleInput.value || 'UNTITLED';
+            const content = refs.contentEditable.innerHTML || '';
+            if (state.lastSavedContent === content) return;
+            state.lastSavedContent = content;
+            RecordsManager.saveNote(state.activeId, title, content);
+            // update sidebar (title/preview may have changed)
+            const notes = RecordsManager.getNotes();
+            state.notes = notes;
+            renderSidebar();
+        }
+
+        function selectNote(id) {
+            if (id === state.activeId) return;
+            // save current note before switching
+            saveCurrentNote();
+            state.isSwitchingNote = true;
+            state.activeId = id;
+            // load note content
+            const note = state.notes.find(n => n.id === id);
+            if (note) {
+                refs.titleInput.value = note.title === 'UNTITLED' ? '' : note.title;
+                refs.contentEditable.innerHTML = note.content || '';
+                state.lastSavedContent = note.content || '';
+            }
+            state.isSwitchingNote = false;
+            renderSidebar();
+            // ensure editor focus
+            refs.contentEditable.focus();
+        }
+
+        async function createNewNote() {
+            saveCurrentNote();
+            const newId = RecordsManager.createNote();
+            const notes = RecordsManager.getNotes();
+            state.notes = notes;
+            state.isSwitchingNote = true;
+            state.activeId = newId;
+            const note = notes.find(n => n.id === newId);
+            if (note) {
+                refs.titleInput.value = '';
+                refs.contentEditable.innerHTML = '';
+                state.lastSavedContent = '';
+            }
+            state.isSwitchingNote = false;
+            renderAll();
+            refs.titleInput.focus();
+        }
+
+        function deleteCurrentNote() {
+            if (!state.activeId) return;
+            const note = state.notes.find(n => n.id === state.activeId);
+            if (note) {
+                setConfirmDelete({ id: note.id, title: note.title });
+            }
+        }
+
+        function confirmDeleteExecute() {
+            const data = state.confirmDelete;
+            if (!data) return;
+            const id = data.id;
+            setConfirmDelete(null);
+            RecordsManager.deleteNote(id);
+            let notes = RecordsManager.getNotes();
+            state.notes = notes;
+            if (notes.length > 0) {
+                const newId = notes[0].id;
+                state.isSwitchingNote = true;
+                state.activeId = newId;
+                const note = notes.find(n => n.id === newId);
+                if (note) {
+                    refs.titleInput.value = note.title === 'UNTITLED' ? '' : note.title;
+                    refs.contentEditable.innerHTML = note.content || '';
+                    state.lastSavedContent = note.content || '';
+                }
+                state.isSwitchingNote = false;
+            } else {
+                // create a new note
+                const newId = RecordsManager.createNote();
+                notes = RecordsManager.getNotes();
+                state.notes = notes;
+                state.isSwitchingNote = true;
+                state.activeId = newId;
+                const note = notes.find(n => n.id === newId);
+                if (note) {
+                    refs.titleInput.value = '';
+                    refs.contentEditable.innerHTML = '';
+                    state.lastSavedContent = '';
+                }
+                state.isSwitchingNote = false;
+            }
+            renderAll();
+            refs.contentEditable.focus();
+        }
+
+        // ── List insertion ──
+
+        function insertList(ordered) {
+            const el = refs.contentEditable;
+            if (!el) return;
+            el.focus();
+
+            const sel = window.getSelection();
+            if (!sel || sel.rangeCount === 0) {
+                const tag = ordered ? 'ol' : 'ul';
+                el.innerHTML += `<${tag} style="padding-left:20px;margin:6px 0;"><li><br></li></${tag}>`;
+                saveCurrentNote();
+                const range = document.createRange();
+                const lastLi = el.querySelector(`${tag}:last-child li:last-child`);
+                if (lastLi) {
+                    range.setStart(lastLi, 0);
+                    range.collapse(true);
+                    sel.removeAllRanges();
+                    sel.addRange(range);
+                }
+                return;
+            }
+
+            const range = sel.getRangeAt(0);
+            const selectedText = range.toString();
+            const lines = selectedText ? selectedText.split('\n').map(l => l.trim()).filter(Boolean) : [''];
+            const tag = ordered ? 'ol' : 'ul';
+            const items = lines.map(l => `<li>${l || '<br>'}</li>`).join('');
+            const listHtml = `<${tag} style="padding-left:20px;margin:6px 0;">${items}</${tag}>`;
+
+            range.deleteContents();
+            const frag = document.createRange().createContextualFragment(listHtml);
+            const lastNode = frag.lastChild;
+            range.insertNode(frag);
+
+            const newRange = document.createRange();
+            const lastLiNode = lastNode?.querySelector('li:last-child');
+            if (lastLiNode && lastLiNode.childNodes.length > 0) {
+                newRange.setStart(lastLiNode, lastLiNode.childNodes.length);
+            } else if (lastLiNode) {
+                newRange.setStart(lastLiNode, 0);
+            } else {
+                newRange.setStartAfter(lastNode);
+            }
+            newRange.collapse(true);
+            sel.removeAllRanges();
+            sel.addRange(newRange);
+
+            saveCurrentNote();
+        }
+
+        function formatDoc(cmd, value) {
+            refs.contentEditable.focus();
+            if (cmd === 'formatBlock' && value) {
+                document.execCommand(cmd, false, `<${value}>`);
+            } else {
+                document.execCommand(cmd, false, value || null);
+            }
+            saveCurrentNote();
+        }
+
+        function captureSelection() {
+            state.savedRange = saveSelectionRange();
+        }
+
+        function applyHighlight(color) {
+            restoreSelectionRange(state.savedRange);
+            document.execCommand('hiliteColor', false, color);
+            refs.contentEditable.focus();
+            saveCurrentNote();
+        }
+
+        function clearHighlight() {
+            restoreSelectionRange(state.savedRange);
+            document.execCommand('hiliteColor', false, 'transparent');
+            refs.contentEditable.focus();
+            saveCurrentNote();
+        }
+
+        function applyTextColor(color) {
+            restoreSelectionRange(state.savedRange);
+            document.execCommand('foreColor', false, color);
+            refs.contentEditable.focus();
+            saveCurrentNote();
+        }
+
+        function clearTextColor() {
+            restoreSelectionRange(state.savedRange);
+            document.execCommand('foreColor', false, '#e0e0e0');
+            refs.contentEditable.focus();
+            saveCurrentNote();
+        }
+
+        function handleImageUpload(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = ev => {
+                document.execCommand('insertHTML', false,
+                    `<img src="${ev.target.result}" alt="uploaded" style="max-width:100%;border:1px solid rgba(255,255,255,0.1);margin:8px 0;">`);
+                saveCurrentNote();
+                // store in imagery vault
+                RecordsManager.addImage(ev.target.result, file.name);
+            };
+            reader.readAsDataURL(file);
+            e.target.value = '';
+        }
+
+        function openImagePicker() {
+            const images = RecordsManager.getAvailableImages();
+            state.availableImages = images;
+            setShowImagePicker(true);
+        }
+
+        function insertImageFromPicker(image) {
+            document.execCommand('insertHTML', false,
+                `<img src="${image.data}" alt="${image.name}" style="max-width:100%;border:1px solid rgba(255,255,255,0.1);margin:8px 0;">`);
+            saveCurrentNote();
+            setShowImagePicker(false);
+        }
+
+        function insertLink() {
+            const url = window.prompt('Enter URL:');
+            if (url) {
+                refs.contentEditable.focus();
+                document.execCommand('createLink', false, url);
+                saveCurrentNote();
+            }
+        }
+
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        // INIT
+        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+        function init() {
+            // load notes
+            let notes = RecordsManager.getNotes();
+            state.notes = notes;
+            state.loading = false;
+
+            if (notes.length === 0) {
+                // create initial note
+                const newId = RecordsManager.createNote();
+                notes = RecordsManager.getNotes();
+                state.notes = notes;
+                state.activeId = newId;
+                const note = notes.find(n => n.id === newId);
+                if (note) {
+                    refs.titleInput.value = '';
+                    refs.contentEditable.innerHTML = '';
+                    state.lastSavedContent = '';
+                }
+            } else {
+                state.activeId = notes[0].id;
+                const note = notes[0];
+                refs.titleInput.value = note.title === 'UNTITLED' ? '' : note.title;
+                refs.contentEditable.innerHTML = note.content || '';
+                state.lastSavedContent = note.content || '';
+            }
+
+            renderAll();
+
+            // ── Event listeners ──
+
+            // New note
+            document.getElementById('rec-btn-new').addEventListener('click', createNewNote);
+
+            // Delete
+            document.getElementById('rec-btn-delete').addEventListener('click', deleteCurrentNote);
+
+            // Title input
+            refs.titleInput.addEventListener('input', saveCurrentNote);
+
+            // Content editable
+            refs.contentEditable.addEventListener('input', saveCurrentNote);
+
+            // Toolbar commands
+            document.querySelectorAll('[data-cmd]').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const cmd = btn.dataset.cmd;
+                    if (cmd === 'bold' || cmd === 'italic' || cmd === 'underline') {
+                        formatDoc(cmd);
+                    } else if (cmd === 'h2') {
+                        formatDoc('formatBlock', 'h2');
+                    } else if (cmd === 'ul') {
+                        insertList(false);
+                    } else if (cmd === 'ol') {
+                        insertList(true);
+                    }
+                });
+            });
+
+            // Upload image
+            document.getElementById('rec-btn-upload').addEventListener('click', () => {
+                refs.fileInput.click();
+            });
+            refs.fileInput.addEventListener('change', handleImageUpload);
+
+            // Image picker
+            document.getElementById('rec-btn-image-picker').addEventListener('click', openImagePicker);
+
+            // Link
+            document.getElementById('rec-btn-link').addEventListener('click', insertLink);
+
+            // Highlight button
+            document.getElementById('rec-btn-highlight').addEventListener('click', () => {
+                captureSelection();
+                const current = state.openPicker;
+                setOpenPicker(current === 'highlight' ? null : 'highlight');
+            });
+
+            // Text color button
+            document.getElementById('rec-btn-textcolor').addEventListener('click', () => {
+                captureSelection();
+                const current = state.openPicker;
+                setOpenPicker(current === 'textcolor' ? null : 'textcolor');
+            });
+
+            // Close color pickers on outside click
+            document.addEventListener('mousedown', (e) => {
+                const inHL = refs.highlightWrap?.contains(e.target);
+                const inTC = refs.textcolorWrap?.contains(e.target);
+                if (!inHL && !inTC && state.openPicker) {
+                    setOpenPicker(null);
+                }
+            });
+
+            // Auto-save every 3s
+            state.autoSaveInterval = setInterval(() => {
+                if (!state.activeId || state.isSwitchingNote) return;
+                const title = refs.titleInput.value || 'UNTITLED';
+                const content = refs.contentEditable.innerHTML || '';
+                if (state.lastSavedContent === content) return;
+                state.lastSavedContent = content;
+                RecordsManager.saveNote(state.activeId, title, content);
+                // update sidebar (title/preview may have changed)
+                const notes = RecordsManager.getNotes();
+                state.notes = notes;
+                renderSidebar();
+            }, 3000);
+
+            // focus editor
+            refs.contentEditable.focus();
+
+            console.log('RECORDS initialized.');
+        }
+
+        // run on DOM ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', init);
+        } else {
+            init();
+        }
+    </script>
+
+</body>
+</html>
