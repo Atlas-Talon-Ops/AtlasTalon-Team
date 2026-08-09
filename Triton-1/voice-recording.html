@@ -1,0 +1,3117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Audio Intelligence · AIDA</title>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+    <style>
+        /* ===== RESET ===== */
+        html, body {
+            margin: 0;
+            padding: 0;
+            background: #050505;
+            height: 100%;
+            overflow: hidden;
+        }
+        #root {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+        * {
+            box-sizing: border-box;
+        }
+        button {
+            font-family: inherit;
+        }
+
+        /* ===== BASE ===== */
+        .aida-body {
+            font-family: 'IBM Plex Mono', monospace;
+            background: #050505;
+            color: #e0e0e0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+        }
+        .aida-body::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
+            background-size: 48px 48px;
+            pointer-events: none;
+            z-index: 0;
+            mask-image: radial-gradient(ellipse at center, black 30%, transparent 90%);
+            -webkit-mask-image: radial-gradient(ellipse at center, black 30%, transparent 90%);
+        }
+        .aida-body::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: repeating-linear-gradient(0deg, rgba(0,0,0,0) 0px, rgba(0,0,0,0) 2px, rgba(0,0,0,0.08) 2px, rgba(0,0,0,0.08) 3px);
+            pointer-events: none;
+            z-index: 1;
+            opacity: 0.5;
+        }
+        .aida-scroll {
+            flex: 1;
+            overflow-y: auto;
+            position: relative;
+            z-index: 2;
+        }
+        .aida-scroll::-webkit-scrollbar { width: 6px; }
+        .aida-scroll::-webkit-scrollbar-track { background: #050505; }
+        .aida-scroll::-webkit-scrollbar-thumb { background: #1a1a1a; }
+        .aida-scroll::-webkit-scrollbar-thumb:hover { background: #2a2a2a; }
+
+        /* ===== TOPBAR ===== */
+        .aida-topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 28px;
+            border-bottom: 1px solid #1a1a1a;
+            background: #050505;
+            position: relative;
+            z-index: 10;
+            flex-shrink: 0;
+        }
+        .aida-brand {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+        .aida-logo {
+            width: 38px;
+            height: 38px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            background: rgba(255, 255, 255, 0.04);
+        }
+        .aida-logo::before {
+            content: '';
+            position: absolute;
+            inset: 3px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+        .aida-logo::after {
+            content: '';
+            position: absolute;
+            top: -3px;
+            right: -3px;
+            width: 6px;
+            height: 6px;
+            background: #ffffff;
+            box-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
+            animation: pulse 2s ease-in-out infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+        .aida-logo-text {
+            font-size: 18px;
+            color: #ffffff;
+            font-weight: 700;
+            letter-spacing: 1px;
+            position: relative;
+            z-index: 1;
+        }
+        .aida-brand-text {
+            display: flex;
+            flex-direction: column;
+        }
+        .aida-brand-title {
+            font-size: 14px;
+            font-weight: 600;
+            letter-spacing: 4px;
+            color: #e0e0e0;
+        }
+        .aida-brand-sub {
+            font-size: 9px;
+            color: #555;
+            letter-spacing: 2px;
+            margin-top: 2px;
+        }
+        .aida-topbar-center {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            font-size: 10px;
+            letter-spacing: 2px;
+            color: #555;
+            text-transform: uppercase;
+        }
+        .aida-status-pill {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border: 1px solid #1a1a1a;
+            background: #0a0a0a;
+        }
+        .aida-status-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #ffffff;
+            box-shadow: 0 0 6px rgba(255, 255, 255, 0.3);
+        }
+        .aida-status-dot.warn { background: #FFD60A; box-shadow: 0 0 6px #FFD60A; }
+        .aida-status-dot.danger { background: #FF3D00; box-shadow: 0 0 6px #FF3D00; }
+        .aida-clock {
+            font-size: 11px;
+            color: #888;
+            letter-spacing: 2px;
+        }
+        .aida-topbar-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .aida-new-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            background: #ffffff;
+            border: 1px solid #ffffff;
+            color: #000000;
+            padding: 10px 24px;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 11px;
+            letter-spacing: 3px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-transform: uppercase;
+            position: relative;
+        }
+        .aida-new-btn:hover {
+            background: #e6e6e6;
+            box-shadow: 0 0 0 1px #ffffff, 0 0 24px rgba(255, 255, 255, 0.15);
+        }
+        .aida-new-btn:disabled {
+            background: #0a0a0a;
+            color: #444;
+            border-color: #1a1a1a;
+            cursor: not-allowed;
+        }
+        .aida-new-btn:disabled:hover {
+            box-shadow: none;
+        }
+        .aida-icon-btn {
+            background: transparent;
+            border: 1px solid #1a1a1a;
+            color: #666;
+            padding: 9px 14px;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 10px;
+            letter-spacing: 2px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-transform: uppercase;
+        }
+        .aida-icon-btn:hover {
+            border-color: #ffffff;
+            color: #ffffff;
+        }
+
+        /* ===== SUBBAR (filters + search) ===== */
+        .aida-subbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 28px;
+            border-bottom: 1px solid #1a1a1a;
+            background: #050505;
+            position: relative;
+            z-index: 5;
+            flex-shrink: 0;
+            gap: 24px;
+        }
+        .aida-tabs {
+            display: flex;
+            overflow-x: auto;
+        }
+        .aida-tab {
+            background: transparent;
+            border: none;
+            border-bottom: 1px solid transparent;
+            padding: 14px 22px;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 10px;
+            letter-spacing: 2px;
+            color: #444;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+            text-transform: uppercase;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .aida-tab:hover {
+            color: #888;
+        }
+        .aida-tab.active {
+            color: #e0e0e0;
+        }
+        .aida-tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            width: 100%;
+            height: 1px;
+            background: #ffffff;
+            box-shadow: 0 0 6px rgba(255, 255, 255, 0.3);
+        }
+        .aida-tab-count {
+            font-size: 9px;
+            color: #555;
+            padding: 1px 6px;
+            border: 1px solid #1a1a1a;
+            background: #0a0a0a;
+        }
+        .aida-tab.active .aida-tab-count {
+            color: #ffffff;
+            border-color: rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.05);
+        }
+        .aida-search-wrap {
+            display: flex;
+            align-items: center;
+            gap: 0;
+            border: 1px solid #1a1a1a;
+            background: #0a0a0a;
+            min-width: 280px;
+            transition: border-color 0.2s;
+        }
+        .aida-search-wrap:focus-within {
+            border-color: #ffffff;
+        }
+        .aida-search-icon {
+            padding: 0 10px;
+            color: #444;
+            font-size: 10px;
+        }
+        .aida-search-input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            padding: 9px 0;
+            color: #c0c0c0;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 11px;
+            letter-spacing: 1px;
+            outline: none;
+        }
+        .aida-search-input::placeholder {
+            color: #444;
+            text-transform: uppercase;
+        }
+
+        /* ===== CONTENT ===== */
+        .aida-content {
+            padding: 24px 28px;
+            position: relative;
+            z-index: 2;
+        }
+        .aida-content-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 18px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .aida-content-title {
+            font-size: 11px;
+            color: #555;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .aida-content-title::before {
+            content: '';
+            width: 4px;
+            height: 12px;
+            background: #ffffff;
+        }
+        .aida-content-meta {
+            font-size: 10px;
+            color: #444;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+        .aida-content-meta span {
+            color: #ffffff;
+        }
+
+        /* ===== RECORDINGS GRID ===== */
+        .rec-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+            gap: 18px;
+            max-width: 1800px;
+        }
+        .rec-card {
+            background: #0a0a0a;
+            border: 1px solid #1a1a1a;
+            cursor: pointer;
+            transition: all 0.25s;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        .rec-card:hover {
+            border-color: #2a2a2a;
+            transform: translateY(-1px);
+        }
+        .rec-card:hover .rec-card-waveform canvas {
+            opacity: 1;
+        }
+        .rec-card::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: var(--accent, #1a1a1a);
+            transition: width 0.2s;
+        }
+        .rec-card:hover::before {
+            width: 3px;
+        }
+        .rec-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding: 16px 18px 12px;
+            gap: 12px;
+        }
+        .rec-card-titles {
+            flex: 1;
+            min-width: 0;
+        }
+        .rec-card-id {
+            font-size: 9px;
+            color: #444;
+            letter-spacing: 2px;
+            margin-bottom: 4px;
+        }
+        .rec-card-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #e0e0e0;
+            margin-bottom: 3px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .rec-card-case {
+            font-size: 10px;
+            color: #666;
+            letter-spacing: 1px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .rec-class-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 3px 8px;
+            border: 1px solid;
+            font-size: 9px;
+            font-weight: 600;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            flex-shrink: 0;
+            white-space: nowrap;
+        }
+        .rec-class-badge.restricted {
+            color: #34C759;
+            border-color: rgba(52, 199, 89, 0.3);
+            background: rgba(52, 199, 89, 0.06);
+        }
+        .rec-class-badge.confidential {
+            color: #007AFF;
+            border-color: rgba(0, 122, 255, 0.3);
+            background: rgba(0, 122, 255, 0.06);
+        }
+        .rec-class-badge.secret {
+            color: #FFD60A;
+            border-color: rgba(255, 214, 10, 0.3);
+            background: rgba(255, 214, 10, 0.06);
+        }
+        .rec-class-badge.top-secret {
+            color: #FF3D00;
+            border-color: rgba(255, 61, 0, 0.3);
+            background: rgba(255, 61, 0, 0.08);
+        }
+        .rec-class-badge.black {
+            color: #FF3D00;
+            border-color: rgba(255, 61, 0, 0.5);
+            background: rgba(255, 61, 0, 0.15);
+            box-shadow: inset 0 0 12px rgba(255, 61, 0, 0.1);
+        }
+        .rec-card-waveform {
+            padding: 8px 18px 12px;
+            position: relative;
+        }
+        .rec-card-waveform canvas {
+            width: 100%;
+            height: 56px;
+            display: block;
+            opacity: 0.85;
+            transition: opacity 0.2s;
+        }
+        .rec-card-progress {
+            position: absolute;
+            top: 8px;
+            bottom: 12px;
+            left: 18px;
+            width: 2px;
+            background: #ffffff;
+            box-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
+            pointer-events: none;
+            display: none;
+        }
+        .rec-card.playing .rec-card-progress {
+            display: block;
+        }
+        .rec-card-meta {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px 12px;
+            padding: 14px 18px;
+            border-top: 1px solid #1a1a1a;
+        }
+        .rec-meta-item {
+            min-width: 0;
+        }
+        .rec-meta-label {
+            display: block;
+            font-size: 8px;
+            color: #444;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            margin-bottom: 2px;
+        }
+        .rec-meta-value {
+            font-size: 11px;
+            color: #c0c0c0;
+            font-weight: 500;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .rec-card-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 18px;
+            border-top: 1px solid #1a1a1a;
+            background: rgba(0, 0, 0, 0.2);
+        }
+        .rec-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 9px;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: #666;
+        }
+        .rec-status::before {
+            content: '';
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background: currentColor;
+        }
+        .rec-status.active { color: #34C759; }
+        .rec-status.pending { color: #FFD60A; }
+        .rec-status.archived { color: #555; }
+        .rec-status.redacted { color: #FF3D00; }
+        .rec-card-actions {
+            display: flex;
+            gap: 8px;
+        }
+        .rec-action {
+            background: transparent;
+            border: 1px solid #1a1a1a;
+            color: #555;
+            padding: 4px 10px;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 9px;
+            letter-spacing: 1.5px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-transform: uppercase;
+        }
+        .rec-action:hover {
+            border-color: #ffffff;
+            color: #ffffff;
+        }
+        .rec-action.danger:hover {
+            border-color: #FF3D00;
+            color: #FF3D00;
+        }
+
+        /* ===== EMPTY STATE ===== */
+        .rec-empty {
+            padding: 80px 32px;
+            text-align: center;
+        }
+        .rec-empty-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 20px;
+            border: 1px solid #1a1a1a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        .rec-empty-icon::before, .rec-empty-icon::after {
+            content: '';
+            position: absolute;
+        }
+        .rec-empty-icon::before {
+            width: 30px;
+            height: 30px;
+            border: 2px solid #333;
+            border-radius: 50%;
+        }
+        .rec-empty-icon::after {
+            width: 10px;
+            height: 10px;
+            background: #333;
+            border-radius: 50%;
+        }
+        .rec-empty-title {
+            font-size: 12px;
+            color: #666;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            margin-bottom: 6px;
+        }
+        .rec-empty-sub {
+            font-size: 10px;
+            color: #444;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        /* ===== MODAL BASE ===== */
+        .aida-modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.92);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            z-index: 3000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
+        .aida-modal-overlay.open {
+            display: flex;
+        }
+        .aida-modal {
+            background: #0a0a0a;
+            border: 1px solid #1a1a1a;
+            max-width: 1100px;
+            width: 100%;
+            max-height: 92vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+        .aida-modal-corner {
+            position: absolute;
+            width: 18px;
+            height: 18px;
+            z-index: 2;
+        }
+        .aida-modal-corner.tl { top: -1px; left: -1px; border-top: 2px solid #ffffff; border-left: 2px solid #ffffff; }
+        .aida-modal-corner.tr { top: -1px; right: -1px; border-top: 2px solid #ffffff; border-right: 2px solid #ffffff; }
+        .aida-modal-corner.bl { bottom: -1px; left: -1px; border-bottom: 2px solid #ffffff; border-left: 2px solid #ffffff; }
+        .aida-modal-corner.br { bottom: -1px; right: -1px; border-bottom: 2px solid #ffffff; border-right: 2px solid #ffffff; }
+        .aida-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 18px 24px;
+            border-bottom: 1px solid #1a1a1a;
+            background: repeating-linear-gradient(45deg, #0a0a0a, #0a0a0a 12px, #070707 12px, #070707 24px);
+            flex-shrink: 0;
+        }
+        .aida-modal-title {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 11px;
+            letter-spacing: 3px;
+            color: #ffffff;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .aida-modal-title::before {
+            content: '';
+            width: 6px;
+            height: 6px;
+            background: #ffffff;
+            box-shadow: 0 0 6px rgba(255, 255, 255, 0.3);
+        }
+        .aida-modal-close {
+            background: transparent;
+            border: 1px solid #333;
+            color: #666;
+            cursor: pointer;
+            font-size: 14px;
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.15s;
+        }
+        .aida-modal-close:hover {
+            border-color: #FF3D00;
+            color: #FF3D00;
+        }
+        .aida-modal-body {
+            padding: 0;
+            overflow-y: auto;
+            flex: 1;
+        }
+        .aida-modal-body::-webkit-scrollbar { width: 6px; }
+        .aida-modal-body::-webkit-scrollbar-track { background: #050505; }
+        .aida-modal-body::-webkit-scrollbar-thumb { background: #1a1a1a; }
+        .aida-modal-actions {
+            display: flex;
+            gap: 10px;
+            padding: 16px 24px;
+            border-top: 1px solid #1a1a1a;
+            flex-shrink: 0;
+            background: #050505;
+        }
+        .aida-modal-btn {
+            padding: 11px 22px;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 10px;
+            letter-spacing: 2px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-transform: uppercase;
+            border: 1px solid;
+            background: transparent;
+        }
+        .aida-modal-btn.primary {
+            background: #ffffff;
+            border-color: #ffffff;
+            color: #000000;
+            font-weight: 700;
+        }
+        .aida-modal-btn.primary:hover {
+            background: #e6e6e6;
+            box-shadow: 0 0 16px rgba(255, 255, 255, 0.15);
+        }
+        .aida-modal-btn.primary:disabled {
+            background: #0a0a0a;
+            color: #444;
+            border-color: #1a1a1a;
+            cursor: not-allowed;
+        }
+        .aida-modal-btn.primary:disabled:hover {
+            box-shadow: none;
+        }
+        .aida-modal-btn.secondary {
+            border-color: #1a1a1a;
+            color: #666;
+        }
+        .aida-modal-btn.secondary:hover {
+            border-color: #555;
+            color: #c0c0c0;
+        }
+        .aida-modal-btn.danger {
+            border-color: #FF3D00;
+            color: #FF3D00;
+            background: rgba(255, 61, 0, 0.06);
+        }
+        .aida-modal-btn.danger:hover {
+            background: #FF3D00;
+            color: #000;
+        }
+
+        /* ===== RECORD MODAL ===== */
+        .rec-modal-body {
+            display: grid;
+            grid-template-columns: 1fr 360px;
+            min-height: 480px;
+        }
+        .rec-studio {
+            padding: 32px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            background: #050505;
+            border-right: 1px solid #1a1a1a;
+            position: relative;
+        }
+        .rec-studio-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            margin-bottom: 24px;
+        }
+        .rec-session-id {
+            font-size: 10px;
+            color: #444;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+        .rec-session-id span {
+            color: #ffffff;
+        }
+        .rec-encryption {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 9px;
+            color: #34C759;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            padding: 4px 10px;
+            border: 1px solid rgba(52, 199, 89, 0.3);
+            background: rgba(52, 199, 89, 0.06);
+        }
+        .rec-encryption::before {
+            content: '';
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background: #34C759;
+            box-shadow: 0 0 5px #34C759;
+        }
+        .rec-timer-display {
+            font-size: 56px;
+            font-weight: 300;
+            color: #e0e0e0;
+            letter-spacing: 8px;
+            font-variant-numeric: tabular-nums;
+            line-height: 1;
+            text-align: center;
+            margin-bottom: 8px;
+            transition: color 0.2s;
+        }
+        .rec-timer-display.active {
+            color: #ffffff;
+        }
+        .rec-timer-display.paused {
+            color: #FFD60A;
+        }
+        .rec-timer-sub {
+            font-size: 10px;
+            color: #444;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+        }
+        .rec-timer-sub span {
+            color: #666;
+        }
+        .rec-waveform-wrap {
+            width: 100%;
+            height: 140px;
+            background: #0a0a0a;
+            border: 1px solid #1a1a1a;
+            margin-bottom: 24px;
+            position: relative;
+            overflow: hidden;
+        }
+        .rec-waveform-wrap::before {
+            content: '';
+            position: absolute;
+            left: 50%;
+            top: 0;
+            bottom: 0;
+            width: 1px;
+            background: rgba(255, 255, 255, 0.15);
+            z-index: 1;
+        }
+        .rec-waveform-canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+        .rec-waveform-empty {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #2a2a2a;
+            font-size: 10px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            pointer-events: none;
+        }
+        .rec-level-meter {
+            width: 100%;
+            display: flex;
+            gap: 2px;
+            margin-bottom: 24px;
+            height: 8px;
+        }
+        .rec-level-bar {
+            flex: 1;
+            background: #111;
+            transition: background 0.05s;
+        }
+        .rec-controls {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .rec-control-btn {
+            background: #0a0a0a;
+            border: 1px solid #1a1a1a;
+            color: #666;
+            width: 52px;
+            height: 52px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 14px;
+        }
+        .rec-control-btn:hover {
+            border-color: #555;
+            color: #e0e0e0;
+        }
+        .rec-control-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+        .rec-control-btn:disabled:hover {
+            border-color: #1a1a1a;
+            color: #666;
+        }
+        .rec-record-btn {
+            width: 88px;
+            height: 88px;
+            border-radius: 50%;
+            background: #0a0a0a;
+            border: 2px solid #FF3D00;
+            color: #FF3D00;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+        }
+        .rec-record-btn:hover {
+            box-shadow: 0 0 24px rgba(255, 61, 0, 0.4);
+        }
+        .rec-record-btn.recording {
+            background: #FF3D00;
+            color: #000;
+            animation: recPulse 1.5s ease-in-out infinite;
+        }
+        .rec-record-btn.recording:hover {
+            box-shadow: 0 0 32px rgba(255, 61, 0, 0.6);
+        }
+        @keyframes recPulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(255, 61, 0, 0.6); }
+            50% { box-shadow: 0 0 0 12px rgba(255, 61, 0, 0); }
+        }
+        .rec-record-icon {
+            width: 28px;
+            height: 28px;
+            background: currentColor;
+            border-radius: 50%;
+            transition: all 0.2s;
+        }
+        .rec-record-btn.recording .rec-record-icon {
+            border-radius: 4px;
+            width: 22px;
+            height: 22px;
+        }
+        .rec-status-text {
+            font-size: 10px;
+            color: #555;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            margin-top: 16px;
+            text-align: center;
+            min-height: 14px;
+        }
+        .rec-status-text.live {
+            color: #FF3D00;
+        }
+        .rec-status-text.live::before {
+            content: '● ';
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        /* ===== RECORD METADATA FORM ===== */
+        .rec-meta-form {
+            padding: 24px;
+            background: #0a0a0a;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            overflow-y: auto;
+        }
+        .rec-meta-form::-webkit-scrollbar { width: 4px; }
+        .rec-meta-form::-webkit-scrollbar-thumb { background: #1a1a1a; }
+        .rec-form-section-title {
+            font-size: 9px;
+            color: #ffffff;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #1a1a1a;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .rec-form-section-title::before {
+            content: '';
+            width: 3px;
+            height: 10px;
+            background: #ffffff;
+        }
+        .rec-form-row {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .rec-form-label {
+            font-size: 9px;
+            color: #555;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+        .rec-form-input, .rec-form-select, .rec-form-textarea {
+            width: 100%;
+            background: #050505;
+            border: 1px solid #1a1a1a;
+            padding: 9px 12px;
+            font-size: 11px;
+            color: #c0c0c0;
+            font-family: 'IBM Plex Mono', monospace;
+            transition: border-color 0.2s;
+            outline: none;
+        }
+        .rec-form-input:focus, .rec-form-select:focus, .rec-form-textarea:focus {
+            border-color: #ffffff;
+        }
+        .rec-form-textarea {
+            min-height: 70px;
+            resize: vertical;
+            line-height: 1.6;
+        }
+        .rec-form-select {
+            cursor: pointer;
+            appearance: none;
+            background-image: linear-gradient(45deg, transparent 50%, #555 50%), linear-gradient(135deg, #555 50%, transparent 50%);
+            background-position: calc(100% - 14px) 50%, calc(100% - 10px) 50%;
+            background-size: 4px 4px;
+            background-repeat: no-repeat;
+            padding-right: 30px;
+        }
+        .rec-form-tag-wrap {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            padding: 8px;
+            background: #050505;
+            border: 1px solid #1a1a1a;
+            min-height: 38px;
+        }
+        .rec-form-tag-wrap:focus-within {
+            border-color: #ffffff;
+        }
+        .rec-form-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 3px 8px;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #ffffff;
+            font-size: 9px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+        .rec-form-tag-x {
+            cursor: pointer;
+            opacity: 0.6;
+            transition: opacity 0.15s;
+        }
+        .rec-form-tag-x:hover {
+            opacity: 1;
+        }
+        .rec-form-tag-input {
+            flex: 1;
+            min-width: 80px;
+            background: transparent;
+            border: none;
+            color: #c0c0c0;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 11px;
+            outline: none;
+            padding: 3px 0;
+        }
+
+        /* ===== DETAIL MODAL ===== */
+        .detail-body {
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+        }
+        .detail-header-info {
+            padding: 24px;
+            border-bottom: 1px solid #1a1a1a;
+            background: #0a0a0a;
+        }
+        .detail-id-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .detail-id {
+            font-size: 10px;
+            color: #444;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+        .detail-id span {
+            color: #ffffff;
+        }
+        .detail-title {
+            font-size: 22px;
+            font-weight: 300;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            color: #e0e0e0;
+            margin-bottom: 6px;
+        }
+        .detail-case {
+            font-size: 11px;
+            color: #666;
+            letter-spacing: 2px;
+            font-style: italic;
+        }
+        .detail-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 14px;
+            margin-top: 18px;
+            padding-top: 18px;
+            border-top: 1px solid #1a1a1a;
+        }
+        .detail-stat-label {
+            font-size: 9px;
+            color: #444;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 3px;
+        }
+        .detail-stat-value {
+            font-size: 12px;
+            color: #c0c0c0;
+            font-weight: 500;
+        }
+        .detail-player {
+            padding: 24px;
+            background: #050505;
+            border-bottom: 1px solid #1a1a1a;
+        }
+        .detail-player-waveform {
+            width: 100%;
+            height: 80px;
+            background: #0a0a0a;
+            border: 1px solid #1a1a1a;
+            margin-bottom: 16px;
+            position: relative;
+            cursor: pointer;
+        }
+        .detail-player-waveform canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+        .detail-player-controls {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .detail-play-btn {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: #ffffff;
+            border: none;
+            color: #000;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+        .detail-play-btn:hover {
+            background: #e6e6e6;
+            box-shadow: 0 0 16px rgba(255, 255, 255, 0.15);
+        }
+        .detail-play-icon {
+            width: 0;
+            height: 0;
+            border-left: 14px solid #000;
+            border-top: 9px solid transparent;
+            border-bottom: 9px solid transparent;
+            margin-left: 4px;
+        }
+        .detail-play-icon.pause {
+            width: 14px;
+            height: 16px;
+            border: none;
+            background: linear-gradient(to right, #000 0%, #000 35%, transparent 35%, transparent 65%, #000 65%, #000 100%);
+            margin-left: 0;
+        }
+        .detail-time {
+            font-size: 11px;
+            color: #888;
+            letter-spacing: 2px;
+            font-variant-numeric: tabular-nums;
+            min-width: 100px;
+        }
+        .detail-time span {
+            color: #c0c0c0;
+        }
+        .detail-speed {
+            display: flex;
+            gap: 4px;
+        }
+        .detail-speed-btn {
+            background: transparent;
+            border: 1px solid #1a1a1a;
+            color: #555;
+            padding: 6px 10px;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 9px;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .detail-speed-btn:hover {
+            border-color: #555;
+            color: #c0c0c0;
+        }
+        .detail-speed-btn.active {
+            border-color: #ffffff;
+            color: #ffffff;
+            background: rgba(255, 255, 255, 0.06);
+        }
+        .detail-volume-wrap {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-left: auto;
+        }
+        .detail-volume-slider {
+            -webkit-appearance: none;
+            width: 80px;
+            height: 3px;
+            background: #1a1a1a;
+            outline: none;
+            cursor: pointer;
+        }
+        .detail-volume-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 10px;
+            height: 14px;
+            background: #ffffff;
+            cursor: pointer;
+        }
+        .detail-volume-slider::-moz-range-thumb {
+            width: 10px;
+            height: 14px;
+            background: #ffffff;
+            cursor: pointer;
+            border: none;
+        }
+        .detail-tabs {
+            display: flex;
+            background: #0a0a0a;
+            border-bottom: 1px solid #1a1a1a;
+        }
+        .detail-tab {
+            background: transparent;
+            border: none;
+            padding: 14px 22px;
+            color: #444;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 10px;
+            letter-spacing: 2px;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+            text-transform: uppercase;
+        }
+        .detail-tab:hover {
+            color: #888;
+        }
+        .detail-tab.active {
+            color: #e0e0e0;
+        }
+        .detail-tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: #ffffff;
+            box-shadow: 0 0 6px rgba(255, 255, 255, 0.3);
+        }
+        .detail-tab-content {
+            padding: 24px;
+            display: none;
+        }
+        .detail-tab-content.active {
+            display: block;
+            animation: detailFade 0.25s ease;
+        }
+        @keyframes detailFade {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .detail-info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 16px;
+        }
+        .detail-info-section {
+            background: #0a0a0a;
+            border: 1px solid #1a1a1a;
+            padding: 18px;
+        }
+        .detail-info-section.full {
+            grid-column: 1/-1;
+        }
+        .detail-info-title {
+            font-size: 9px;
+            color: #555;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            margin-bottom: 14px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #1a1a1a;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .detail-info-title::before {
+            content: '';
+            width: 3px;
+            height: 10px;
+            background: #ffffff;
+        }
+        .detail-field-row {
+            display: flex;
+            margin-bottom: 8px;
+            gap: 8px;
+            align-items: center;
+        }
+        .detail-field-label {
+            width: 110px;
+            min-width: 110px;
+            font-size: 9px;
+            color: #444;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+        .detail-field-input, .detail-field-select {
+            flex: 1;
+            min-width: 0;
+            background: #050505;
+            border: 1px solid #1a1a1a;
+            padding: 7px 10px;
+            font-size: 11px;
+            color: #c0c0c0;
+            font-family: 'IBM Plex Mono', monospace;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .detail-field-input:focus, .detail-field-select:focus {
+            border-color: #ffffff;
+        }
+        .detail-field-select {
+            cursor: pointer;
+            appearance: none;
+            background-image: linear-gradient(45deg, transparent 50%, #555 50%), linear-gradient(135deg, #555 50%, transparent 50%);
+            background-position: calc(100% - 12px) 50%, calc(100% - 8px) 50%;
+            background-size: 4px 4px;
+            background-repeat: no-repeat;
+            padding-right: 24px;
+        }
+        .detail-transcript {
+            background: #050505;
+            border: 1px solid #1a1a1a;
+            padding: 16px;
+            min-height: 200px;
+            font-size: 12px;
+            color: #c0c0c0;
+            line-height: 1.8;
+            outline: none;
+            white-space: pre-wrap;
+        }
+        .detail-transcript:empty:before {
+            content: attr(data-placeholder);
+            color: #333;
+            pointer-events: none;
+        }
+        .detail-tags-display {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+        .detail-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #ffffff;
+            font-size: 9px;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+        }
+        .detail-tag-x {
+            cursor: pointer;
+            opacity: 0.6;
+        }
+        .detail-tag-x:hover {
+            opacity: 1;
+        }
+        .detail-tag-add {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 10px;
+            background: transparent;
+            border: 1px dashed #333;
+            color: #555;
+            font-size: 9px;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            cursor: pointer;
+        }
+        .detail-tag-add:hover {
+            border-color: #ffffff;
+            color: #ffffff;
+        }
+
+        /* ===== CONFIRM DIALOG ===== */
+        .confirm-body {
+            padding: 22px;
+        }
+        .confirm-msg {
+            font-size: 12px;
+            color: #888;
+            line-height: 1.7;
+            margin: 0;
+        }
+
+        /* ===== TOAST ===== */
+        .aida-toast-wrap {
+            position: fixed;
+            top: 80px;
+            right: 24px;
+            z-index: 5000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            pointer-events: none;
+        }
+        .aida-toast {
+            background: #0a0a0a;
+            border: 1px solid #1a1a1a;
+            border-left: 3px solid #ffffff;
+            padding: 12px 18px;
+            font-size: 11px;
+            color: #c0c0c0;
+            letter-spacing: 1px;
+            min-width: 240px;
+            max-width: 360px;
+            animation: toastIn 0.25s ease;
+            pointer-events: auto;
+            position: relative;
+        }
+        .aida-toast.error {
+            border-left-color: #FF3D00;
+        }
+        .aida-toast.warn {
+            border-left-color: #FFD60A;
+        }
+        .aida-toast.success {
+            border-left-color: #34C759;
+        }
+        .aida-toast-title {
+            font-size: 9px;
+            color: #ffffff;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+        .aida-toast.error .aida-toast-title { color: #FF3D00; }
+        .aida-toast.warn .aida-toast-title { color: #FFD60A; }
+        .aida-toast.success .aida-toast-title { color: #34C759; }
+        .aida-toast-msg {
+            font-size: 11px;
+            color: #c0c0c0;
+            line-height: 1.5;
+        }
+        @keyframes toastIn {
+            from { opacity: 0; transform: translateX(20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        .aida-toast.out {
+            animation: toastOut 0.25s ease forwards;
+        }
+        @keyframes toastOut {
+            to { opacity: 0; transform: translateX(20px); }
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 900px) {
+            .rec-modal-body {
+                grid-template-columns: 1fr;
+            }
+            .rec-studio {
+                border-right: none;
+                border-bottom: 1px solid #1a1a1a;
+            }
+            .aida-topbar-center {
+                display: none;
+            }
+            .aida-subbar {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 12px;
+                padding: 12px 16px;
+            }
+            .aida-search-wrap {
+                min-width: 0;
+            }
+            .aida-content {
+                padding: 16px;
+            }
+            .rec-grid {
+                grid-template-columns: 1fr;
+            }
+            .rec-timer-display {
+                font-size: 40px;
+                letter-spacing: 4px;
+            }
+        }
+
+        /* ===== UTIL ===== */
+        .blink {
+            animation: blinkAnim 1s steps(2) infinite;
+        }
+        @keyframes blinkAnim {
+            50% { opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script type="text/babel">
+        const { useState, useEffect, useRef, useCallback } = React;
+
+        // ==================== CONSTANTS ====================
+        const CLASSIFICATIONS = [
+            { value: 'RESTRICTED', label: 'RESTRICTED', css: 'restricted', color: '#34C759' },
+            { value: 'CONFIDENTIAL', label: 'CONFIDENTIAL', css: 'confidential', color: '#007AFF' },
+            { value: 'SECRET', label: 'SECRET', css: 'secret', color: '#FFD60A' },
+            { value: 'TOP-SECRET', label: 'TOP SECRET', css: 'top-secret', color: '#FF3D00' },
+            { value: 'BLACK', label: 'BLACK', css: 'black', color: '#FF3D00' },
+        ];
+
+        const STATUSES = [
+            { value: 'ACTIVE', label: 'ACTIVE', css: 'active' },
+            { value: 'PENDING-REVIEW', label: 'PENDING REVIEW', css: 'pending' },
+            { value: 'ARCHIVED', label: 'ARCHIVED', css: 'archived' },
+            { value: 'REDACTED', label: 'REDACTED', css: 'redacted' },
+        ];
+
+        const AGENTS = [
+            'AGENT-KAVEN', 'AGENT-VOS-09', 'AGENT-RAINE', 'AGENT-NOX',
+            'AGENT-HOLLAND', 'AGENT-MERCER', 'AGENT-DELACROIX', 'AGENT-SOREN'
+        ];
+
+        const PRESET_TAGS = ['INTERROGATION', 'FIELD-OP', 'WIRETAP', 'SOURCE', 'DEBRIEF', 'INTERCEPT', 'HUMINT', 'SIGINT'];
+
+        // ==================== INDEXEDDB ====================
+        const DB_NAME = 'aida_audio_db';
+        const DB_VERSION = 1;
+        const STORE_NAME = 'audio_blobs';
+
+        function openDB() {
+            return new Promise((resolve, reject) => {
+                const req = indexedDB.open(DB_NAME, DB_VERSION);
+                req.onupgradeneeded = e => {
+                    const db = e.target.result;
+                    if (!db.objectStoreNames.contains(STORE_NAME)) {
+                        db.createObjectStore(STORE_NAME, { keyPath: 'id' });
+                    }
+                };
+                req.onsuccess = () => resolve(req.result);
+                req.onerror = () => reject(req.error);
+            });
+        }
+
+        async function saveAudioBlob(id, blob) {
+            const db = await openDB();
+            return new Promise((resolve, reject) => {
+                const tx = db.transaction(STORE_NAME, 'readwrite');
+                tx.objectStore(STORE_NAME).put({ id, blob });
+                tx.oncomplete = resolve;
+                tx.onerror = () => reject(tx.error);
+            });
+        }
+
+        async function loadAudioBlob(id) {
+            const db = await openDB();
+            return new Promise((resolve, reject) => {
+                const tx = db.transaction(STORE_NAME, 'readonly');
+                const req = tx.objectStore(STORE_NAME).get(id);
+                req.onsuccess = () => resolve(req.result ? req.result.blob : null);
+                req.onerror = () => reject(req.error);
+            });
+        }
+
+        async function deleteAudioBlob(id) {
+            const db = await openDB();
+            return new Promise((resolve, reject) => {
+                const tx = db.transaction(STORE_NAME, 'readwrite');
+                tx.objectStore(STORE_NAME).delete(id);
+                tx.oncomplete = resolve;
+                tx.onerror = () => reject(tx.error);
+            });
+        }
+
+        // ==================== UTILS ====================
+        function formatDuration(seconds) {
+            if (!seconds || isNaN(seconds)) return '00:00';
+            const h = Math.floor(seconds / 3600);
+            const m = Math.floor((seconds % 3600) / 60);
+            const s = Math.floor(seconds % 60);
+            if (h > 0) {
+                return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+            }
+            return `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+        }
+
+        function formatDate(ts) {
+            const d = new Date(ts);
+            const y = d.getFullYear();
+            const m = String(d.getMonth() + 1).padStart(2, '0');
+            const day = String(d.getDate()).padStart(2, '0');
+            const hh = String(d.getHours()).padStart(2, '0');
+            const mm = String(d.getMinutes()).padStart(2, '0');
+            return `${y}.${m}.${day} ${hh}:${mm}`;
+        }
+
+        function formatDateShort(ts) {
+            const d = new Date(ts);
+            const m = String(d.getMonth() + 1).padStart(2, '0');
+            const day = String(d.getDate()).padStart(2, '0');
+            const hh = String(d.getHours()).padStart(2, '0');
+            const mm = String(d.getMinutes()).padStart(2, '0');
+            return `${m}/${day} ${hh}:${mm}`;
+        }
+
+        function generateCaseNumber() {
+            const y = new Date().getFullYear();
+            const rand = Math.floor(Math.random() * 9000 + 1000);
+            return `AIDA-${y}-${rand}`;
+        }
+
+        function generateRecId() {
+            return 'REC-' + Date.now().toString(36).toUpperCase() + '-' + Math.floor(Math.random() * 1000).toString().padStart(3, '0');
+        }
+
+        function formatBytes(bytes) {
+            if (!bytes) return '0 KB';
+            const kb = bytes / 1024;
+            if (kb < 1024) return kb.toFixed(1) + ' KB';
+            return (kb / 1024).toFixed(2) + ' MB';
+        }
+
+        function getClassInfo(value) {
+            return CLASSIFICATIONS.find(c => c.value === value) || CLASSIFICATIONS[0];
+        }
+
+        function getStatusInfo(value) {
+            return STATUSES.find(s => s.value === value) || STATUSES[0];
+        }
+
+        // Downsample amplitudes to N bars
+        function downsample(amplitudes, barCount) {
+            if (!amplitudes || amplitudes.length === 0) {
+                return Array(barCount).fill(0);
+            }
+            if (amplitudes.length <= barCount) {
+                const result = [...amplitudes];
+                while (result.length < barCount) result.push(0);
+                return result;
+            }
+            const result = [];
+            const chunkSize = amplitudes.length / barCount;
+            for (let i = 0; i < barCount; i++) {
+                const start = Math.floor(i * chunkSize);
+                const end = Math.floor((i + 1) * chunkSize);
+                let max = 0;
+                for (let j = start; j < end; j++) {
+                    if (amplitudes[j] > max) max = amplitudes[j];
+                }
+                result.push(max);
+            }
+            return result;
+        }
+
+        // ==================== TOAST HOOK ====================
+        function useToasts() {
+            const [toasts, setToasts] = useState([]);
+            const idRef = useRef(0);
+
+            const push = useCallback((type, title, msg, duration = 3200) => {
+                const id = ++idRef.current;
+                setToasts(prev => [...prev, { id, type, title, msg }]);
+                setTimeout(() => {
+                    setToasts(prev => prev.map(t => t.id === id ? { ...t, out: true } : t));
+                    setTimeout(() => {
+                        setToasts(prev => prev.filter(t => t.id !== id));
+                    }, 250);
+                }, duration);
+            }, []);
+
+            return { toasts, push };
+        }
+
+        // ==================== HOOK: useRecordings ====================
+        function useRecordings() {
+            const [recordings, setRecordings] = useState([]);
+            const [loading, setLoading] = useState(true);
+
+            useEffect(() => {
+                const stored = localStorage.getItem('aida_recordings_meta');
+                if (stored) {
+                    try {
+                        const parsed = JSON.parse(stored);
+                        setRecordings(parsed);
+                    } catch (_) {
+                        setRecordings([]);
+                    }
+                }
+                setLoading(false);
+            }, []);
+
+            useEffect(() => {
+                if (!loading) {
+                    localStorage.setItem('aida_recordings_meta', JSON.stringify(recordings));
+                }
+            }, [recordings, loading]);
+
+            const addRecording = useCallback((rec) => {
+                setRecordings(prev => [rec, ...prev]);
+            }, []);
+
+            const updateRecording = useCallback((id, data) => {
+                setRecordings(prev => prev.map(r => r.id === id ? { ...r, ...data } : r));
+            }, []);
+
+            const deleteRecording = useCallback((id) => {
+                setRecordings(prev => prev.filter(r => r.id !== id));
+                deleteAudioBlob(id).catch(() => {});
+            }, []);
+
+            return { recordings, loading, addRecording, updateRecording, deleteRecording };
+        }
+
+        // ==================== COMPONENT: TopBar ====================
+        function TopBar({ onNewRec, clock, totalRecordings }) {
+            return (
+                <div className="aida-topbar">
+                    <div className="aida-brand">
+                        <div className="aida-logo">
+                            <span className="aida-logo-text">A</span>
+                        </div>
+                        <div className="aida-brand-text">
+                            <span className="aida-brand-title">AIDA</span>
+                            <span className="aida-brand-sub">AUDIO INTELLIGENCE</span>
+                        </div>
+                    </div>
+                    <div className="aida-topbar-center">
+                        <div className="aida-status-pill">
+                            <span className="aida-status-dot"></span>
+                            <span>SYSTEM ONLINE</span>
+                        </div>
+                        <div className="aida-status-pill">
+                            <span className="aida-status-dot"></span>
+                            <span>ENCRYPTION ACTIVE</span>
+                        </div>
+                        <div className="aida-status-pill">
+                            <span>FILES: {totalRecordings}</span>
+                        </div>
+                        <div className="aida-clock">{clock}</div>
+                    </div>
+                    <div className="aida-topbar-right">
+                        <button className="aida-icon-btn" title="Refresh">SYNC</button>
+                        <button className="aida-new-btn" onClick={onNewRec}>
+                            NEW CAPTURE
+                        </button>
+                    </div>
+                </div>
+            );
+        }
+
+        // ==================== COMPONENT: SubBar ====================
+        function SubBar({ filter, setFilter, search, setSearch, counts }) {
+            const tabs = [
+                { value: 'ALL', label: 'ALL FILES' },
+                { value: 'RESTRICTED', label: 'RESTRICTED' },
+                { value: 'CONFIDENTIAL', label: 'CONFIDENTIAL' },
+                { value: 'SECRET', label: 'SECRET' },
+                { value: 'TOP-SECRET', label: 'TOP SECRET' },
+                { value: 'BLACK', label: 'BLACK' },
+                { value: 'ARCHIVED', label: 'ARCHIVED' },
+            ];
+
+            return (
+                <div className="aida-subbar">
+                    <div className="aida-tabs">
+                        {tabs.map(t => (
+                            <button
+                                key={t.value}
+                                className={`aida-tab ${filter === t.value ? 'active' : ''}`}
+                                onClick={() => setFilter(t.value)}
+                            >
+                                {t.label}
+                                <span className="aida-tab-count">{counts[t.value] || 0}</span>
+                            </button>
+                        ))}
+                    </div>
+                    <div className="aida-search-wrap">
+                        <span className="aida-search-icon">[ search ]</span>
+                        <input
+                            className="aida-search-input"
+                            placeholder="QUERY CASE / SUBJECT / AGENT..."
+                            value={search}
+                            onChange={e => setSearch(e.target.value)}
+                        />
+                    </div>
+                </div>
+            );
+        }
+
+        // ==================== COMPONENT: MiniWaveform ====================
+        function MiniWaveform({ amplitudes, color = '#ffffff', progress = 0 }) {
+            const canvasRef = useRef(null);
+
+            useEffect(() => {
+                const canvas = canvasRef.current;
+                if (!canvas) return;
+                const ctx = canvas.getContext('2d');
+                const dpr = window.devicePixelRatio || 1;
+                const rect = canvas.getBoundingClientRect();
+                canvas.width = rect.width * dpr;
+                canvas.height = rect.height * dpr;
+                ctx.scale(dpr, dpr);
+
+                const w = rect.width;
+                const h = rect.height;
+                ctx.clearRect(0, 0, w, h);
+
+                const barCount = Math.max(40, Math.floor(w / 4));
+                const bars = downsample(amplitudes, barCount);
+                const barWidth = w / barCount;
+                const centerY = h / 2;
+                const progressX = w * progress;
+
+                for (let i = 0; i < barCount; i++) {
+                    const amp = bars[i] || 0;
+                    const barHeight = Math.max(2, amp * h * 0.9);
+                    const x = i * barWidth;
+                    const isPlayed = x < progressX;
+
+                    if (isPlayed) {
+                        ctx.fillStyle = color;
+                        ctx.shadowColor = color;
+                        ctx.shadowBlur = 4;
+                    } else {
+                        ctx.fillStyle = '#2a2a2a';
+                        ctx.shadowBlur = 0;
+                    }
+                    ctx.fillRect(x, centerY - barHeight / 2, Math.max(1, barWidth - 1), barHeight);
+                }
+                ctx.shadowBlur = 0;
+            }, [amplitudes, color, progress]);
+
+            return <canvas ref={canvasRef} />;
+        }
+
+        // ==================== COMPONENT: RecordingCard ====================
+        function RecordingCard({ rec, onOpen, onQuickPlay, onDelete, isPlaying, quickPlayProgress }) {
+            const classInfo = getClassInfo(rec.classification);
+            const statusInfo = getStatusInfo(rec.status);
+
+            const handleQuickPlay = (e) => {
+                e.stopPropagation();
+                onQuickPlay(rec);
+            };
+
+            const handleDelete = (e) => {
+                e.stopPropagation();
+                onDelete(rec);
+            };
+
+            return (
+                <div
+                    className={`rec-card ${isPlaying ? 'playing' : ''}`}
+                    style={{ '--accent': classInfo.color }}
+                    onClick={() => onOpen(rec)}
+                >
+                    <div className="rec-card-header">
+                        <div className="rec-card-titles">
+                            <div className="rec-card-id">{rec.id} · {rec.caseNumber}</div>
+                            <div className="rec-card-title">{rec.title}</div>
+                            <div className="rec-card-case">SUBJECT: {rec.subject || 'UNNAMED'} · {rec.agent}</div>
+                        </div>
+                        <span className={`rec-class-badge ${classInfo.css}`}>{classInfo.label}</span>
+                    </div>
+                    <div className="rec-card-waveform">
+                        <MiniWaveform
+                            amplitudes={rec.amplitudes}
+                            color={classInfo.color}
+                            progress={isPlaying ? quickPlayProgress : 0}
+                        />
+                        <div className="rec-card-progress" style={{ left: `calc(18px + ${quickPlayProgress * 100}% - 18px * ${quickPlayProgress})` }}></div>
+                    </div>
+                    <div className="rec-card-meta">
+                        <div className="rec-meta-item">
+                            <span className="rec-meta-label">DURATION</span>
+                            <span className="rec-meta-value">{formatDuration(rec.duration)}</span>
+                        </div>
+                        <div className="rec-meta-item">
+                            <span className="rec-meta-label">RECORDED</span>
+                            <span className="rec-meta-value">{formatDateShort(rec.timestamp)}</span>
+                        </div>
+                        <div className="rec-meta-item">
+                            <span className="rec-meta-label">SIZE</span>
+                            <span className="rec-meta-value">{formatBytes(rec.size)}</span>
+                        </div>
+                    </div>
+                    <div className="rec-card-footer">
+                        <span className={`rec-status ${statusInfo.css}`}>{statusInfo.label}</span>
+                        <div className="rec-card-actions">
+                            <button className="rec-action" onClick={handleQuickPlay}>
+                                {isPlaying ? '■ STOP' : '▶ PLAY'}
+                            </button>
+                            <button className="rec-action danger" onClick={handleDelete}>DEL</button>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        // ==================== COMPONENT: LiveWaveform ====================
+        function LiveWaveform({ analyser, isRecording, isPaused }) {
+            const canvasRef = useRef(null);
+            const dataRef = useRef([]);
+            const rafRef = useRef(null);
+
+            useEffect(() => {
+                const canvas = canvasRef.current;
+                if (!canvas) return;
+                const ctx = canvas.getContext('2d');
+                const dpr = window.devicePixelRatio || 1;
+                const rect = canvas.getBoundingClientRect();
+                canvas.width = rect.width * dpr;
+                canvas.height = rect.height * dpr;
+                ctx.scale(dpr, dpr);
+
+                if (!isRecording || !analyser) {
+                    // draw flat
+                    ctx.clearRect(0, 0, rect.width, rect.height);
+                    return;
+                }
+
+                const bufferLength = analyser.frequencyBinCount;
+                const dataArray = new Uint8Array(bufferLength);
+                const maxBars = 200;
+
+                const draw = () => {
+                    analyser.getByteFrequencyData(dataArray);
+                    let sum = 0;
+                    for (let i = 0; i < bufferLength; i++) sum += dataArray[i];
+                    const avg = sum / bufferLength / 255;
+                    dataRef.current.push(avg);
+                    if (dataRef.current.length > maxBars) dataRef.current.shift();
+
+                    const w = rect.width;
+                    const h = rect.height;
+                    ctx.clearRect(0, 0, w, h);
+
+                    const barCount = dataRef.current.length;
+                    const barWidth = w / maxBars;
+                    const centerY = h / 2;
+
+                    for (let i = 0; i < barCount; i++) {
+                        const amp = dataRef.current[i];
+                        const barHeight = Math.max(2, amp * h * 0.95);
+                        const x = i * barWidth + (maxBars - barCount) * barWidth;
+                        const intensity = 0.4 + amp * 0.6;
+                        ctx.fillStyle = `rgba(255, 255, 255, ${intensity})`;
+                        ctx.shadowColor = '#ffffff';
+                        ctx.shadowBlur = 6;
+                        ctx.fillRect(x, centerY - barHeight / 2, Math.max(1, barWidth - 1), barHeight);
+                    }
+                    ctx.shadowBlur = 0;
+
+                    rafRef.current = requestAnimationFrame(draw);
+                };
+
+                draw();
+                return () => cancelAnimationFrame(rafRef.current);
+            }, [isRecording, isPaused, analyser]);
+
+            return (
+                <div className="rec-waveform-wrap">
+                    <canvas ref={canvasRef} className="rec-waveform-canvas" />
+                    {!isRecording && (
+                        <div className="rec-waveform-empty">SIGNAL MONITOR · STANDBY</div>
+                    )}
+                </div>
+            );
+        }
+
+        // ==================== COMPONENT: LevelMeter ====================
+        function LevelMeter({ analyser, isRecording }) {
+            const [levels, setLevels] = useState(Array(24).fill(0));
+            const rafRef = useRef(null);
+
+            useEffect(() => {
+                if (!isRecording || !analyser) {
+                    setLevels(Array(24).fill(0));
+                    return;
+                }
+                const bufferLength = analyser.frequencyBinCount;
+                const dataArray = new Uint8Array(bufferLength);
+
+                const tick = () => {
+                    analyser.getByteFrequencyData(dataArray);
+                    const segments = 24;
+                    const segSize = Math.floor(bufferLength / segments);
+                    const newLevels = [];
+                    for (let i = 0; i < segments; i++) {
+                        let max = 0;
+                        for (let j = i * segSize; j < (i + 1) * segSize; j++) {
+                            if (dataArray[j] > max) max = dataArray[j];
+                        }
+                        newLevels.push(max / 255);
+                    }
+                    setLevels(newLevels);
+                    rafRef.current = requestAnimationFrame(tick);
+                };
+                tick();
+                return () => cancelAnimationFrame(rafRef.current);
+            }, [isRecording, analyser]);
+
+            return (
+                <div className="rec-level-meter">
+                    {levels.map((lvl, i) => {
+                        let color = '#1a1a1a';
+                        if (lvl > 0.7) color = '#FF3D00';
+                        else if (lvl > 0.5) color = '#FFD60A';
+                        else if (lvl > 0.2) color = '#ffffff';
+                        else if (lvl > 0.05) color = '#555';
+                        return (
+                            <div
+                                key={i}
+                                className="rec-level-bar"
+                                style={{ background: color, opacity: 0.3 + lvl * 0.7 }}
+                            />
+                        );
+                    })}
+                </div>
+            );
+        }
+
+        // ==================== COMPONENT: RecordModal ====================
+        function RecordModal({ onSave, onCancel, push }) {
+            const [isRecording, setIsRecording] = useState(false);
+            const [isPaused, setIsPaused] = useState(false);
+            const [elapsed, setElapsed] = useState(0);
+            const [sessionId] = useState(() => generateRecId());
+
+            const [title, setTitle] = useState('');
+            const [caseNumber, setCaseNumber] = useState(() => generateCaseNumber());
+            const [classification, setClassification] = useState('CONFIDENTIAL');
+            const [subject, setSubject] = useState('');
+            const [agent, setAgent] = useState(AGENTS[0]);
+            const [location, setLocation] = useState('');
+            const [notes, setNotes] = useState('');
+            const [tags, setTags] = useState([]);
+            const [tagInput, setTagInput] = useState('');
+
+            const mediaRecorderRef = useRef(null);
+            const audioStreamRef = useRef(null);
+            const audioContextRef = useRef(null);
+            const analyserRef = useRef(null);
+            const chunksRef = useRef([]);
+            const timerRef = useRef(null);
+            const ampCollectorRef = useRef(null);
+            const amplitudesRef = useRef([]);
+            const startTimeRef = useRef(0);
+
+            const cleanup = useCallback(() => {
+                if (timerRef.current) clearInterval(timerRef.current);
+                if (ampCollectorRef.current) clearInterval(ampCollectorRef.current);
+                if (audioStreamRef.current) {
+                    audioStreamRef.current.getTracks().forEach(t => t.stop());
+                    audioStreamRef.current = null;
+                }
+                if (audioContextRef.current) {
+                    try { audioContextRef.current.close(); } catch(_) {}
+                    audioContextRef.current = null;
+                }
+                analyserRef.current = null;
+                mediaRecorderRef.current = null;
+                chunksRef.current = [];
+            }, []);
+
+            useEffect(() => () => cleanup(), [cleanup]);
+
+            const startRecording = async () => {
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    audioStreamRef.current = stream;
+
+                    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    const source = audioContext.createMediaStreamSource(stream);
+                    const analyser = audioContext.createAnalyser();
+                    analyser.fftSize = 256;
+                    analyser.smoothingTimeConstant = 0.6;
+                    source.connect(analyser);
+
+                    audioContextRef.current = audioContext;
+                    analyserRef.current = analyser;
+
+                    const mimeType = MediaRecorder.isTypeSupported('audio/webm;codecs=opus') ? 'audio/webm;codecs=opus' : 'audio/webm';
+                    const mediaRecorder = new MediaRecorder(stream, { mimeType });
+                    mediaRecorder.ondataavailable = e => {
+                        if (e.data.size > 0) chunksRef.current.push(e.data);
+                    };
+                    mediaRecorder.start(200);
+                    mediaRecorderRef.current = mediaRecorder;
+
+                    amplitudesRef.current = [];
+                    startTimeRef.current = Date.now();
+                    setIsRecording(true);
+                    setIsPaused(false);
+                    setElapsed(0);
+
+                    timerRef.current = setInterval(() => {
+                        setElapsed(e => e + 1);
+                    }, 1000);
+
+                    const dataBuf = new Uint8Array(analyser.frequencyBinCount);
+                    ampCollectorRef.current = setInterval(() => {
+                        analyser.getByteFrequencyData(dataBuf);
+                        let sum = 0;
+                        for (let i = 0; i < dataBuf.length; i++) sum += dataBuf[i];
+                        const avg = sum / dataBuf.length / 255;
+                        amplitudesRef.current.push(avg);
+                    }, 200);
+
+                    push('success', 'CAPTURE INITIATED', 'Audio stream online · Encryption active');
+                } catch (err) {
+                    console.error(err);
+                    push('error', 'ACCESS DENIED', 'Microphone permission required for capture');
+                }
+            };
+
+            const pauseRecording = () => {
+                if (!mediaRecorderRef.current) return;
+                if (mediaRecorderRef.current.state === 'recording') {
+                    mediaRecorderRef.current.pause();
+                    setIsPaused(true);
+                    clearInterval(timerRef.current);
+                    clearInterval(ampCollectorRef.current);
+                    push('warn', 'CAPTURE PAUSED', 'Recording suspended');
+                } else if (mediaRecorderRef.current.state === 'paused') {
+                    mediaRecorderRef.current.resume();
+                    setIsPaused(false);
+                    timerRef.current = setInterval(() => setElapsed(e => e + 1), 1000);
+                    const dataBuf = new Uint8Array(analyserRef.current.frequencyBinCount);
+                    ampCollectorRef.current = setInterval(() => {
+                        analyserRef.current.getByteFrequencyData(dataBuf);
+                        let sum = 0;
+                        for (let i = 0; i < dataBuf.length; i++) sum += dataBuf[i];
+                        const avg = sum / dataBuf.length / 255;
+                        amplitudesRef.current.push(avg);
+                    }, 200);
+                    push('success', 'CAPTURE RESUMED', 'Recording continued');
+                }
+            };
+
+            const stopAndSave = async () => {
+                if (!mediaRecorderRef.current) {
+                    onCancel();
+                    return;
+                }
+
+                const stopped = new Promise(resolve => {
+                    if (mediaRecorderRef.current.state === 'inactive') {
+                        resolve();
+                    } else {
+                        mediaRecorderRef.current.onstop = () => resolve();
+                        mediaRecorderRef.current.stop();
+                    }
+                });
+
+                await stopped;
+                clearInterval(timerRef.current);
+                clearInterval(ampCollectorRef.current);
+                setIsRecording(false);
+
+                const blob = new Blob(chunksRef.current, { type: 'audio/webm' });
+                const finalDuration = elapsed;
+
+                if (blob.size < 1000 || finalDuration < 1) {
+                    push('warn', 'CAPTURE ABORTED', 'Recording too short to save');
+                    cleanup();
+                    onCancel();
+                    return;
+                }
+
+                const id = sessionId;
+                try {
+                    await saveAudioBlob(id, blob);
+                    const recording = {
+                        id,
+                        title: title.trim() || `CAPTURE ${formatDateShort(Date.now())}`,
+                        caseNumber,
+                        classification,
+                        subject: subject.trim(),
+                        agent,
+                        location: location.trim(),
+                        notes: notes.trim(),
+                        tags,
+                        status: 'PENDING-REVIEW',
+                        duration: finalDuration,
+                        timestamp: Date.now(),
+                        amplitudes: amplitudesRef.current,
+                        format: 'webm',
+                        size: blob.size,
+                        transcript: '',
+                    };
+                    onSave(recording);
+                    push('success', 'FILE ARCHIVED', `${recording.title} stored · ${formatDuration(finalDuration)}`);
+                } catch (err) {
+                    console.error(err);
+                    push('error', 'STORAGE ERROR', 'Failed to persist audio file');
+                }
+                cleanup();
+            };
+
+            const cancelAndDiscard = () => {
+                if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
+                    mediaRecorderRef.current.onstop = null;
+                    try { mediaRecorderRef.current.stop(); } catch(_) {}
+                }
+                clearInterval(timerRef.current);
+                clearInterval(ampCollectorRef.current);
+                setIsRecording(false);
+                cleanup();
+                onCancel();
+            };
+
+            const addTag = (tag) => {
+                const t = tag.trim().toUpperCase();
+                if (t && !tags.includes(t)) {
+                    setTags(prev => [...prev, t]);
+                }
+                setTagInput('');
+            };
+
+            const removeTag = (tag) => {
+                setTags(prev => prev.filter(t => t !== tag));
+            };
+
+            const handleTagKey = (e) => {
+                if (e.key === 'Enter' || e.key === ',') {
+                    e.preventDefault();
+                    addTag(tagInput);
+                } else if (e.key === 'Backspace' && !tagInput && tags.length > 0) {
+                    removeTag(tags[tags.length - 1]);
+                }
+            };
+
+            const canSave = elapsed >= 1;
+
+            return (
+                <div className="aida-modal-overlay open" onClick={e => { if (e.target === e.currentTarget && !isRecording) cancelAndDiscard(); }}>
+                    <div className="aida-modal">
+                        <div className="aida-modal-corner tl" />
+                        <div className="aida-modal-corner tr" />
+                        <div className="aida-modal-corner bl" />
+                        <div className="aida-modal-corner br" />
+                        <div className="aida-modal-header">
+                            <span className="aida-modal-title">NEW AUDIO CAPTURE · SESSION {sessionId}</span>
+                            <button className="aida-modal-close" onClick={cancelAndDiscard}>×</button>
+                        </div>
+                        <div className="aida-modal-body">
+                            <div className="rec-modal-body">
+                                <div className="rec-studio">
+                                    <div className="rec-studio-top">
+                                        <div className="rec-session-id">SESSION <span>{sessionId}</span></div>
+                                        <div className="rec-encryption">AES-256 SECURE</div>
+                                    </div>
+                                    <div className={`rec-timer-display ${isRecording && !isPaused ? 'active' : ''} ${isPaused ? 'paused' : ''}`}>
+                                        {formatDuration(elapsed)}
+                                    </div>
+                                    <div className="rec-timer-sub">
+                                        <span>DURATION</span>
+                                        <span>·</span>
+                                        <span>{amplitudesRef.current.length} SAMPLES</span>
+                                        <span>·</span>
+                                        <span>{isRecording ? (isPaused ? 'PAUSED' : 'LIVE') : 'STANDBY'}</span>
+                                    </div>
+                                    <LiveWaveform analyser={analyserRef.current} isRecording={isRecording} isPaused={isPaused} />
+                                    <LevelMeter analyser={analyserRef.current} isRecording={isRecording && !isPaused} />
+                                    <div className="rec-controls">
+                                        <button
+                                            className="rec-control-btn"
+                                            onClick={pauseRecording}
+                                            disabled={!isRecording}
+                                            title={isPaused ? 'Resume' : 'Pause'}
+                                        >
+                                            {isPaused ? '▶' : '❚❚'}
+                                        </button>
+                                        <button
+                                            className={`rec-record-btn ${isRecording ? 'recording' : ''}`}
+                                            onClick={isRecording ? stopAndSave : startRecording}
+                                            title={isRecording ? 'Stop & Save' : 'Start Recording'}
+                                        >
+                                            <span className="rec-record-icon"></span>
+                                        </button>
+                                        <button
+                                            className="rec-control-btn"
+                                            onClick={cancelAndDiscard}
+                                            title="Cancel"
+                                        >
+                                            ✕
+                                        </button>
+                                    </div>
+                                    <div className={`rec-status-text ${isRecording && !isPaused ? 'live' : ''}`}>
+                                        {isRecording ? (isPaused ? 'PAUSED · AWAITING RESUME' : 'CAPTURING AUDIO · DO NOT CLOSE') : (elapsed > 0 ? 'CAPTURE STOPPED · READY TO SAVE' : 'STANDBY · PRESS RECORD TO BEGIN')}
+                                    </div>
+                                </div>
+                                <div className="rec-meta-form">
+                                    <div className="rec-form-section-title">CASE METADATA</div>
+                                    <div className="rec-form-row">
+                                        <label className="rec-form-label">Title</label>
+                                        <input
+                                            className="rec-form-input"
+                                            value={title}
+                                            onChange={e => setTitle(e.target.value)}
+                                            placeholder="OPERATION NIGHTFALL..."
+                                        />
+                                    </div>
+                                    <div className="rec-form-row">
+                                        <label className="rec-form-label">Case Number</label>
+                                        <input
+                                            className="rec-form-input"
+                                            value={caseNumber}
+                                            onChange={e => setCaseNumber(e.target.value)}
+                                        />
+                                    </div>
+                                    <div className="rec-form-row">
+                                        <label className="rec-form-label">Classification</label>
+                                        <select
+                                            className="rec-form-select"
+                                            value={classification}
+                                            onChange={e => setClassification(e.target.value)}
+                                        >
+                                            {CLASSIFICATIONS.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
+                                        </select>
+                                    </div>
+                                    <div className="rec-form-row">
+                                        <label className="rec-form-label">Subject / Target</label>
+                                        <input
+                                            className="rec-form-input"
+                                            value={subject}
+                                            onChange={e => setSubject(e.target.value)}
+                                            placeholder="SUBJ-XXXXX or CODENAME"
+                                        />
+                                    </div>
+                                    <div className="rec-form-row">
+                                        <label className="rec-form-label">Case Agent</label>
+                                        <select
+                                            className="rec-form-select"
+                                            value={agent}
+                                            onChange={e => setAgent(e.target.value)}
+                                        >
+                                            {AGENTS.map(a => <option key={a} value={a}>{a}</option>)}
+                                        </select>
+                                    </div>
+                                    <div className="rec-form-row">
+                                        <label className="rec-form-label">Location</label>
+                                        <input
+                                            className="rec-form-input"
+                                            value={location}
+                                            onChange={e => setLocation(e.target.value)}
+                                            placeholder="SECTOR 7 / 41.8781° N, 87.6298° W"
+                                        />
+                                    </div>
+
+                                    <div className="rec-form-section-title" style={{ marginTop: 8 }}>TAGS</div>
+                                    <div className="rec-form-tag-wrap">
+                                        {tags.map(t => (
+                                            <span key={t} className="rec-form-tag">
+                                                {t}
+                                                <span className="rec-form-tag-x" onClick={() => removeTag(t)}>×</span>
+                                            </span>
+                                        ))}
+                                        <input
+                                            className="rec-form-tag-input"
+                                            value={tagInput}
+                                            onChange={e => setTagInput(e.target.value)}
+                                            onKeyDown={handleTagKey}
+                                            placeholder={tags.length === 0 ? 'ADD TAG...' : ''}
+                                        />
+                                    </div>
+                                    <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+                                        {PRESET_TAGS.filter(t => !tags.includes(t)).slice(0, 5).map(t => (
+                                            <button
+                                                key={t}
+                                                className="rec-action"
+                                                style={{ padding: '3px 8px', fontSize: '8px' }}
+                                                onClick={() => addTag(t)}
+                                            >
+                                                + {t}
+                                            </button>
+                                        ))}
+                                    </div>
+
+                                    <div className="rec-form-section-title" style={{ marginTop: 8 }}>FIELD NOTES</div>
+                                    <textarea
+                                        className="rec-form-textarea"
+                                        value={notes}
+                                        onChange={e => setNotes(e.target.value)}
+                                        placeholder="Operational context, observations, source reliability..."
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                        <div className="aida-modal-actions">
+                            <button className="aida-modal-btn secondary" onClick={cancelAndDiscard}>CANCEL · DISCARD</button>
+                            <button
+                                className="aida-modal-btn primary"
+                                onClick={stopAndSave}
+                                disabled={!canSave && !isRecording && elapsed === 0}
+                            >
+                                {isRecording ? 'STOP & ARCHIVE' : 'ARCHIVE FILE'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        // ==================== COMPONENT: DetailModal ====================
+        function DetailModal({ rec, onUpdate, onClose, onDelete, push }) {
+            const [activeTab, setActiveTab] = useState('INTEL');
+            const [audioUrl, setAudioUrl] = useState(null);
+            const [isPlaying, setIsPlaying] = useState(false);
+            const [currentTime, setCurrentTime] = useState(0);
+            const [duration, setDuration] = useState(rec.duration || 0);
+            const [playbackRate, setPlaybackRate] = useState(1);
+            const [volume, setVolume] = useState(1);
+            const [confirmDelete, setConfirmDelete] = useState(false);
+            const audioRef = useRef(null);
+            const waveformRef = useRef(null);
+
+            // editable fields
+            const [title, setTitle] = useState(rec.title);
+            const [caseNumber, setCaseNumber] = useState(rec.caseNumber);
+            const [classification, setClassification] = useState(rec.classification);
+            const [subject, setSubject] = useState(rec.subject);
+            const [agent, setAgent] = useState(rec.agent);
+            const [location, setLocation] = useState(rec.location);
+            const [status, setStatus] = useState(rec.status);
+            const [notes, setNotes] = useState(rec.notes);
+            const [transcript, setTranscript] = useState(rec.transcript || '');
+            const [tags, setTags] = useState(rec.tags || []);
+            const [tagInput, setTagInput] = useState('');
+
+            const classInfo = getClassInfo(classification);
+            const statusInfo = getStatusInfo(status);
+
+            useEffect(() => {
+                let revoked = null;
+                loadAudioBlob(rec.id).then(blob => {
+                    if (blob) {
+                        const url = URL.createObjectURL(blob);
+                        setAudioUrl(url);
+                        revoked = url;
+                    }
+                }).catch(err => {
+                    console.error(err);
+                    push('error', 'LOAD ERROR', 'Audio file missing from storage');
+                });
+                return () => {
+                    if (revoked) URL.revokeObjectURL(revoked);
+                };
+            }, [rec.id]);
+
+            useEffect(() => {
+                const audio = audioRef.current;
+                if (!audio) return;
+                const onTime = () => setCurrentTime(audio.currentTime);
+                const onDur = () => setDuration(audio.duration || rec.duration);
+                const onEnd = () => setIsPlaying(false);
+                const onPlay = () => setIsPlaying(true);
+                const onPause = () => setIsPlaying(false);
+                audio.addEventListener('timeupdate', onTime);
+                audio.addEventListener('loadedmetadata', onDur);
+                audio.addEventListener('ended', onEnd);
+                audio.addEventListener('play', onPlay);
+                audio.addEventListener('pause', onPause);
+                return () => {
+                    audio.removeEventListener('timeupdate', onTime);
+                    audio.removeEventListener('loadedmetadata', onDur);
+                    audio.removeEventListener('ended', onEnd);
+                    audio.removeEventListener('play', onPlay);
+                    audio.removeEventListener('pause', onPause);
+                };
+            }, [audioUrl, rec.duration]);
+
+            useEffect(() => {
+                if (audioRef.current) {
+                    audioRef.current.playbackRate = playbackRate;
+                }
+            }, [playbackRate]);
+
+            useEffect(() => {
+                if (audioRef.current) {
+                    audioRef.current.volume = volume;
+                }
+            }, [volume]);
+
+            const togglePlay = () => {
+                const audio = audioRef.current;
+                if (!audio) return;
+                if (audio.paused) {
+                    audio.play();
+                } else {
+                    audio.pause();
+                }
+            };
+
+            const seekTo = (e) => {
+                const audio = audioRef.current;
+                if (!audio || !duration) return;
+                const rect = e.currentTarget.getBoundingClientRect();
+                const ratio = (e.clientX - rect.left) / rect.width;
+                audio.currentTime = ratio * duration;
+                setCurrentTime(audio.currentTime);
+            };
+
+            const saveChanges = () => {
+                onUpdate(rec.id, {
+                    title: title.trim() || rec.title,
+                    caseNumber,
+                    classification,
+                    subject,
+                    agent,
+                    location,
+                    status,
+                    notes,
+                    transcript,
+                    tags,
+                });
+                push('success', 'FILE UPDATED', 'Metadata persisted to archive');
+            };
+
+            const handleDelete = () => {
+                onDelete(rec.id);
+                push('warn', 'FILE PURGED', `${rec.title} permanently deleted`);
+                onClose();
+            };
+
+            const downloadFile = async () => {
+                const blob = await loadAudioBlob(rec.id);
+                if (!blob) {
+                    push('error', 'NO FILE', 'Audio blob not found');
+                    return;
+                }
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `${rec.id}_${rec.title.replace(/\s+/g, '_')}.webm`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                push('success', 'EXPORT COMPLETE', 'File decrypted for export');
+            };
+
+            const addTag = (tag) => {
+                const t = tag.trim().toUpperCase();
+                if (t && !tags.includes(t)) setTags(prev => [...prev, t]);
+                setTagInput('');
+            };
+
+            const removeTag = (tag) => setTags(prev => prev.filter(t => t !== tag));
+
+            const handleTagKey = (e) => {
+                if (e.key === 'Enter' || e.key === ',') {
+                    e.preventDefault();
+                    addTag(tagInput);
+                } else if (e.key === 'Backspace' && !tagInput && tags.length > 0) {
+                    removeTag(tags[tags.length - 1]);
+                }
+            };
+
+            const progress = duration > 0 ? currentTime / duration : 0;
+
+            return (
+                <div className="aida-modal-overlay open" onClick={e => { if (e.target === e.currentTarget) onClose(); }}>
+                    <div className="aida-modal" style={{ maxWidth: 1000 }}>
+                        <div className="aida-modal-corner tl" />
+                        <div className="aida-modal-corner tr" />
+                        <div className="aida-modal-corner bl" />
+                        <div className="aida-modal-corner br" />
+                        <div className="aida-modal-header">
+                            <span className="aida-modal-title">FILE INSPECTOR · {rec.id}</span>
+                            <button className="aida-modal-close" onClick={onClose}>×</button>
+                        </div>
+                        <div className="aida-modal-body detail-body">
+                            <div className="detail-header-info">
+                                <div className="detail-id-row">
+                                    <div className="detail-id">
+                                        FILE <span>{rec.id}</span> · CASE <span>{caseNumber}</span> · RECORDED <span>{formatDate(rec.timestamp)}</span>
+                                    </div>
+                                    <span className={`rec-class-badge ${classInfo.css}`}>{classInfo.label}</span>
+                                </div>
+                                <div className="detail-title">{title}</div>
+                                <div className="detail-case">SUBJECT: {subject || 'UNNAMED'} — HANDLED BY {agent}</div>
+                                <div className="detail-stats">
+                                    <div>
+                                        <div className="detail-stat-label">DURATION</div>
+                                        <div className="detail-stat-value">{formatDuration(duration)}</div>
+                                    </div>
+                                    <div>
+                                        <div className="detail-stat-label">FILE SIZE</div>
+                                        <div className="detail-stat-value">{formatBytes(rec.size)}</div>
+                                    </div>
+                                    <div>
+                                        <div className="detail-stat-label">FORMAT</div>
+                                        <div className="detail-stat-value">{(rec.format || 'webm').toUpperCase()}</div>
+                                    </div>
+                                    <div>
+                                        <div className="detail-stat-label">STATUS</div>
+                                        <div className="detail-stat-value" style={{ color: statusInfo.css === 'active' ? '#34C759' : statusInfo.css === 'pending' ? '#FFD60A' : statusInfo.css === 'redacted' ? '#FF3D00' : '#666' }}>
+                                            {statusInfo.label}
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div className="detail-stat-label">LOCATION</div>
+                                        <div className="detail-stat-value">{location || '—'}</div>
+                                    </div>
+                                    <div>
+                                        <div className="detail-stat-label">SAMPLES</div>
+                                        <div className="detail-stat-value">{(rec.amplitudes || []).length}</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="detail-player">
+                                <div className="detail-player-waveform" ref={waveformRef} onClick={seekTo}>
+                                    <MiniWaveform
+                                        amplitudes={rec.amplitudes}
+                                        color={classInfo.color}
+                                        progress={progress}
+                                    />
+                                </div>
+                                <div className="detail-player-controls">
+                                    <button className="detail-play-btn" onClick={togglePlay} disabled={!audioUrl}>
+                                        <span className={`detail-play-icon ${isPlaying ? 'pause' : ''}`}></span>
+                                    </button>
+                                    <div className="detail-time">
+                                        <span>{formatDuration(currentTime)}</span> / {formatDuration(duration)}
+                                    </div>
+                                    <div className="detail-speed">
+                                        {[0.5, 1, 1.5, 2].map(s => (
+                                            <button
+                                                key={s}
+                                                className={`detail-speed-btn ${playbackRate === s ? 'active' : ''}`}
+                                                onClick={() => setPlaybackRate(s)}
+                                            >{s}x</button>
+                                        ))}
+                                    </div>
+                                    <div className="detail-volume-wrap">
+                                        <span style={{ fontSize: '10px', color: '#555' }}>VOL</span>
+                                        <input
+                                            type="range"
+                                            className="detail-volume-slider"
+                                            min="0"
+                                            max="1"
+                                            step="0.05"
+                                            value={volume}
+                                            onChange={e => setVolume(parseFloat(e.target.value))}
+                                        />
+                                    </div>
+                                </div>
+                                <audio ref={audioRef} src={audioUrl} preload="metadata" />
+                            </div>
+                            <div className="detail-tabs">
+                                {['INTEL', 'TRANSCRIPT', 'TAGS'].map(t => (
+                                    <button
+                                        key={t}
+                                        className={`detail-tab ${activeTab === t ? 'active' : ''}`}
+                                        onClick={() => setActiveTab(t)}
+                                    >{t}</button>
+                                ))}
+                            </div>
+                            <div className={`detail-tab-content ${activeTab === 'INTEL' ? 'active' : ''}`}>
+                                <div className="detail-info-grid">
+                                    <div className="detail-info-section">
+                                        <div className="detail-info-title">IDENTITY</div>
+                                        <div className="detail-field-row">
+                                            <span className="detail-field-label">Title</span>
+                                            <input className="detail-field-input" value={title} onChange={e => setTitle(e.target.value)} />
+                                        </div>
+                                        <div className="detail-field-row">
+                                            <span className="detail-field-label">Case No.</span>
+                                            <input className="detail-field-input" value={caseNumber} onChange={e => setCaseNumber(e.target.value)} />
+                                        </div>
+                                        <div className="detail-field-row">
+                                            <span className="detail-field-label">Subject</span>
+                                            <input className="detail-field-input" value={subject} onChange={e => setSubject(e.target.value)} />
+                                        </div>
+                                        <div className="detail-field-row">
+                                            <span className="detail-field-label">Agent</span>
+                                            <select className="detail-field-select" value={agent} onChange={e => setAgent(e.target.value)}>
+                                                {AGENTS.map(a => <option key={a} value={a}>{a}</option>)}
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div className="detail-info-section">
+                                        <div className="detail-info-title">CLASSIFICATION</div>
+                                        <div className="detail-field-row">
+                                            <span className="detail-field-label">Class</span>
+                                            <select className="detail-field-select" value={classification} onChange={e => setClassification(e.target.value)}>
+                                                {CLASSIFICATIONS.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
+                                            </select>
+                                        </div>
+                                        <div className="detail-field-row">
+                                            <span className="detail-field-label">Status</span>
+                                            <select className="detail-field-select" value={status} onChange={e => setStatus(e.target.value)}>
+                                                {STATUSES.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
+                                            </select>
+                                        </div>
+                                        <div className="detail-field-row">
+                                            <span className="detail-field-label">Location</span>
+                                            <input className="detail-field-input" value={location} onChange={e => setLocation(e.target.value)} />
+                                        </div>
+                                    </div>
+                                    <div className="detail-info-section full">
+                                        <div className="detail-info-title">FIELD NOTES</div>
+                                        <textarea
+                                            className="detail-transcript"
+                                            style={{ minHeight: 120 }}
+                                            value={notes}
+                                            onChange={e => setNotes(e.target.value)}
+                                            data-placeholder="Operational context, source reliability, environmental factors..."
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                            <div className={`detail-tab-content ${activeTab === 'TRANSCRIPT' ? 'active' : ''}`}>
+                                <div className="detail-info-section full" style={{ padding: 0, border: 'none' }}>
+                                    <textarea
+                                        className="detail-transcript"
+                                        value={transcript}
+                                        onChange={e => setTranscript(e.target.value)}
+                                        data-placeholder="Begin transcription · Verbatim or summarized · Use timestamps in [HH:MM] format..."
+                                        style={{ minHeight: 360 }}
+                                    />
+                                </div>
+                            </div>
+                            <div className={`detail-tab-content ${activeTab === 'TAGS' ? 'active' : ''}`}>
+                                <div className="detail-info-section full">
+                                    <div className="detail-info-title">CASE TAGS</div>
+                                    <div className="detail-tags-display">
+                                        {tags.map(t => (
+                                            <span key={t} className="detail-tag">
+                                                {t}
+                                                <span className="detail-tag-x" onClick={() => removeTag(t)}>×</span>
+                                            </span>
+                                        ))}
+                                        <input
+                                            className="rec-form-tag-input"
+                                            style={{ flex: 1, minWidth: 120, padding: '4px 0' }}
+                                            value={tagInput}
+                                            onChange={e => setTagInput(e.target.value)}
+                                            onKeyDown={handleTagKey}
+                                            placeholder="ADD TAG + ENTER..."
+                                        />
+                                    </div>
+                                    <div style={{ marginTop: 14, display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+                                        {PRESET_TAGS.filter(t => !tags.includes(t)).map(t => (
+                                            <button
+                                                key={t}
+                                                className="rec-action"
+                                                onClick={() => addTag(t)}
+                                            >+ {t}</button>
+                                        ))}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="aida-modal-actions">
+                            <button className="aida-modal-btn danger" onClick={() => setConfirmDelete(true)}>PURGE FILE</button>
+                            <button className="aida-modal-btn secondary" onClick={downloadFile}>EXPORT</button>
+                            <button className="aida-modal-btn secondary" onClick={onClose}>CLOSE</button>
+                            <button className="aida-modal-btn primary" onClick={saveChanges} style={{ flex: 1 }}>COMMIT CHANGES</button>
+                        </div>
+                    </div>
+                    {confirmDelete && (
+                        <ConfirmDialog
+                            message={`Permanently purge ${rec.title}? This action cannot be undone. Audio data and metadata will be destroyed.`}
+                            onCancel={() => setConfirmDelete(false)}
+                            onConfirm={handleDelete}
+                        />
+                    )}
+                </div>
+            );
+        }
+
+        // ==================== COMPONENT: ConfirmDialog ====================
+        function ConfirmDialog({ message, onConfirm, onCancel }) {
+            return (
+                <div className="aida-modal-overlay open" style={{ zIndex: 4000 }} onClick={e => { if (e.target === e.currentTarget) onCancel(); }}>
+                    <div className="aida-modal" style={{ maxWidth: 420 }}>
+                        <div className="aida-modal-corner tl" />
+                        <div className="aida-modal-corner tr" />
+                        <div className="aida-modal-corner bl" />
+                        <div className="aida-modal-corner br" />
+                        <div className="aida-modal-header">
+                            <span className="aida-modal-title" style={{ color: '#FF3D00' }}>⚠ CONFIRM ACTION</span>
+                            <button className="aida-modal-close" onClick={onCancel}>×</button>
+                        </div>
+                        <div className="confirm-body">
+                            <p className="confirm-msg">{message}</p>
+                        </div>
+                        <div className="aida-modal-actions">
+                            <button className="aida-modal-btn secondary" onClick={onCancel} style={{ flex: 1 }}>CANCEL</button>
+                            <button className="aida-modal-btn danger" onClick={onConfirm} style={{ flex: 1 }}>CONFIRM</button>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        // ==================== COMPONENT: Toasts ====================
+        function Toasts({ toasts }) {
+            return (
+                <div className="aida-toast-wrap">
+                    {toasts.map(t => (
+                        <div key={t.id} className={`aida-toast ${t.type} ${t.out ? 'out' : ''}`}>
+                            <div className="aida-toast-title">{t.title}</div>
+                            <div className="aida-toast-msg">{t.msg}</div>
+                        </div>
+                    ))}
+                </div>
+            );
+        }
+
+        // ==================== COMPONENT: QuickPlayer ====================
+        // Hidden audio element for quick-play from cards
+        function QuickPlayerController({ playRequest, onStop, onProgress, audioRef }) {
+            useEffect(() => {
+                const audio = audioRef.current;
+                if (!audio) return;
+
+                const onTime = () => onProgress(audio.currentTime, audio.duration);
+                const onEnd = () => onStop();
+
+                audio.addEventListener('timeupdate', onTime);
+                audio.addEventListener('ended', onEnd);
+                return () => {
+                    audio.removeEventListener('timeupdate', onTime);
+                    audio.removeEventListener('ended', onEnd);
+                };
+            }, [playRequest, audioRef, onProgress, onStop]);
+
+            useEffect(() => {
+                const audio = audioRef.current;
+                if (!audio) return;
+                if (!playRequest) {
+                    audio.pause();
+                    audio.src = '';
+                    return;
+                }
+                (async () => {
+                    const blob = await loadAudioBlob(playRequest.id);
+                    if (!blob) return;
+                    const url = URL.createObjectURL(blob);
+                    audio.src = url;
+                    audio.play().catch(() => {});
+                })();
+            }, [playRequest]);
+
+            return null;
+        }
+
+        // ==================== MAIN APP ====================
+        function App() {
+            const { recordings, loading, addRecording, updateRecording, deleteRecording } = useRecordings();
+            const { toasts, push } = useToasts();
+            const [filter, setFilter] = useState('ALL');
+            const [search, setSearch] = useState('');
+            const [showRecord, setShowRecord] = useState(false);
+            const [openRec, setOpenRec] = useState(null);
+            const [clock, setClock] = useState('');
+            const [confirmDelete, setConfirmDelete] = useState(null);
+            const [quickPlay, setQuickPlay] = useState(null);
+            const [quickProgress, setQuickProgress] = useState(0);
+            const quickAudioRef = useRef(null);
+
+            // Clock
+            useEffect(() => {
+                const tick = () => {
+                    const d = new Date();
+                    const y = d.getUTCFullYear();
+                    const m = String(d.getUTCMonth() + 1).padStart(2, '0');
+                    const day = String(d.getUTCDate()).padStart(2, '0');
+                    const hh = String(d.getUTCHours()).padStart(2, '0');
+                    const mm = String(d.getUTCMinutes()).padStart(2, '0');
+                    const ss = String(d.getUTCSeconds()).padStart(2, '0');
+                    setClock(`${y}.${m}.${day} ${hh}:${mm}:${ss} UTC`);
+                };
+                tick();
+                const id = setInterval(tick, 1000);
+                return () => clearInterval(id);
+            }, []);
+
+            // Counts
+            const counts = { ALL: recordings.length };
+            CLASSIFICATIONS.forEach(c => { counts[c.value] = recordings.filter(r => r.classification === c.value).length; });
+            counts.ARCHIVED = recordings.filter(r => r.status === 'ARCHIVED').length;
+
+            // Filter
+            const filtered = recordings.filter(r => {
+                if (filter === 'ALL') {
+                    // ok
+                } else if (filter === 'ARCHIVED') {
+                    if (r.status !== 'ARCHIVED') return false;
+                } else {
+                    if (r.classification !== filter) return false;
+                }
+                if (search.trim()) {
+                    const q = search.toLowerCase();
+                    const hay = `${r.title} ${r.caseNumber} ${r.subject} ${r.agent} ${r.location} ${(r.tags || []).join(' ')}`.toLowerCase();
+                    if (!hay.includes(q)) return false;
+                }
+                return true;
+            });
+
+            const handleSave = (rec) => {
+                addRecording(rec);
+                setShowRecord(false);
+            };
+
+            const handleDeleteRequest = (rec) => {
+                setConfirmDelete(rec);
+            };
+
+            const handleDeleteConfirm = () => {
+                if (!confirmDelete) return;
+                deleteRecording(confirmDelete.id);
+                push('warn', 'FILE PURGED', `${confirmDelete.title} permanently deleted`);
+                setConfirmDelete(null);
+            };
+
+            const handleQuickPlay = (rec) => {
+                if (quickPlay && quickPlay.id === rec.id) {
+                    setQuickPlay(null);
+                    setQuickProgress(0);
+                    if (quickAudioRef.current) {
+                        quickAudioRef.current.pause();
+                    }
+                } else {
+                    setQuickPlay(rec);
+                    setQuickProgress(0);
+                }
+            };
+
+            const handleQuickProgress = (ct, dur) => {
+                if (dur > 0) setQuickProgress(ct / dur);
+            };
+
+            const handleQuickStop = () => {
+                setQuickPlay(null);
+                setQuickProgress(0);
+            };
+
+            return (
+                <div className="aida-body">
+                    <TopBar
+                        onNewRec={() => setShowRecord(true)}
+                        clock={clock}
+                        totalRecordings={recordings.length}
+                    />
+                    <SubBar
+                        filter={filter}
+                        setFilter={setFilter}
+                        search={search}
+                        setSearch={setSearch}
+                        counts={counts}
+                    />
+                    <div className="aida-scroll">
+                        <div className="aida-content">
+                            <div className="aida-content-header">
+                                <div className="aida-content-title">
+                                    {filter === 'ALL' ? 'ALL AUDIO FILES' : filter.replace('-', ' ')} · ARCHIVE
+                                </div>
+                                <div className="aida-content-meta">
+                                    SHOWING <span>{filtered.length}</span> / <span>{recordings.length}</span> FILES
+                                </div>
+                            </div>
+                            {filtered.length === 0 ? (
+                                <div className="rec-empty">
+                                    <div className="rec-empty-icon"></div>
+                                    <div className="rec-empty-title">{recordings.length === 0 ? 'NO RECORDINGS IN ARCHIVE' : 'NO MATCHES FOUND'}</div>
+                                    <div className="rec-empty-sub">
+                                        {recordings.length === 0 ? 'INITIATE NEW CAPTURE TO BEGIN' : 'REFINE QUERY OR CLEAR FILTERS'}
+                                    </div>
+                                    {recordings.length === 0 && (
+                                        <button
+                                            className="aida-modal-btn primary"
+                                            style={{ marginTop: 24 }}
+                                            onClick={() => setShowRecord(true)}
+                                        >
+                                            + NEW CAPTURE
+                                        </button>
+                                    )}
+                                </div>
+                            ) : (
+                                <div className="rec-grid">
+                                    {filtered.map(rec => (
+                                        <RecordingCard
+                                            key={rec.id}
+                                            rec={rec}
+                                            onOpen={setOpenRec}
+                                            onQuickPlay={handleQuickPlay}
+                                            onDelete={handleDeleteRequest}
+                                            isPlaying={quickPlay && quickPlay.id === rec.id}
+                                            quickPlayProgress={quickPlay && quickPlay.id === rec.id ? quickProgress : 0}
+                                        />
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                    </div>
+
+                    {showRecord && (
+                        <RecordModal
+                            onSave={handleSave}
+                            onCancel={() => setShowRecord(false)}
+                            push={push}
+                        />
+                    )}
+
+                    {openRec && (
+                        <DetailModal
+                            rec={openRec}
+                            onUpdate={updateRecording}
+                            onClose={() => setOpenRec(null)}
+                            onDelete={deleteRecording}
+                            push={push}
+                        />
+                    )}
+
+                    {confirmDelete && (
+                        <ConfirmDialog
+                            message={`Permanently purge ${confirmDelete.title}? This action cannot be undone. Audio data and metadata will be destroyed.`}
+                            onCancel={() => setConfirmDelete(null)}
+                            onConfirm={handleDeleteConfirm}
+                        />
+                )}
+
+                    {/* Hidden audio element for quick-play from cards */}
+                    <audio ref={quickAudioRef} style={{ display: 'none' }} />
+
+                    <QuickPlayerController
+                        playRequest={quickPlay}
+                        onStop={handleQuickStop}
+                        onProgress={handleQuickProgress}
+                        audioRef={quickAudioRef}
+                    />
+
+                    <Toasts toasts={toasts} />
+                </div>
+            );
+        }
+
+        // Mount the App
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
