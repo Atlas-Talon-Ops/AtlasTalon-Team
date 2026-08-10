@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Docs · AIDA</title>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-base: #050505;
+      --bg-surface: #0a0a0a;
+      --bg-deep: #111;
+      --bg-hover: rgba(255,255,255,0.03);
+      --bg-cell: #050505;
+      --border-main: #1a1a1a;
+      --border-light: #222;
+      --border-hover: #333;
+      --text-main: #e0e0e0;
+      --text-muted: #444;
+      --text-dim: #666;
+      --text-secondary: #888;
+      --accent: #00ffcc;
+      --accent-light: rgba(0,255,204,0.06);
+      --accent-mid: rgba(0,255,204,0.12);
+      --danger: #FF3D00;
+      --success: #34C759;
+      --warning: #FFD60A;
+    }
+    *{margin:0;padding:0;box-sizing:border-box;}
+    html,body{height:100%;overflow:hidden;background:var(--bg-base);}
+    body{font-family:'IBM Plex Mono',monospace;color:var(--text-main);display:flex;flex-direction:column;}
+    ::-webkit-scrollbar{width:4px;height:4px;}
+    ::-webkit-scrollbar-track{background:transparent;}
+    ::-webkit-scrollbar-thumb{background:var(--border-light);border-radius:2px;}
+    ::-webkit-scrollbar-thumb:hover{background:var(--border-hover);}
+
+    /* App Header */
+    .app-header{display:flex;align-items:center;padding:0 16px;height:48px;background:var(--bg-surface);border-bottom:1px solid var(--border-main);gap:16px;flex-shrink:0;}
+    .file-info{display:flex;flex-direction:column;gap:1px;}
+    .file-name{font-size:12px;font-weight:500;cursor:pointer;padding:2px 6px;margin-left:-6px;border-radius:2px;transition:background .15s;letter-spacing:1px;}
+    .file-name:hover{background:var(--bg-hover);}
+    .file-meta{display:flex;align-items:center;gap:12px;font-size:9px;color:var(--text-muted);letter-spacing:1px;text-transform:uppercase;}
+    .header-actions{margin-left:auto;display:flex;align-items:center;gap:8px;}
+    .avatar{width:28px;height:28px;background:var(--accent);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;color:#000;}
+
+    /* Menu Bar */
+    .menu-bar{display:flex;align-items:center;padding:0 8px;height:32px;background:var(--bg-surface);border-bottom:1px solid var(--border-main);gap:0;flex-shrink:0;}
+    .menu-item{position:relative;padding:6px 12px;font-size:10px;color:var(--text-dim);cursor:pointer;transition:all .15s;user-select:none;letter-spacing:2px;text-transform:uppercase;}
+    .menu-item:hover{background:var(--bg-hover);color:var(--text-main);}
+
+    /* Dropdown Menus */
+    .dropdown-menu{position:absolute;top:100%;left:0;background:var(--bg-surface);border:1px solid var(--border-light);min-width:220px;box-shadow:0 8px 32px rgba(0,0,0,.5);z-index:100;display:none;margin-top:2px;}
+    .menu-item:hover>.dropdown-menu,.tool-dropdown:hover>.dropdown-menu{display:block;}
+    .dropdown-item{padding:8px 12px;font-size:10px;color:var(--text-dim);cursor:pointer;display:flex;align-items:center;justify-content:space-between;transition:background .15s;letter-spacing:1px;}
+    .dropdown-item:hover{background:var(--bg-hover);color:var(--text-main);}
+    .dropdown-item.disabled{opacity:.4;pointer-events:none;}
+    .dropdown-item .shortcut{font-size:9px;color:var(--text-muted);margin-left:24px;letter-spacing:1px;}
+    .dropdown-divider{height:1px;background:var(--border-main);margin:4px 0;}
+    .submenu-container{position:relative;}
+    .submenu-container>.dropdown-item::after{content:'\25B6';font-size:8px;color:var(--text-muted);margin-left:8px;}
+    .submenu{position:absolute;left:100%;top:-2px;background:var(--bg-surface);border:1px solid var(--border-light);min-width:180px;box-shadow:0 8px 32px rgba(0,0,0,.5);display:none;padding:4px;}
+    .submenu-container:hover>.submenu{display:block;}
+
+    /* Toolbar */
+    .toolbar{display:flex;align-items:center;padding:4px 8px;gap:2px;background:var(--bg-surface);border-bottom:1px solid var(--border-main);flex-wrap:wrap;flex-shrink:0;min-height:36px;}
+    .toolbar-group{display:flex;align-items:center;gap:1px;}
+    .toolbar-divider{width:1px;height:22px;background:var(--border-main);margin:0 6px;}
+    .tool-btn{width:28px;height:28px;display:flex;align-items:center;justify-content:center;background:none;border:none;color:var(--text-dim);cursor:pointer;transition:all .15s;border-radius:2px;}
+    .tool-btn:hover{background:var(--bg-hover);color:var(--text-main);}
+    .tool-btn.active{background:var(--accent-light);color:var(--accent);}
+    .tool-btn svg{width:14px;height:14px;}
+    .tool-dropdown{position:relative;height:28px;display:flex;align-items:center;}
+
+    /* Custom Dropdowns */
+    .custom-dropdown{position:relative;height:28px;}
+    .custom-dropdown-btn{height:28px;padding:0 22px 0 8px;background:var(--bg-deep);border:1px solid var(--border-main);color:var(--text-dim);font-size:10px;cursor:pointer;display:flex;align-items:center;gap:4px;min-width:50px;font-family:'IBM Plex Mono',monospace;letter-spacing:1px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 5px center;border-radius:2px;}
+    .custom-dropdown-btn:hover{border-color:var(--border-hover);}
+    .custom-dropdown-menu{position:absolute;top:100%;left:0;background:var(--bg-surface);border:1px solid var(--border-light);min-width:120px;box-shadow:0 8px 32px rgba(0,0,0,.5);z-index:100;display:none;margin-top:2px;max-height:260px;overflow-y:auto;padding:4px;}
+    .custom-dropdown:hover>.custom-dropdown-menu{display:block;}
+    .custom-dropdown-item{padding:6px 10px;font-size:10px;color:var(--text-dim);cursor:pointer;transition:background .15s;letter-spacing:1px;}
+    .custom-dropdown-item:hover{background:var(--bg-hover);color:var(--text-main);}
+    .custom-dropdown-item.selected{background:var(--accent-light);color:var(--accent);}
+
+    /* Color Grid */
+    .color-grid{display:grid;grid-template-columns:repeat(10,1fr);gap:1px;padding:4px;}
+    .color-swatch{width:16px;height:16px;cursor:pointer;border:1px solid transparent;transition:transform .1s;}
+    .color-swatch:hover{transform:scale(1.15);border-color:var(--text-main);}
+
+    /* Border Options */
+    .border-options{display:grid;grid-template-columns:repeat(3,1fr);gap:3px;padding:6px;}
+    .border-opt{width:36px;height:36px;background:var(--bg-deep);border:1px solid var(--border-main);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .15s;border-radius:2px;}
+    .border-opt:hover{background:var(--bg-hover);border-color:var(--border-hover);}
+    .border-opt.active{background:var(--accent-light);border-color:var(--accent);}
+    .border-opt svg{width:18px;height:18px;color:var(--text-dim);}
+
+    /* Formula Bar */
+    .formula-bar{display:flex;align-items:center;padding:2px 8px;gap:6px;background:var(--bg-surface);border-bottom:1px solid var(--border-main);height:32px;flex-shrink:0;}
+    .cell-name{width:72px;padding:4px 6px;background:var(--bg-deep);border:1px solid var(--border-main);color:var(--text-main);font-size:10px;font-weight:500;text-align:center;letter-spacing:1px;border-radius:2px;flex-shrink:0;}
+    .fx-label{padding:0 10px;color:var(--text-muted);font-size:10px;font-style:italic;border-right:1px solid var(--border-main);height:18px;display:flex;align-items:center;flex-shrink:0;}
+    .formula-input{flex:1;background:transparent;border:none;outline:none;color:var(--text-main);font-size:11px;padding:4px 6px;font-family:'IBM Plex Mono',monospace;letter-spacing:.5px;}
+    .formula-input:focus{background:var(--bg-deep);border-radius:2px;}
+
+    /* Grid Container */
+    .grid-container{flex:1;overflow:auto;position:relative;background:var(--bg-cell);}
+    .spreadsheet{border-collapse:collapse;table-layout:fixed;}
+    .spreadsheet th,.spreadsheet td{border:1px solid var(--border-main);min-width:100px;height:26px;font-size:11px;color:var(--text-dim);letter-spacing:.3px;}
+    .spreadsheet th.row-header{background:var(--bg-surface);color:var(--text-muted);font-weight:400;font-size:10px;width:44px;min-width:44px;max-width:44px;text-align:center;position:sticky;left:0;z-index:2;user-select:none;letter-spacing:1px;}
+    .spreadsheet th.row-header:hover{background:var(--bg-hover);}
+    .spreadsheet th.col-header{background:var(--bg-surface);color:var(--text-muted);font-weight:400;font-size:10px;text-align:center;position:sticky;top:0;z-index:3;user-select:none;letter-spacing:1px;cursor:default;}
+    .spreadsheet th.col-header:hover{background:var(--bg-hover);}
+    .spreadsheet th.col-header.selected{background:var(--accent-light);color:var(--accent);}
+    .spreadsheet th.corner{background:var(--bg-surface);position:sticky;top:0;left:0;z-index:4;width:44px;min-width:44px;max-width:44px;cursor:pointer;}
+    .spreadsheet th.corner:hover{background:var(--bg-hover);}
+    .spreadsheet td{background:var(--bg-cell);padding:0 5px;cursor:cell;position:relative;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;}
+    .spreadsheet td.selected{background:var(--accent-light);outline:2px solid var(--accent);outline-offset:-1px;z-index:1;}
+    .spreadsheet td.in-range{background:rgba(0,255,204,0.03);}
+    .spreadsheet td.editing{padding:0;overflow:visible;white-space:normal;}
+    .spreadsheet td.editing input{width:100%;height:100%;border:none;background:var(--bg-cell);color:var(--text-main);font-size:11px;padding:0 5px;outline:none;font-family:'IBM Plex Mono',monospace;letter-spacing:.3px;}
+    .col-resize-handle{position:absolute;right:-2px;top:0;bottom:0;width:5px;cursor:col-resize;z-index:5;}
+    .col-resize-handle:hover{background:var(--accent);opacity:.3;}
+
+    /* Sheet Tabs */
+    .sheet-tabs{display:flex;align-items:center;padding:0 8px;height:36px;background:var(--bg-surface);border-top:1px solid var(--border-main);gap:2px;flex-shrink:0;}
+    .tab-btn{width:26px;height:26px;display:flex;align-items:center;justify-content:center;background:none;border:none;color:var(--text-muted);cursor:pointer;border-radius:2px;}
+    .tab-btn:hover{background:var(--bg-hover);color:var(--text-main);}
+    .tab-btn svg{width:12px;height:12px;}
+    .sheet-tab{padding:5px 14px;font-size:10px;color:var(--text-dim);cursor:pointer;transition:all .15s;letter-spacing:1px;border-radius:2px;white-space:nowrap;position:relative;}
+    .sheet-tab:hover{background:var(--bg-hover);color:var(--text-secondary);}
+    .sheet-tab.active{color:var(--text-main);font-weight:500;}
+    .sheet-tab.active::after{content:'';position:absolute;bottom:0;left:0;width:100%;height:1px;background:var(--accent);}
+
+    /* Toast */
+    .toast{position:fixed;bottom:52px;left:50%;transform:translateX(-50%);background:var(--bg-surface);border:1px solid var(--border-light);padding:10px 20px;font-size:10px;color:var(--text-main);box-shadow:0 8px 32px rgba(0,0,0,.5);opacity:0;pointer-events:none;transition:opacity .3s;z-index:1000;letter-spacing:1px;border-radius:2px;}
+    .toast.visible{opacity:1;}
+
+    /* Modal */
+    .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(4px);display:flex;align-items:flex-start;justify-content:center;padding-top:120px;z-index:200;display:none;}
+    .modal-overlay.active{display:flex;}
+    .modal{background:var(--bg-surface);border:1px solid var(--border-light);width:380px;overflow:hidden;box-shadow:0 16px 48px rgba(0,0,0,.6);border-radius:2px;}
+    .modal-header{padding:14px 18px;border-bottom:1px solid var(--border-main);display:flex;justify-content:space-between;align-items:center;}
+    .modal-title{font-size:10px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--accent);}
+    .modal-close{background:none;border:none;color:var(--text-muted);font-size:18px;cursor:pointer;line-height:1;font-family:'IBM Plex Mono',monospace;}
+    .modal-close:hover{color:var(--text-main);}
+    .modal-body{padding:18px;}
+    .modal-input-group{margin-bottom:10px;}
+    .modal-label{display:block;font-size:9px;color:var(--text-muted);margin-bottom:5px;letter-spacing:1px;text-transform:uppercase;}
+    .modal-input{width:100%;background:var(--bg-base);border:1px solid var(--border-main);padding:8px 10px;color:var(--text-main);font-size:11px;outline:none;font-family:'IBM Plex Mono',monospace;letter-spacing:.5px;border-radius:2px;}
+    .modal-input:focus{border-color:var(--accent);}
+    .modal-footer{padding:14px 18px;border-top:1px solid var(--border-main);display:flex;justify-content:flex-end;gap:6px;}
+    .btn{padding:7px 14px;font-size:10px;font-weight:500;cursor:pointer;border:1px solid var(--border-main);background:var(--bg-deep);color:var(--text-dim);letter-spacing:1px;text-transform:uppercase;font-family:'IBM Plex Mono',monospace;border-radius:2px;transition:all .15s;}
+    .btn:hover{background:var(--bg-hover);color:var(--text-main);}
+    .btn-primary{background:var(--accent);color:#000;border-color:var(--accent);font-weight:600;}
+    .btn-primary:hover{background:#00d4aa;border-color:#00d4aa;}
+
+    /* Function item */
+    .function-item{padding:8px 10px;cursor:pointer;transition:background .15s;border-radius:2px;}
+    .function-item:hover{background:var(--bg-hover);}
+    .function-name{font-size:10px;font-weight:600;color:var(--text-main);letter-spacing:1px;}
+    .function-desc{font-size:9px;color:var(--text-muted);margin-top:2px;letter-spacing:.5px;}
+    .section-label{padding:6px 10px;font-size:9px;color:var(--accent);letter-spacing:2px;text-transform:uppercase;}
+
+    /* Checkbox in cell */
+    .cell-checkbox{width:14px;height:14px;border:1px solid var(--border-hover);background:var(--bg-deep);cursor:pointer;display:flex;align-items:center;justify-content:center;border-radius:2px;}
+    .cell-checkbox.checked{background:var(--accent);border-color:var(--accent);}
+    .cell-checkbox.checked::after{content:'\2713';font-size:10px;color:#000;font-weight:700;}
+
+    /* Conditional formatting highlight */
+    .cond-green{background:rgba(52,199,89,0.12)!important;color:var(--success)!important;}
+    .cond-red{background:rgba(255,61,0,0.12)!important;color:var(--danger)!important;}
+    .cond-yellow{background:rgba(255,214,10,0.12)!important;color:var(--warning)!important;}
+  </style>
+</head>
+<body>
+
+  <!-- App Header -->
+  <header class="app-header">
+    <div class="file-info">
+      <div class="file-name" id="fileName" onclick="renameFile()">Untitled Document</div>
+      <div class="file-meta">
+        <span id="saveStatus">Saved</span>
+        <span>All changes saved</span>
+      </div>
+    </div>
+    <div class="header-actions">
+      <div class="avatar">A</div>
+    </div>
+  </header>
+
+  <!-- Menu Bar -->
+  <div class="menu-bar">
+    <div class="menu-item">File
+      <div class="dropdown-menu">
+        <div class="dropdown-item" onclick="newFile()"><span>New</span><span class="shortcut">Ctrl+N</span></div>
+        <div class="dropdown-item" onclick="showToast('Opening file browser...')"><span>Open</span><span class="shortcut">Ctrl+O</span></div>
+        <div class="dropdown-divider"></div>
+        <div class="dropdown-item" onclick="makeCopy()"><span>Make a copy</span></div>
+        <div class="dropdown-item" onclick="saveAs()"><span>Save as</span></div>
+        <div class="dropdown-divider"></div>
+        <div class="dropdown-item" onclick="showToast('Downloading...')"><span>Download</span></div>
+      </div>
+    </div>
+    <div class="menu-item">Edit
+      <div class="dropdown-menu">
+        <div class="dropdown-item" onclick="undo()"><span>Undo</span><span class="shortcut">Ctrl+Z</span></div>
+        <div class="dropdown-item" onclick="redo()"><span>Redo</span><span class="shortcut">Ctrl+Y</span></div>
+        <div class="dropdown-divider"></div>
+        <div class="dropdown-item" onclick="cutCell()"><span>Cut</span><span class="shortcut">Ctrl+X</span></div>
+        <div class="dropdown-item" onclick="copyCell()"><span>Copy</span><span class="shortcut">Ctrl+C</span></div>
+        <div class="dropdown-item" onclick="pasteCell()"><span>Paste</span><span class="shortcut">Ctrl+V</span></div>
+        <div class="dropdown-divider"></div>
+        <div class="dropdown-item" onclick="deleteSelection()"><span>Delete</span><span class="shortcut">Del</span></div>
+        <div class="dropdown-item" onclick="selectAll()"><span>Select all</span><span class="shortcut">Ctrl+A</span></div>
+        <div class="dropdown-item" onclick="openFindReplace()"><span>Find and replace</span><span class="shortcut">Ctrl+H</span></div>
+      </div>
+    </div>
+    <div class="menu-item">Insert
+      <div class="dropdown-menu" style="min-width:240px;">
+        <div class="dropdown-item" onclick="insertLink()"><span>Link</span><span class="shortcut">Ctrl+K</span></div>
+        <div class="dropdown-item" onclick="insertComment()"><span>Comment</span></div>
+        <div class="dropdown-divider"></div>
+        <div class="dropdown-item" onclick="showToast('Inserting table...')"><span>Table</span></div>
+        <div class="dropdown-item" onclick="showToast('Inserting image...')"><span>Image</span></div>
+        <div class="dropdown-item" onclick="showToast('Inserting drawing...')"><span>Drawing</span></div>
+        <div class="dropdown-divider"></div>
+        <div class="dropdown-item" onclick="showToast('Inserting header...')"><span>Header</span></div>
+        <div class="dropdown-item" onclick="showToast('Inserting footer...')"><span>Footer</span></div>
+        <div class="dropdown-item" onclick="showToast('Inserting page number...')"><span>Page number</span></div>
+      </div>
+    </div>
+    <div class="menu-item">Format
+      <div class="dropdown-menu" style="min-width:240px;">
+        <div class="dropdown-item" onclick="showToast('Opening theme selector...')"><span>Theme</span></div>
+        <div class="dropdown-divider"></div>
+        <div class="submenu-container">
+          <div class="dropdown-item"><span>Text</span></div>
+          <div class="submenu">
+            <div class="dropdown-item" onclick="applyFontWeight()">Bold<span class="shortcut">Ctrl+B</span></div>
+            <div class="dropdown-item" onclick="applyFontStyle()">Italic<span class="shortcut">Ctrl+I</span></div>
+            <div class="dropdown-item" onclick="applyTextDecoration()">Underline<span class="shortcut">Ctrl+U</span></div>
+            <div class="dropdown-item" onclick="applyStrikethrough()">Strikethrough</div>
+          </div>
+        </div>
+        <div class="submenu-container">
+          <div class="dropdown-item"><span>Alignment</span></div>
+          <div class="submenu">
+            <div class="dropdown-item" onclick="setAlignment('left')">Align left</div>
+            <div class="dropdown-item" onclick="setAlignment('center')">Align center</div>
+            <div class="dropdown-item" onclick="setAlignment('right')">Align right</div>
+            <div class="dropdown-divider"></div>
+            <div class="dropdown-item" onclick="setVerticalAlignment('top')">Align top</div>
+            <div class="dropdown-item" onclick="setVerticalAlignment('middle')">Align middle</div>
+            <div class="dropdown-item" onclick="setVerticalAlignment('bottom')">Align bottom</div>
+          </div>
+        </div>
+        <div class="dropdown-divider"></div>
+        <div class="submenu-container">
+          <div class="dropdown-item"><span>Font size</span></div>
+          <div class="submenu" style="max-height:240px;overflow-y:auto;">
+            <div class="dropdown-item" onclick="setFontSize(8)">8</div><div class="dropdown-item" onclick="setFontSize(9)">9</div>
+            <div class="dropdown-item" onclick="setFontSize(10)">10</div><div class="dropdown-item" onclick="setFontSize(11)">11</div>
+            <div class="dropdown-item" onclick="setFontSize(12)">12</div><div class="dropdown-item" onclick="setFontSize(14)">14</div>
+            <div class="dropdown-item" onclick="setFontSize(16)">16</div><div class="dropdown-item" onclick="setFontSize(18)">18</div>
+            <div class="dropdown-item" onclick="setFontSize(20)">20</div><div class="dropdown-item" onclick="setFontSize(22)">22</div>
+            <div class="dropdown-item" onclick="setFontSize(24)">24</div><div class="dropdown-item" onclick="setFontSize(28)">28</div>
+            <div class="dropdown-item" onclick="setFontSize(36)">36</div><div class="dropdown-item" onclick="setFontSize(48)">48</div>
+          </div>
+        </div>
+        <div class="dropdown-divider"></div>
+        <div class="dropdown-item" onclick="clearFormatting()"><span>Clear formatting</span><span class="shortcut">Ctrl+\\</span></div>
+      </div>
+    </div>
+    <div class="menu-item">Tools
+      <div class="dropdown-menu" style="min-width:200px;">
+        <div class="dropdown-item" onclick="showToast('Spell check...')"><span>Spelling and grammar</span></div>
+        <div class="dropdown-item" onclick="showToast('Word count...')"><span>Word count</span></div>
+        <div class="dropdown-divider"></div>
+        <div class="dropdown-item" onclick="showToast('Accessibility...')"><span>Accessibility</span></div>
+      </div>
+    </div>
+    <div class="menu-item">View
+      <div class="dropdown-menu" style="min-width:180px;">
+        <div class="dropdown-item" onclick="showToast('Print layout')"><span>Print layout</span></div>
+        <div class="dropdown-item" onclick="showToast('Full screen')"><span>Full screen</span></div>
+        <div class="dropdown-divider"></div>
+        <div class="dropdown-item" onclick="showToast('Show ruler')"><span>Show ruler</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toolbar -->
+  <div class="toolbar" id="toolbar">
+    <div class="toolbar-group">
+      <button class="tool-btn" title="Undo (Ctrl+Z)" onclick="undo()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"/></svg>
+      </button>
+      <button class="tool-btn" title="Redo (Ctrl+Y)" onclick="redo()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 7v6h-6"/><path d="M3 17a9 9 0 0 1 9-9 9 9 0 0 1 6 2.3L21 13"/></svg>
+      </button>
+      <button class="tool-btn" title="Print">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+      </button>
+    </div>
+    <div class="toolbar-divider"></div>
+    <div class="toolbar-group">
+      <div class="custom-dropdown">
+        <button class="custom-dropdown-btn" id="zoomBtn">100%</button>
+        <div class="custom-dropdown-menu" style="min-width:70px;" id="zoomMenu"></div>
+      </div>
+    </div>
+    <div class="toolbar-divider"></div>
+    <div class="toolbar-group">
+      <div class="custom-dropdown">
+        <button class="custom-dropdown-btn" id="fontBtn" style="min-width:110px;">IBM Plex Mono</button>
+        <div class="custom-dropdown-menu" style="min-width:140px;" id="fontMenu"></div>
+      </div>
+      <div class="custom-dropdown">
+        <button class="custom-dropdown-btn" id="fontSizeBtn" style="min-width:36px;">12</button>
+        <div class="custom-dropdown-menu" style="min-width:50px;" id="fontSizeMenu"></div>
+      </div>
+    </div>
+    <div class="toolbar-divider"></div>
+    <div class="toolbar-group">
+      <button class="tool-btn" id="boldBtn" title="Bold (Ctrl+B)" onclick="applyFontWeight()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M6 4h8a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z"/><path d="M6 12h9a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z"/></svg>
+      </button>
+      <button class="tool-btn" id="italicBtn" title="Italic (Ctrl+I)" onclick="applyFontStyle()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="4" x2="10" y2="4"/><line x1="14" y1="20" x2="5" y2="20"/><line x1="15" y1="4" x2="9" y2="20"/></svg>
+      </button>
+      <button class="tool-btn" id="underlineBtn" title="Underline (Ctrl+U)" onclick="applyTextDecoration()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3v7a6 6 0 0 0 6 6 6 6 0 0 0 6-6V3"/><line x1="4" y1="21" x2="20" y2="21"/></svg>
+      </button>
+      <button class="tool-btn" id="strikeBtn" title="Strikethrough" onclick="applyStrikethrough()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.3 4.9c-2.3-.6-4.4-1-6.2-.8-2.7.3-4.3 1.9-4.3 3.8 0 1.5 1.1 2.7 3.1 3.1"/><line x1="4" y1="12" x2="20" y2="12"/><path d="M6.7 15.1c.3 2.3 2.2 3.9 4.8 3.9 2.6 0 4.8-1.7 5-4"/></svg>
+      </button>
+    </div>
+    <div class="toolbar-divider"></div>
+    <div class="toolbar-group">
+      <div class="tool-dropdown">
+        <button class="tool-btn" title="Text color" style="position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px;"><path d="M4 7V4h16v3"/><path d="M9 20h6"/><path d="M12 4v16"/></svg>
+          <div style="width:13px;height:2px;background:var(--text-main);border-radius:1px;" id="textColorInd"></div>
+        </button>
+        <div class="dropdown-menu" style="min-width:200px;padding:6px;">
+          <div style="font-size:9px;color:var(--text-muted);margin-bottom:4px;padding:0 2px;letter-spacing:1px;text-transform:uppercase;">Text Color</div>
+          <div class="color-grid" id="textColorGrid"></div>
+        </div>
+      </div>
+      <div class="tool-dropdown">
+        <button class="tool-btn" title="Highlight color" style="position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px;"><path d="M19 11H5m14 0a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-6a2 2 0 0 1 2-2m14 0V9a2 2 0 0 0-2-2M5 11V9a2 2 0 0 1 2-2m0 0V5a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v2M7 7h10"/></svg>
+          <div style="width:13px;height:2px;background:var(--accent);border-radius:1px;" id="fillColorInd"></div>
+        </button>
+        <div class="dropdown-menu" style="min-width:200px;padding:6px;">
+          <div style="font-size:9px;color:var(--text-muted);margin-bottom:4px;padding:0 2px;letter-spacing:1px;text-transform:uppercase;">Highlight Color</div>
+          <div class="color-grid" id="fillColorGrid"></div>
+        </div>
+      </div>
+    </div>
+    <div class="toolbar-divider"></div>
+    <div class="toolbar-group">
+      <button class="tool-btn" id="alignLeftBtn" title="Align left" onclick="setAlignment('left')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="15" y2="12"/><line x1="3" y1="18" x2="18" y2="18"/></svg>
+      </button>
+      <button class="tool-btn" id="alignCenterBtn" title="Align center" onclick="setAlignment('center')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="6" y1="12" x2="18" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/></svg>
+      </button>
+      <button class="tool-btn" id="alignRightBtn" title="Align right" onclick="setAlignment('right')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="9" y1="12" x2="21" y2="12"/><line x1="6" y1="18" x2="21" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="toolbar-divider"></div>
+    <div class="toolbar-group">
+      <div class="tool-dropdown">
+        <button class="tool-btn" title="List">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+        </button>
+        <div class="dropdown-menu" style="min-width:140px;">
+          <div class="dropdown-item" onclick="showToast('Bulleted list')">Bulleted list</div>
+          <div class="dropdown-item" onclick="showToast('Numbered list')">Numbered list</div>
+          <div class="dropdown-item" onclick="showToast('Checklist')">Checklist</div>
+        </div>
+      </div>
+      <div class="tool-dropdown">
+        <button class="tool-btn" title="Indent">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="8" x2="21" y2="8"/><line x1="3" y1="16" x2="21" y2="16"/><polyline points="8 11 11 8 8 5"/><polyline points="8 19 11 16 8 13"/></svg>
+        </button>
+        <div class="dropdown-menu" style="min-width:140px;">
+          <div class="dropdown-item" onclick="showToast('Increase indent')">Increase indent</div>
+          <div class="dropdown-item" onclick="showToast('Decrease indent')">Decrease indent</div>
+        </div>
+      </div>
+    </div>
+    <div class="toolbar-divider"></div>
+    <div class="toolbar-group">
+      <button class="tool-btn" title="Insert link" onclick="insertLink()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Ruler -->
+  <div style="height:20px;background:var(--bg-surface);border-bottom:1px solid var(--border-main);display:flex;align-items:flex-end;padding:0 44px;flex-shrink:0;">
+    <div style="height:12px;width:100%;background:var(--bg-deep);border:1px solid var(--border-main);border-bottom:none;display:flex;align-items:flex-end;position:relative;">
+      <div style="position:absolute;bottom:0;left:0;width:100%;height:1px;background:var(--border-main);"></div>
+      <div style="position:absolute;bottom:0;left:0;width:10%;height:6px;background:var(--border-main);"></div>
+      <div style="position:absolute;bottom:0;left:10%;width:1px;height:6px;background:var(--border-main);"></div>
+      <div style="position:absolute;bottom:0;left:20%;width:1px;height:6px;background:var(--border-main);"></div>
+      <div style="position:absolute;bottom:0;left:30%;width:1px;height:6px;background:var(--border-main);"></div>
+      <div style="position:absolute;bottom:0;left:40%;width:1px;height:6px;background:var(--border-main);"></div>
+      <div style="position:absolute;bottom:0;left:50%;width:1px;height:6px;background:var(--border-main);"></div>
+      <div style="position:absolute;bottom:0;left:60%;width:1px;height:6px;background:var(--border-main);"></div>
+      <div style="position:absolute;bottom:0;left:70%;width:1px;height:6px;background:var(--border-main);"></div>
+      <div style="position:absolute;bottom:0;left:80%;width:1px;height:6px;background:var(--border-main);"></div>
+      <div style="position:absolute;bottom:0;left:90%;width:1px;height:6px;background:var(--border-main);"></div>
+      <div style="position:absolute;bottom:0;left:100%;width:1px;height:6px;background:var(--border-main);"></div>
+    </div>
+  </div>
+
+  <!-- Document Area -->
+  <div class="grid-container" id="gridContainer" style="padding:20px 40px;">
+    <div style="max-width:800px;margin:0 auto;background:var(--bg-surface);border:1px solid var(--border-light);border-radius:2px;min-height:400px;padding:48px 40px;box-shadow:0 4px 24px rgba(0,0,0,.3);">
+      <div contenteditable="true" style="outline:none;min-height:300px;color:var(--text-main);font-size:12px;line-height:1.6;letter-spacing:0.3px;">
+        <h1 style="font-size:24px;font-weight:500;color:var(--text-main);margin-bottom:12px;">Welcome to AIDA Docs</h1>
+        <p style="margin-bottom:12px;">This is a replica of Google Docs, styled with the design system from your Sheets example.</p>
+        <p style="margin-bottom:12px;">Click anywhere to start typing. Use the toolbar to format text.</p>
+        <p style="margin-bottom:12px;">• Bold, Italic, Underline<br>• Text and highlight colors<br>• Alignment options<br>• Font and size controls</p>
+        <p style="margin-bottom:12px;">The ruler and header are included for the full document experience.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+  <!-- Find & Replace Modal -->
+  <div class="modal-overlay" id="findReplaceModal">
+    <div class="modal">
+      <div class="modal-header">
+        <span class="modal-title">Find and Replace</span>
+        <button class="modal-close" onclick="closeFindReplace()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="modal-input-group">
+          <label class="modal-label">Find</label>
+          <input class="modal-input" id="findInput" />
+        </div>
+        <div class="modal-input-group">
+          <label class="modal-label">Replace with</label>
+          <input class="modal-input" id="replaceInput" />
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn" onclick="findNext()">Find</button>
+        <button class="btn" onclick="replaceOne()">Replace</button>
+        <button class="btn btn-primary" onclick="replaceAll()">Replace all</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+// ==================== STATE ====================
+const defaultFormat = () => ({bold:false,italic:false,underline:false,strikethrough:false,color:'',bgColor:'',fontFamily:'IBM Plex Mono',fontSize:12,align:'',vAlign:''});
+
+// We'll use a simple document model for text content
+// Since this is a Docs replica, we store the innerHTML of the editable area
+let docContent = `<h1 style="font-size:24px;font-weight:500;color:var(--text-main);margin-bottom:12px;">Welcome to AIDA Docs</h1>
+<p style="margin-bottom:12px;">This is a replica of Google Docs, styled with the design system from your Sheets example.</p>
+<p style="margin-bottom:12px;">Click anywhere to start typing. Use the toolbar to format text.</p>
+<p style="margin-bottom:12px;">• Bold, Italic, Underline<br>• Text and highlight colors<br>• Alignment options<br>• Font and size controls</p>
+<p style="margin-bottom:12px;">The ruler and header are included for the full document experience.</p>`;
+
+const S = {
+  sel: null, // not used in Docs mode
+  undoStack: [],
+  redoStack: [],
+  zoom: 100,
+  findResults: [],
+  findIdx: -1
+};
+
+function getEditable() {
+  return document.querySelector('[contenteditable="true"]');
+}
+
+function saveUndo() {
+  const content = getEditable().innerHTML;
+  S.undoStack.push(content);
+  if (S.undoStack.length > 50) S.undoStack.shift();
+  S.redoStack = [];
+  markDirty();
+}
+
+function undo() {
+  if (!S.undoStack.length) return;
+  S.redoStack.push(getEditable().innerHTML);
+  getEditable().innerHTML = S.undoStack.pop();
+  showToast('Undo');
+}
+
+function redo() {
+  if (!S.redoStack.length) return;
+  S.undoStack.push(getEditable().innerHTML);
+  getEditable().innerHTML = S.redoStack.pop();
+  showToast('Redo');
+}
+
+function markDirty() {
+  document.getElementById('saveStatus').textContent = 'Editing';
+  clearTimeout(markDirty._t);
+  markDirty._t = setTimeout(() => { document.getElementById('saveStatus').textContent = 'Saved'; }, 1500);
+}
+
+// ==================== FORMATTING ====================
+function execCmd(cmd, val) {
+  document.execCommand(cmd, false, val);
+  saveUndo();
+  updateToolbarState();
+}
+
+function applyFontWeight() { execCmd('bold'); }
+function applyFontStyle() { execCmd('italic'); }
+function applyTextDecoration() { execCmd('underline'); }
+function applyStrikethrough() { execCmd('strikethrough'); }
+
+function setTextColor(c) {
+  document.execCommand('foreColor', false, c);
+  document.getElementById('textColorInd').style.background = c;
+  saveUndo();
+}
+
+function setFillColor(c) {
+  document.execCommand('hiliteColor', false, c);
+  document.getElementById('fillColorInd').style.background = c;
+  saveUndo();
+}
+
+function setFontFamily(f) {
+  document.execCommand('fontName', false, f);
+  document.getElementById('fontBtn').textContent = f;
+  saveUndo();
+}
+
+function setFontSize(s) {
+  document.execCommand('fontSize', false, '7');
+  // fontSize command uses 1-7, we need to map
+  const sizes = {8:'1',9:'1',10:'2',11:'2',12:'3',14:'4',16:'4',18:'5',20:'5',22:'6',24:'6',28:'7',36:'7',48:'7'};
+  document.execCommand('fontSize', false, sizes[s] || '3');
+  // Override with exact px
+  const sel = window.getSelection();
+  if (sel.rangeCount) {
+    const range = sel.getRangeAt(0);
+    const span = document.createElement('span');
+    span.style.fontSize = s + 'px';
+    range.surroundContents(span);
+  }
+  document.getElementById('fontSizeBtn').textContent = s;
+  saveUndo();
+}
+
+function setAlignment(a) {
+  document.execCommand('justify' + a.charAt(0).toUpperCase() + a.slice(1), false, null);
+  saveUndo();
+  updateToolbarState();
+}
+
+function setVerticalAlignment(a) {
+  // Vertical alignment not directly supported, we'll add a style
+  const sel = window.getSelection();
+  if (sel.rangeCount) {
+    const range = sel.getRangeAt(0);
+    const parent = range.commonAncestorContainer;
+    const el = parent.nodeType === 3 ? parent.parentNode : parent;
+    if (el && el.closest) {
+      const block = el.closest('p,div,h1,h2,h3,h4');
+      if (block) {
+        block.style.verticalAlign = a;
+        saveUndo();
+      }
+    }
+  }
+}
+
+function clearFormatting() {
+  document.execCommand('removeFormat', false, null);
+  saveUndo();
+  updateToolbarState();
+  showToast('Formatting cleared');
+}
+
+function updateToolbarState() {
+  // Update button active states
+  document.getElementById('boldBtn').classList.toggle('active', document.queryCommandState('bold'));
+  document.getElementById('italicBtn').classList.toggle('active', document.queryCommandState('italic'));
+  document.getElementById('underlineBtn').classList.toggle('active', document.queryCommandState('underline'));
+  document.getElementById('strikeBtn').classList.toggle('active', document.queryCommandState('strikethrough'));
+  
+  const font = document.queryCommandValue('fontName') || 'IBM Plex Mono';
+  document.getElementById('fontBtn').textContent = font;
+  const size = document.queryCommandValue('fontSize') || '3';
+  const sizeMap = {'1':'8','2':'10','3':'12','4':'14','5':'18','6':'24','7':'36'};
+  document.getElementById('fontSizeBtn').textContent = sizeMap[size] || '12';
+  
+  const align = document.queryCommandValue('justify') || 'left';
+  ['alignLeft','alignCenter','alignRight'].forEach(id => document.getElementById(id+'Btn').classList.remove('active'));
+  if (align === 'left') document.getElementById('alignLeftBtn').classList.add('active');
+  else if (align === 'center') document.getElementById('alignCenterBtn').classList.add('active');
+  else if (align === 'right') document.getElementById('alignRightBtn').classList.add('active');
+}
+
+// ==================== CLIPBOARD OPS ====================
+function copyCell() { document.execCommand('copy'); showToast('Copied'); }
+function cutCell() { document.execCommand('cut'); showToast('Cut'); }
+function pasteCell() { document.execCommand('paste'); showToast('Pasted'); saveUndo(); }
+function deleteSelection() { document.execCommand('delete'); saveUndo(); }
+function selectAll() { document.execCommand('selectAll'); }
+
+// ==================== FIND & REPLACE ====================
+function openFindReplace() {
+  document.getElementById('findReplaceModal').classList.add('active');
+  document.getElementById('findInput').focus();
+}
+function closeFindReplace() { document.getElementById('findReplaceModal').classList.remove('active'); S.findResults=[]; S.findIdx=-1; }
+
+function findNext() {
+  const q = document.getElementById('findInput').value;
+  if (!q) return;
+  const body = getEditable();
+  const text = body.innerText;
+  const matches = [];
+  let idx = 0;
+  while ((idx = text.toLowerCase().indexOf(q.toLowerCase(), idx)) !== -1) {
+    matches.push(idx);
+    idx += q.length;
+  }
+  S.findResults = matches;
+  if (!matches.length) { showToast('No results found'); return; }
+  S.findIdx = (S.findIdx + 1) % matches.length;
+  // Highlight the match
+  const range = document.createRange();
+  const walker = document.createTreeWalker(body, NodeFilter.SHOW_TEXT, null, false);
+  let charCount = 0;
+  let node = walker.nextNode();
+  while (node) {
+    const nodeLen = node.textContent.length;
+    if (charCount + nodeLen > matches[S.findIdx]) {
+      const offset = matches[S.findIdx] - charCount;
+      range.setStart(node, offset);
+      range.setEnd(node, offset + q.length);
+      break;
+    }
+    charCount += nodeLen;
+    node = walker.nextNode();
+  }
+  if (range.startContainer) {
+    const sel = window.getSelection();
+    sel.removeAllRanges();
+    sel.addRange(range);
+    range.startContainer.parentElement.scrollIntoView({block:'center'});
+  }
+  showToast(`Found ${S.findIdx+1} of ${S.findResults.length}`);
+}
+
+function replaceOne() {
+  if (S.findResults.length === 0 || S.findIdx < 0) { findNext(); return; }
+  const q = document.getElementById('findInput').value;
+  const rep = document.getElementById('replaceInput').value;
+  const sel = window.getSelection();
+  if (sel.rangeCount) {
+    const range = sel.getRangeAt(0);
+    if (range.toString() === q) {
+      range.deleteContents();
+      range.insertNode(document.createTextNode(rep));
+      saveUndo();
+      findNext();
+      return;
+    }
+  }
+  // If selection doesn't match, just do a full replace
+  findNext();
+}
+
+function replaceAll() {
+  const q = document.getElementById('findInput').value;
+  const rep = document.getElementById('replaceInput').value;
+  if (!q) return;
+  const body = getEditable();
+  const html = body.innerHTML;
+  const re = new RegExp(escapeRegExp(q), 'gi');
+  const count = (html.match(re) || []).length;
+  body.innerHTML = html.replace(re, rep);
+  saveUndo();
+  showToast(`Replaced ${count} occurrences`);
+}
+function escapeRegExp(s) { return s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'); }
+
+// ==================== INSERT ====================
+function insertLink() {
+  const url = prompt('Enter URL:');
+  if (url) {
+    document.execCommand('createLink', false, url);
+    saveUndo();
+  }
+}
+function insertComment() { showToast('Comment added'); }
+
+// ==================== FILE OPS ====================
+function newFile() {
+  if (!confirm('Create new document? Unsaved changes will be lost.')) return;
+  const body = getEditable();
+  body.innerHTML = '<p style="margin-bottom:12px;">Start typing...</p>';
+  S.undoStack = [];
+  S.redoStack = [];
+  document.getElementById('fileName').textContent = 'Untitled Document';
+  showToast('New document created');
+}
+function makeCopy() { showToast('Copy created'); }
+function saveAs() {
+  const name = prompt('Save as:', document.getElementById('fileName').textContent);
+  if (name) { document.getElementById('fileName').textContent = name; showToast('Saved as '+name); }
+}
+function renameFile() {
+  const name = prompt('Rename file:', document.getElementById('fileName').textContent);
+  if (name) document.getElementById('fileName').textContent = name;
+}
+
+// ==================== ZOOM ====================
+function setZoom(z) {
+  S.zoom = z;
+  document.getElementById('zoomBtn').textContent = z + '%';
+  document.querySelectorAll('#zoomMenu .custom-dropdown-item').forEach(el => {
+    el.classList.toggle('selected', parseInt(el.textContent) === z);
+  });
+  const container = document.getElementById('gridContainer');
+  const content = container.querySelector('div');
+  if (content) content.style.transform = `scale(${z/100})`;
+}
+
+// ==================== TOAST ====================
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('visible');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('visible'), 2000);
+}
+
+// ==================== INIT DROPDOWNS ====================
+function initDropdowns() {
+  // Zoom
+  const zoomLevels = [50,75,90,100,125,150,200];
+  document.getElementById('zoomMenu').innerHTML = zoomLevels.map(z => 
+    `<div class="custom-dropdown-item ${z===100?'selected':''}" onclick="setZoom(${z})">${z}%</div>`
+  ).join('');
+
+  // Fonts
+  const fonts = ['IBM Plex Mono','Inter','Arial','Courier New','Georgia','Times New Roman','Verdana','Comic Sans MS'];
+  document.getElementById('fontMenu').innerHTML = fonts.map(f => 
+    `<div class="custom-dropdown-item ${f==='IBM Plex Mono'?'selected':''}" onclick="setFontFamily('${f}')" style="font-family:'${f}',monospace;">${f}</div>`
+  ).join('');
+
+  // Font sizes
+  const sizes = [8,9,10,11,12,14,16,18,20,22,24,28,36,48];
+  document.getElementById('fontSizeMenu').innerHTML = sizes.map(s => 
+    `<div class="custom-dropdown-item ${s===12?'selected':''}" onclick="setFontSize(${s})">${s}</div>`
+  ).join('');
+
+  // Colors
+  const colors = [
+    '#000000','#434343','#666666','#999999','#b7b7b7','#cccccc','#d9d9d9','#efefef','#f3f3f3','#ffffff',
+    '#980000','#ff0000','#ff9900','#ffff00','#00ff00','#00ffff','#4a86e8','#0000ff','#9900ff','#ff00ff',
+    '#e6b8af','#f4cccc','#fce5cd','#fff2cc','#d9ead3','#d0e0e3','#c9daf8','#cfe2f3','#d9d2e9','#ead1dc',
+    '#dd7e6b','#ea9999','#f9cb9c','#ffe599','#b6d7a8','#a2c4c9','#a4c2f4','#9fc5e8','#b4a7d6','#d5a6bd',
+    '#cc4125','#e06666','#f6b26b','#ffd966','#93c47d','#76a5af','#6d9eeb','#6fa8dc','#8e7cc3','#c27ba0',
+    '#a61c00','#cc0000','#e69138','#f1c232','#6aa84f','#45818e','#3c78d8','#3d85c6','#674ea7','#a64d79',
+    '#85200c','#990000','#b45f06','#bf9000','#38761d','#134f5c','#1155cc','#0b5394','#351c75','#741b47',
+    '#5b0f00','#660000','#783f04','#7f6000','#274e13','#0c343d','#1c4587','#073763','#20124d','#4c1130'
+  ];
+  document.getElementById('textColorGrid').innerHTML = colors.map(c => 
+    `<div class="color-swatch" style="background:${c};" onclick="event.stopPropagation();setTextColor('${c}')"></div>`
+  ).join('');
+  document.getElementById('fillColorGrid').innerHTML = colors.map(c => 
+    `<div class="color-swatch" style="background:${c};" onclick="event.stopPropagation();setFillColor('${c}')"></div>`
+  ).join('');
+}
+
+// ==================== INIT ====================
+initDropdowns();
+updateToolbarState();
+
+// Save content on edit
+document.addEventListener('input', function(e) {
+  if (e.target.closest && e.target.closest('[contenteditable="true"]')) {
+    saveUndo();
+  }
+});
+
+// Keyboard shortcuts for editor
+document.addEventListener('keydown', function(e) {
+  if (e.target.closest && e.target.closest('[contenteditable="true"]')) {
+    const ctrl = e.ctrlKey || e.metaKey;
+    if (ctrl && e.key === 'z') { e.preventDefault(); undo(); return; }
+    if (ctrl && e.key === 'y') { e.preventDefault(); redo(); return; }
+    if (ctrl && e.key === 'b') { e.preventDefault(); applyFontWeight(); return; }
+    if (ctrl && e.key === 'i') { e.preventDefault(); applyFontStyle(); return; }
+    if (ctrl && e.key === 'u') { e.preventDefault(); applyTextDecoration(); return; }
+    if (ctrl && e.key === 'a') { e.preventDefault(); selectAll(); return; }
+    if (ctrl && e.key === 'k') { e.preventDefault(); insertLink(); return; }
+    if (ctrl && e.key === 'h') { e.preventDefault(); openFindReplace(); return; }
+    if (ctrl && e.key === '\\') { e.preventDefault(); clearFormatting(); return; }
+  }
+});
+
+// Close find/replace on Escape
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape' && document.getElementById('findReplaceModal').classList.contains('active')) {
+    closeFindReplace();
+  }
+});
+</script>
+</body>
+</html>
