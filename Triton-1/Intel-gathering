@@ -1,0 +1,2212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>IRONCLAD · Intelligence Retrieval & Analysis</title>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600;700&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet" />
+    <style>
+        /* ===== RESET ===== */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        html, body {
+            background: #050505;
+            height: 100%;
+            overflow: hidden;
+            font-family: 'IBM Plex Mono', monospace;
+        }
+        #root {
+            height: 100%;
+        }
+        button {
+            font-family: inherit;
+            cursor: pointer;
+        }
+        input, textarea, select {
+            font-family: inherit;
+        }
+
+        /* ===== SCROLLBAR ===== */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #050505; }
+        ::-webkit-scrollbar-thumb { background: #1a1a1a; }
+        ::-webkit-scrollbar-thumb:hover { background: #2a2a2a; }
+
+        /* ===== GRID OVERLAY ===== */
+        .ir-grid {
+            position: fixed;
+            inset: 0;
+            background:
+                linear-gradient(90deg, transparent 49.5%, rgba(255,255,255,0.015) 50%, transparent 50.5%),
+                linear-gradient(0deg, transparent 49.5%, rgba(255,255,255,0.015) 50%, transparent 50.5%);
+            background-size: 48px 48px;
+            pointer-events: none;
+            z-index: 0;
+        }
+        .ir-vignette {
+            position: fixed;
+            inset: 0;
+            background: radial-gradient(ellipse at 50% 0%, transparent 0%, rgba(0,0,0,0.4) 50%, #000000 100%);
+            pointer-events: none;
+            z-index: 1;
+        }
+        .ir-scan {
+            position: fixed;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent);
+            animation: scanMove 12s linear infinite;
+            pointer-events: none;
+            z-index: 2;
+        }
+        @keyframes scanMove {
+            0% { top: 0; opacity: 0; }
+            5% { opacity: 1; }
+            95% { opacity: 1; }
+            100% { top: 100%; opacity: 0; }
+        }
+
+        /* ===== APP CONTAINER ===== */
+        .ir-app {
+            position: relative;
+            z-index: 10;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background: transparent;
+            color: #e0e0e0;
+        }
+
+        /* ===== TOP BAR ===== */
+        .ir-topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 24px;
+            border-bottom: 1px solid #1a1a1a;
+            background: rgba(5, 5, 5, 0.95);
+            backdrop-filter: blur(8px);
+            flex-shrink: 0;
+            z-index: 20;
+        }
+        .ir-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .ir-logo {
+            width: 34px;
+            height: 34px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            background: rgba(255, 255, 255, 0.04);
+        }
+        .ir-logo::before {
+            content: '';
+            position: absolute;
+            inset: 3px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+        .ir-logo::after {
+            content: '';
+            position: absolute;
+            top: -3px;
+            right: -3px;
+            width: 5px;
+            height: 5px;
+            background: #ffffff;
+            box-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
+            animation: pulse 2s ease-in-out infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+        .ir-logo-text {
+            font-family: 'Orbitron', monospace;
+            font-size: 14px;
+            color: #ffffff;
+            font-weight: 700;
+            letter-spacing: 2px;
+        }
+        .ir-brand-title {
+            font-family: 'Orbitron', monospace;
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 3px;
+            color: #e0e0e0;
+        }
+        .ir-brand-sub {
+            font-size: 8px;
+            color: #555;
+            letter-spacing: 2px;
+            margin-top: 1px;
+        }
+        .ir-status {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            font-size: 9px;
+            letter-spacing: 2px;
+            color: #555;
+        }
+        .ir-status-pill {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            padding: 3px 8px;
+            border: 1px solid #1a1a1a;
+            background: #0a0a0a;
+        }
+        .ir-dot {
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background: #34C759;
+            box-shadow: 0 0 6px #34C759;
+        }
+        .ir-dot.warn { background: #FFD60A; box-shadow: 0 0 6px #FFD60A; }
+        .ir-dot.danger { background: #FF3D00; box-shadow: 0 0 6px #FF3D00; }
+        .ir-dot.white { background: #ffffff; box-shadow: 0 0 6px rgba(255,255,255,0.3); }
+        .ir-clock {
+            font-size: 10px;
+            color: #888;
+            letter-spacing: 2px;
+        }
+        .ir-btn-primary {
+            background: #ffffff;
+            border: 1px solid #ffffff;
+            color: #000;
+            font-weight: 700;
+            padding: 6px 16px;
+            font-size: 9px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            transition: all 0.2s;
+        }
+        .ir-btn-primary:hover {
+            background: #e6e6e6;
+            box-shadow: 0 0 0 1px #ffffff, 0 0 24px rgba(255,255,255,0.1);
+        }
+
+        /* ===== MAIN LAYOUT ===== */
+        .ir-main {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+            position: relative;
+            z-index: 10;
+        }
+
+        /* ===== SEARCH PANEL ===== */
+        .ir-search-panel {
+            width: 400px;
+            min-width: 400px;
+            border-right: 1px solid #1a1a1a;
+            display: flex;
+            flex-direction: column;
+            background: rgba(5, 5, 5, 0.9);
+            padding: 16px 20px;
+            overflow-y: auto;
+            flex-shrink: 0;
+        }
+        .ir-search-panel::-webkit-scrollbar { width: 4px; }
+        .ir-search-panel::-webkit-scrollbar-thumb { background: #1a1a1a; }
+
+        .ir-search-header {
+            font-size: 9px;
+            color: #555;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .ir-search-header::before {
+            content: '';
+            width: 3px;
+            height: 12px;
+            background: #ffffff;
+        }
+
+        .ir-search-input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            margin-bottom: 12px;
+        }
+        .ir-search-input-group label {
+            font-size: 8px;
+            color: #444;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+        .ir-search-input {
+            width: 100%;
+            background: #0a0a0a;
+            border: 1px solid #1a1a1a;
+            padding: 8px 12px;
+            font-size: 11px;
+            color: #c0c0c0;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .ir-search-input:focus {
+            border-color: #ffffff;
+        }
+        .ir-search-input::placeholder {
+            color: #333;
+        }
+        .ir-search-textarea {
+            width: 100%;
+            background: #0a0a0a;
+            border: 1px solid #1a1a1a;
+            padding: 8px 12px;
+            font-size: 10px;
+            color: #c0c0c0;
+            outline: none;
+            resize: vertical;
+            min-height: 50px;
+            transition: border-color 0.2s;
+            line-height: 1.6;
+        }
+        .ir-search-textarea:focus {
+            border-color: #ffffff;
+        }
+        .ir-search-textarea::placeholder {
+            color: #333;
+        }
+
+        .ir-search-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+        .ir-option-group {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+        .ir-option-group label {
+            font-size: 7px;
+            color: #444;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+        }
+        .ir-select {
+            background: #0a0a0a;
+            border: 1px solid #1a1a1a;
+            padding: 6px 8px;
+            font-size: 9px;
+            color: #c0c0c0;
+            outline: none;
+            cursor: pointer;
+            transition: border-color 0.2s;
+        }
+        .ir-select:focus {
+            border-color: #ffffff;
+        }
+
+        .ir-search-btn {
+            width: 100%;
+            padding: 12px;
+            background: #ffffff;
+            border: 1px solid #ffffff;
+            color: #000;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            transition: all 0.2s;
+            margin-top: 6px;
+        }
+        .ir-search-btn:hover {
+            background: #e6e6e6;
+            box-shadow: 0 0 0 1px #ffffff, 0 0 24px rgba(255,255,255,0.1);
+        }
+        .ir-search-btn:disabled {
+            background: #0a0a0a;
+            color: #444;
+            border-color: #1a1a1a;
+            cursor: not-allowed;
+        }
+        .ir-search-btn:disabled:hover {
+            box-shadow: none;
+        }
+
+        .ir-search-status {
+            font-size: 8px;
+            color: #444;
+            letter-spacing: 2px;
+            text-align: center;
+            margin-top: auto;
+            padding-top: 12px;
+            border-top: 1px solid #1a1a1a;
+        }
+        .ir-search-status .active {
+            color: #34C759;
+        }
+        .ir-search-status .error {
+            color: #FF3D00;
+        }
+        .ir-progress-bar {
+            width: 100%;
+            height: 2px;
+            background: #1a1a1a;
+            margin-top: 6px;
+            overflow: hidden;
+        }
+        .ir-progress-fill {
+            height: 100%;
+            background: #ffffff;
+            width: 0%;
+            transition: width 0.3s;
+            box-shadow: 0 0 8px rgba(255,255,255,0.3);
+        }
+
+        /* ===== RESULTS PANEL ===== */
+        .ir-results-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: rgba(5, 5, 5, 0.8);
+            overflow: hidden;
+        }
+        .ir-results-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 20px;
+            border-bottom: 1px solid #1a1a1a;
+            flex-shrink: 0;
+            background: rgba(5, 5, 5, 0.9);
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+        .ir-results-title {
+            font-size: 9px;
+            color: #555;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .ir-results-title::before {
+            content: '';
+            width: 3px;
+            height: 12px;
+            background: #ffffff;
+        }
+        .ir-results-id {
+            font-size: 8px;
+            color: #444;
+            letter-spacing: 2px;
+        }
+        .ir-results-id span {
+            color: #ffffff;
+        }
+
+        /* ===== TABS ===== */
+        .ir-tabs {
+            display: flex;
+            background: rgba(10, 10, 10, 0.9);
+            border-bottom: 1px solid #1a1a1a;
+            flex-shrink: 0;
+            padding: 0 6px;
+            overflow-x: auto;
+        }
+        .ir-tab {
+            background: transparent;
+            border: none;
+            padding: 10px 16px;
+            color: #444;
+            font-size: 8px;
+            letter-spacing: 2px;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+            text-transform: uppercase;
+            white-space: nowrap;
+            font-family: 'IBM Plex Mono', monospace;
+        }
+        .ir-tab:hover {
+            color: #888;
+        }
+        .ir-tab.active {
+            color: #ffffff;
+        }
+        .ir-tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: #ffffff;
+            box-shadow: 0 0 6px rgba(255,255,255,0.3);
+        }
+        .ir-tab-count {
+            font-size: 7px;
+            color: #555;
+            padding: 1px 5px;
+            border: 1px solid #1a1a1a;
+            background: #0a0a0a;
+            margin-left: 5px;
+        }
+        .ir-tab.active .ir-tab-count {
+            color: #ffffff;
+            border-color: rgba(255,255,255,0.3);
+            background: rgba(255,255,255,0.05);
+        }
+
+        .ir-results-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px 20px;
+        }
+        .ir-results-body::-webkit-scrollbar { width: 4px; }
+        .ir-results-body::-webkit-scrollbar-thumb { background: #1a1a1a; }
+
+        /* ===== DOSSIER CARD ===== */
+        .ir-dossier {
+            background: #0a0a0a;
+            border: 1px solid #1a1a1a;
+            border-left: 3px solid #ffffff;
+            padding: 18px 20px;
+            animation: fadeIn 0.5s ease;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .ir-dossier-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 14px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .ir-dossier-name {
+            font-family: 'Orbitron', monospace;
+            font-size: 18px;
+            font-weight: 700;
+            color: #ffffff;
+            letter-spacing: 2px;
+        }
+        .ir-dossier-id {
+            font-size: 9px;
+            color: #444;
+            letter-spacing: 2px;
+            font-family: 'IBM Plex Mono', monospace;
+        }
+        .ir-dossier-id span {
+            color: #ffffff;
+        }
+        .ir-dossier-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 3px 10px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            font-size: 8px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: #ffffff;
+            background: rgba(255, 255, 255, 0.04);
+        }
+        .ir-dossier-badge .ir-dot {
+            width: 4px;
+            height: 4px;
+        }
+        .ir-dossier-section {
+            margin-top: 14px;
+            padding-top: 14px;
+            border-top: 1px solid #1a1a1a;
+        }
+        .ir-dossier-section-title {
+            font-size: 8px;
+            color: #555;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .ir-dossier-section-title::before {
+            content: '';
+            width: 3px;
+            height: 10px;
+            background: #ffffff;
+        }
+        .ir-dossier-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 6px 14px;
+        }
+        .ir-dossier-item {
+            display: flex;
+            flex-direction: column;
+            gap: 1px;
+        }
+        .ir-dossier-item-label {
+            font-size: 7px;
+            color: #444;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+        }
+        .ir-dossier-item-value {
+            font-size: 11px;
+            color: #c0c0c0;
+            word-break: break-word;
+        }
+        .ir-dossier-item-value .highlight {
+            color: #ffffff;
+        }
+        .ir-dossier-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            margin-top: 6px;
+        }
+        .ir-dossier-tag {
+            padding: 2px 8px;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            font-size: 7px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.5);
+        }
+        .ir-dossier-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 14px;
+            padding-top: 14px;
+            border-top: 1px solid #1a1a1a;
+        }
+        .ir-dossier-actions button {
+            padding: 6px 14px;
+            font-size: 8px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            border: 1px solid;
+            background: transparent;
+            transition: all 0.2s;
+        }
+        .ir-dossier-actions .ir-add-identity {
+            border-color: #ffffff;
+            color: #ffffff;
+        }
+        .ir-dossier-actions .ir-add-identity:hover {
+            background: #ffffff;
+            color: #000;
+            box-shadow: 0 0 16px rgba(255,255,255,0.15);
+        }
+        .ir-dossier-actions .ir-add-identity.added {
+            border-color: #34C759;
+            color: #34C759;
+        }
+        .ir-dossier-actions .ir-add-identity.added:hover {
+            background: #34C759;
+            color: #000;
+        }
+        .ir-dossier-actions .ir-export {
+            border-color: #1a1a1a;
+            color: #666;
+        }
+        .ir-dossier-actions .ir-export:hover {
+            border-color: #555;
+            color: #c0c0c0;
+        }
+
+        /* ===== TAB CONTENT STYLES ===== */
+        .ir-tab-content {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+        .ir-tab-content.active {
+            display: block;
+        }
+
+        /* ===== MEDIA CARDS ===== */
+        .ir-media-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 14px;
+        }
+        .ir-media-card {
+            background: #050505;
+            border: 1px solid #1a1a1a;
+            overflow: hidden;
+            transition: all 0.3s;
+            position: relative;
+        }
+        .ir-media-card:hover {
+            border-color: #2a2a2a;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+        }
+        .ir-media-card img {
+            width: 100%;
+            height: 160px;
+            object-fit: cover;
+            display: block;
+        }
+        .ir-media-card .ir-media-info {
+            padding: 10px 12px;
+        }
+        .ir-media-card .ir-media-info .title {
+            font-size: 10px;
+            color: #c0c0c0;
+            letter-spacing: 0.5px;
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+        .ir-media-card .ir-media-info .meta {
+            font-size: 8px;
+            color: #444;
+            letter-spacing: 1px;
+            display: flex;
+            justify-content: space-between;
+        }
+        .ir-media-card .ir-media-info .meta .source {
+            color: #555;
+        }
+        .ir-media-card .ir-media-info .meta .date {
+            color: #333;
+        }
+        .ir-media-card .ir-play-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(0,0,0,0.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.3s;
+            cursor: pointer;
+        }
+        .ir-media-card:hover .ir-play-overlay {
+            opacity: 1;
+        }
+        .ir-media-card .ir-play-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.15);
+            border: 2px solid rgba(255,255,255,0.5);
+            color: #ffffff;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+        .ir-media-card .ir-play-btn:hover {
+            background: rgba(255,255,255,0.25);
+            border-color: #ffffff;
+            transform: scale(1.1);
+        }
+
+        /* Video card */
+        .ir-video-card {
+            background: #050505;
+            border: 1px solid #1a1a1a;
+            padding: 14px 16px;
+            transition: all 0.3s;
+            margin-bottom: 10px;
+        }
+        .ir-video-card:hover {
+            border-color: #2a2a2a;
+        }
+        .ir-video-card .ir-video-title {
+            font-size: 12px;
+            color: #ffffff;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .ir-video-card .ir-video-title .ir-play-icon {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            color: #888;
+            flex-shrink: 0;
+            transition: all 0.3s;
+        }
+        .ir-video-card:hover .ir-video-title .ir-play-icon {
+            border-color: #ffffff;
+            color: #ffffff;
+            background: rgba(255,255,255,0.05);
+        }
+        .ir-video-card .ir-video-meta {
+            font-size: 8px;
+            color: #444;
+            letter-spacing: 1px;
+            margin-top: 6px;
+            display: flex;
+            gap: 14px;
+        }
+        .ir-video-card .ir-video-meta span {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .ir-video-card .ir-video-url {
+            font-size: 8px;
+            color: #333;
+            margin-top: 6px;
+            word-break: break-all;
+            font-family: 'IBM Plex Mono', monospace;
+        }
+
+        /* ===== NEWS CARDS ===== */
+        .ir-news-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 14px;
+        }
+        .ir-news-card {
+            background: #050505;
+            border: 1px solid #1a1a1a;
+            padding: 16px 18px;
+            transition: all 0.3s;
+            border-left: 2px solid rgba(255,255,255,0.15);
+        }
+        .ir-news-card:hover {
+            border-color: #2a2a2a;
+            border-left-color: #ffffff;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+        }
+        .ir-news-card .ir-news-headline {
+            font-size: 13px;
+            color: #ffffff;
+            font-weight: 600;
+            line-height: 1.4;
+            margin-bottom: 6px;
+        }
+        .ir-news-card .ir-news-snippet {
+            font-size: 10px;
+            color: #888;
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+        .ir-news-card .ir-news-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 8px;
+            color: #555;
+            letter-spacing: 1px;
+            padding-top: 10px;
+            border-top: 1px solid #1a1a1a;
+        }
+        .ir-news-card .ir-news-footer .source {
+            color: #888;
+        }
+        .ir-news-card .ir-news-footer .date {
+            color: #444;
+        }
+        .ir-news-card .ir-news-footer .ir-news-link {
+            color: #333;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+        .ir-news-card .ir-news-footer .ir-news-link:hover {
+            color: #ffffff;
+        }
+
+        /* ===== SOCIAL POST CARDS ===== */
+        .ir-social-feed {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+        .ir-social-post-card {
+            background: #050505;
+            border: 1px solid #1a1a1a;
+            padding: 16px 18px;
+            transition: all 0.3s;
+        }
+        .ir-social-post-card:hover {
+            border-color: #2a2a2a;
+        }
+        .ir-social-post-card .ir-social-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 10px;
+        }
+        .ir-social-post-card .ir-social-avatar {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: #1a1a1a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            color: #555;
+            flex-shrink: 0;
+            font-weight: 700;
+            border: 1px solid #1a1a1a;
+        }
+        .ir-social-post-card .ir-social-name {
+            font-size: 12px;
+            color: #ffffff;
+            font-weight: 600;
+        }
+        .ir-social-post-card .ir-social-handle {
+            font-size: 9px;
+            color: #555;
+            letter-spacing: 0.5px;
+        }
+        .ir-social-post-card .ir-social-platform {
+            font-size: 7px;
+            color: #444;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-left: auto;
+            padding: 2px 8px;
+            border: 1px solid #1a1a1a;
+            background: #0a0a0a;
+        }
+        .ir-social-post-card .ir-social-content {
+            font-size: 11px;
+            color: #c0c0c0;
+            line-height: 1.7;
+            margin-bottom: 10px;
+        }
+        .ir-social-post-card .ir-social-content .ir-hashtag {
+            color: #34C759;
+        }
+        .ir-social-post-card .ir-social-content .ir-mention {
+            color: #007AFF;
+        }
+        .ir-social-post-card .ir-social-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 8px;
+            color: #444;
+            letter-spacing: 1px;
+            padding-top: 10px;
+            border-top: 1px solid #1a1a1a;
+        }
+        .ir-social-post-card .ir-social-footer .ir-social-stats {
+            display: flex;
+            gap: 14px;
+        }
+        .ir-social-post-card .ir-social-footer .ir-social-stats span {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            color: #555;
+        }
+        .ir-social-post-card .ir-social-footer .ir-social-time {
+            color: #444;
+        }
+        .ir-social-post-card .ir-social-media {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+        }
+        .ir-social-post-card .ir-social-media img {
+            width: calc(33.33% - 6px);
+            min-width: 80px;
+            height: 100px;
+            object-fit: cover;
+            border: 1px solid #1a1a1a;
+            border-radius: 4px;
+        }
+
+        /* ===== IDENTITY VAULT ===== */
+        .ir-vault-toggle {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 100;
+            background: #0a0a0a;
+            border: 1px solid #1a1a1a;
+            color: #c0c0c0;
+            padding: 10px 16px;
+            font-size: 9px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            transition: all 0.2s;
+            backdrop-filter: blur(8px);
+        }
+        .ir-vault-toggle:hover {
+            border-color: #ffffff;
+            color: #ffffff;
+            box-shadow: 0 0 24px rgba(255,255,255,0.05);
+        }
+        .ir-vault-toggle .count {
+            color: #ffffff;
+            font-weight: 700;
+        }
+
+        /* ===== IDENTITY VAULT MODAL ===== */
+        .ir-modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.92);
+            backdrop-filter: blur(10px);
+            z-index: 200;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .ir-modal-overlay.open {
+            display: flex;
+        }
+        .ir-modal {
+            background: #0a0a0a;
+            border: 1px solid #1a1a1a;
+            max-width: 900px;
+            width: 100%;
+            max-height: 90vh;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+        .ir-modal-corner {
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            z-index: 2;
+        }
+        .ir-modal-corner.tl { top: -1px; left: -1px; border-top: 2px solid #ffffff; border-left: 2px solid #ffffff; }
+        .ir-modal-corner.tr { top: -1px; right: -1px; border-top: 2px solid #ffffff; border-right: 2px solid #ffffff; }
+        .ir-modal-corner.bl { bottom: -1px; left: -1px; border-bottom: 2px solid #ffffff; border-left: 2px solid #ffffff; }
+        .ir-modal-corner.br { bottom: -1px; right: -1px; border-bottom: 2px solid #ffffff; border-right: 2px solid #ffffff; }
+        .ir-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 20px;
+            border-bottom: 1px solid #1a1a1a;
+            flex-shrink: 0;
+        }
+        .ir-modal-title {
+            font-family: 'Orbitron', monospace;
+            font-size: 11px;
+            letter-spacing: 3px;
+            color: #ffffff;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .ir-modal-title::before {
+            content: '';
+            width: 5px;
+            height: 5px;
+            background: #ffffff;
+            box-shadow: 0 0 6px rgba(255,255,255,0.3);
+        }
+        .ir-modal-close {
+            background: transparent;
+            border: 1px solid #333;
+            color: #666;
+            cursor: pointer;
+            font-size: 14px;
+            width: 26px;
+            height: 26px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.15s;
+        }
+        .ir-modal-close:hover {
+            border-color: #FF3D00;
+            color: #FF3D00;
+        }
+        .ir-modal-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+        }
+        .ir-modal-body::-webkit-scrollbar { width: 4px; }
+        .ir-modal-body::-webkit-scrollbar-thumb { background: #1a1a1a; }
+
+        .ir-identity-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 12px;
+        }
+        .ir-identity-card {
+            background: #050505;
+            border: 1px solid #1a1a1a;
+            padding: 14px;
+            border-left: 2px solid rgba(255, 255, 255, 0.3);
+            transition: all 0.2s;
+        }
+        .ir-identity-card:hover {
+            border-color: #2a2a2a;
+        }
+        .ir-identity-name {
+            font-family: 'Orbitron', monospace;
+            font-size: 12px;
+            font-weight: 700;
+            color: #ffffff;
+            letter-spacing: 1px;
+            margin-bottom: 4px;
+        }
+        .ir-identity-meta {
+            font-size: 8px;
+            color: #555;
+            letter-spacing: 1px;
+            margin-bottom: 6px;
+        }
+        .ir-identity-meta span {
+            color: #888;
+        }
+        .ir-identity-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 3px;
+        }
+        .ir-identity-tag {
+            padding: 1px 6px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            font-size: 6px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.4);
+        }
+        .ir-identity-actions {
+            display: flex;
+            gap: 4px;
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px solid #1a1a1a;
+        }
+        .ir-identity-actions button {
+            background: transparent;
+            border: 1px solid #1a1a1a;
+            color: #555;
+            padding: 3px 8px;
+            font-size: 7px;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            transition: all 0.2s;
+        }
+        .ir-identity-actions button:hover {
+            border-color: #ffffff;
+            color: #ffffff;
+        }
+        .ir-identity-actions .ir-id-del:hover {
+            border-color: #FF3D00;
+            color: #FF3D00;
+        }
+        .ir-empty-vault {
+            text-align: center;
+            padding: 40px 20px;
+            color: #444;
+            font-size: 10px;
+            letter-spacing: 2px;
+        }
+
+        /* ===== EMPTY STATE ===== */
+        .ir-empty-results {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: #444;
+            text-align: center;
+            padding: 40px;
+        }
+        .ir-empty-icon {
+            font-size: 40px;
+            margin-bottom: 14px;
+            opacity: 0.3;
+        }
+        .ir-empty-title {
+            font-size: 11px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: #666;
+            margin-bottom: 4px;
+        }
+        .ir-empty-sub {
+            font-size: 9px;
+            letter-spacing: 2px;
+            color: #333;
+        }
+
+        /* ===== TOAST ===== */
+        .ir-toast-wrap {
+            position: fixed;
+            top: 70px;
+            right: 20px;
+            z-index: 999;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            pointer-events: none;
+        }
+        .ir-toast {
+            background: #0a0a0a;
+            border: 1px solid #1a1a1a;
+            border-left: 3px solid #ffffff;
+            padding: 10px 16px;
+            font-size: 10px;
+            color: #c0c0c0;
+            letter-spacing: 1px;
+            min-width: 200px;
+            max-width: 320px;
+            animation: toastIn 0.25s ease;
+            pointer-events: auto;
+        }
+        .ir-toast.error { border-left-color: #FF3D00; }
+        .ir-toast.success { border-left-color: #34C759; }
+        .ir-toast.warn { border-left-color: #FFD60A; }
+        .ir-toast-title {
+            font-size: 8px;
+            color: #ffffff;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 3px;
+        }
+        .ir-toast.error .ir-toast-title { color: #FF3D00; }
+        .ir-toast.success .ir-toast-title { color: #34C759; }
+        .ir-toast.warn .ir-toast-title { color: #FFD60A; }
+        .ir-toast-msg {
+            font-size: 10px;
+            color: #c0c0c0;
+        }
+        @keyframes toastIn {
+            from { opacity: 0; transform: translateX(20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        .ir-toast.out {
+            animation: toastOut 0.25s ease forwards;
+        }
+        @keyframes toastOut {
+            to { opacity: 0; transform: translateX(20px); }
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 900px) {
+            .ir-search-panel {
+                width: 100%;
+                min-width: 0;
+                border-right: none;
+                border-bottom: 1px solid #1a1a1a;
+                max-height: 40vh;
+            }
+            .ir-main {
+                flex-direction: column;
+            }
+            .ir-topbar {
+                flex-wrap: wrap;
+                gap: 6px;
+                padding: 10px 16px;
+            }
+            .ir-status {
+                flex-wrap: wrap;
+                gap: 6px;
+            }
+            .ir-search-options {
+                grid-template-columns: 1fr;
+            }
+            .ir-dossier-grid {
+                grid-template-columns: 1fr;
+            }
+            .ir-identity-grid {
+                grid-template-columns: 1fr;
+            }
+            .ir-results-body {
+                padding: 12px 16px;
+            }
+            .ir-vault-toggle {
+                bottom: 10px;
+                right: 10px;
+                padding: 6px 12px;
+                font-size: 7px;
+            }
+            .ir-media-grid {
+                grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            }
+            .ir-news-grid {
+                grid-template-columns: 1fr;
+            }
+            .ir-tabs {
+                padding: 0 4px;
+            }
+            .ir-tab {
+                padding: 8px 12px;
+                font-size: 7px;
+            }
+        }
+        @media (max-width: 600px) {
+            .ir-search-panel {
+                padding: 10px 14px;
+            }
+            .ir-dossier {
+                padding: 14px;
+            }
+            .ir-dossier-name {
+                font-size: 15px;
+            }
+            .ir-dossier-actions {
+                flex-wrap: wrap;
+            }
+            .ir-dossier-actions button {
+                flex: 1;
+                min-width: 80px;
+            }
+            .ir-media-grid {
+                grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            }
+            .ir-results-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .ir-social-post-card .ir-social-media img {
+                width: calc(50% - 4px);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef, useCallback } = React;
+
+        // ==================== CONSTANTS ====================
+        const AGENCY_CODENAMES = [
+            'IRONCLAD', 'GHOST-9', 'BLACKSTONE', 'ECHO-7', 'NIGHTFALL',
+            'SHADOW-3', 'PHANTOM', 'CERBERUS', 'WATCHDOG', 'VALKYRIE'
+        ];
+
+        const SOCIAL_PLATFORMS = ['Twitter', 'LinkedIn', 'Facebook', 'Instagram', 'GitHub', 'Telegram', 'Signal'];
+
+        // ==================== MOCK SEARCH ENGINE ====================
+        function mockIntelligenceSearch(query, type, depth, socialHandle) {
+            return new Promise((resolve) => {
+                const delay = 800 + (depth === 'deep' ? 1400 : depth === 'standard' ? 700 : 400);
+                const extraDelay = Math.random() * 500;
+
+                setTimeout(() => {
+                    const results = generateMockDossier(query, type, depth, socialHandle);
+                    resolve(results);
+                }, delay + extraDelay);
+            });
+        }
+
+        function generateMockDossier(query, type, depth, socialHandle) {
+            const id = 'DOS-' + Date.now().toString(36).toUpperCase() + '-' + Math.floor(Math.random() * 9000 + 1000);
+            const now = new Date().toISOString();
+
+            const names = [
+                'Alexander Volkov', 'Mira Chen', 'Jonathan Hayes', 'Elena Vasquez',
+                'Marcus Webb', 'Sarah Nakamura', 'David O\'Malley', 'Priya Sharma',
+                'James Morrison', 'Anna Kowalski', 'Robert Chen', 'Maria Santos',
+                'William Park', 'Lisa Tanaka', 'Michael Schmidt', 'Emma Dubois'
+            ];
+
+            const companies = [
+                'Apex Dynamics', 'Nexus Technologies', 'Cascade Solutions', 'Ironforge Industries',
+                'Quantum Systems', 'Pinnacle Group', 'Vertex Holdings', 'Sigma Defense',
+                'Oracle Innovations', 'Phoenix Global', 'Atlas Consolidated', 'Titan Corporation'
+            ];
+
+            const locations = [
+                'Washington D.C., USA', 'London, UK', 'Berlin, Germany', 'Tokyo, Japan',
+                'Singapore', 'Dubai, UAE', 'Sydney, Australia', 'Toronto, Canada',
+                'Austin, Texas', 'Seattle, Washington', 'Boston, Massachusetts', 'Denver, Colorado'
+            ];
+
+            const agencies = ['DIA', 'CIA', 'NSA', 'FBI', 'MI6', 'BND', 'DGSE', 'Mossad', 'CSIS', 'ASIS'];
+            const classifications = ['RESTRICTED', 'CONFIDENTIAL', 'SECRET', 'TOP SECRET', 'BLACK'];
+
+            const tags = [
+                'PERSON OF INTEREST', 'ASSET', 'TARGET', 'SUBJECT', 'SOURCE',
+                'SURVEILLANCE', 'WIRETAP', 'HUMINT', 'SIGINT', 'GEOLOCATION',
+                'FINANCIAL', 'TRAVEL', 'ASSOCIATES', 'COMMUNICATIONS', 'DARKWEB'
+            ];
+
+            const targetName = query.trim() || names[Math.floor(Math.random() * names.length)];
+            const isCompany = type === 'company' || query.includes('corp') || query.includes('inc') || query.includes('llc');
+            const isLocation = type === 'location' || query.includes('city') || query.includes('state') || query.includes(
+                'country');
+            const name = isCompany ? companies[Math.floor(Math.random() * companies.length)] :
+                isLocation ? locations[Math.floor(Math.random() * locations.length)] :
+                targetName;
+
+            const classification = classifications[Math.floor(Math.random() * classifications.length)];
+            const agency = agencies[Math.floor(Math.random() * agencies.length)];
+            const codename = AGENCY_CODENAMES[Math.floor(Math.random() * AGENCY_CODENAMES.length)];
+
+            // Generate social media profiles with posts
+            const socialProfiles = [];
+            const numProfiles = 2 + Math.floor(Math.random() * 3);
+            const shuffledPlatforms = [...SOCIAL_PLATFORMS].sort(() => Math.random() - 0.5);
+            for (let i = 0; i < Math.min(numProfiles, shuffledPlatforms.length); i++) {
+                const platform = shuffledPlatforms[i];
+                const handle = socialHandle && socialHandle.trim() ?
+                    socialHandle.trim().replace(/^@/, '') :
+                    name.toLowerCase().replace(/\s/g, '') + (Math.random() > 0.5 ? Math.floor(Math.random() * 99) : '');
+                const posts = [];
+                const postCount = 2 + Math.floor(Math.random() * 3);
+                for (let j = 0; j < postCount; j++) {
+                    const hasMedia = Math.random() > 0.5;
+                    const mediaUrls = hasMedia ? [
+                        `https://picsum.photos/seed/${Math.random().toString(36).substring(7)}/400/300`,
+                        `https://picsum.photos/seed/${Math.random().toString(36).substring(7)}/400/300`
+                    ] : [];
+                    posts.push({
+                        content: [
+                            `Just landed in ${locations[Math.floor(Math.random() * locations.length)]}. #mission #fieldwork`,
+                            `Meeting with ${names[Math.floor(Math.random() * names.length)]} later today. #opsec`,
+                            `Great progress on the ${companies[Math.floor(Math.random() * companies.length)]} contract. #success #classified`,
+                            `Traveling to ${locations[Math.floor(Math.random() * locations.length)]} next week. #prep #covert`,
+                            `New project starting. #confidential #needtoknow`,
+                            `Happy to announce a new partnership with ${companies[Math.floor(Math.random() * companies.length)]}. #milestone`,
+                            `Analysis complete. Sending report to ${agency}. #intel #done`,
+                            `Interesting developments in ${locations[Math.floor(Math.random() * locations.length)]}. #monitoring #situationalawareness`
+                        ][j % 8],
+                        time: new Date(Date.now() - j * 2 * 24 * 60 * 60 * 1000 - Math.random() * 12 * 60 * 60 * 1000)
+                            .toISOString(),
+                        likes: Math.floor(Math.random() * 2000 + 50),
+                        retweets: Math.floor(Math.random() * 500 + 10),
+                        replies: Math.floor(Math.random() * 100 + 5),
+                        media: mediaUrls
+                    });
+                }
+                socialProfiles.push({
+                    platform: platform,
+                    handle: '@' + handle,
+                    url: `${platform.toLowerCase()}.com/${handle}`,
+                    bio: `${platform} profile for ${name}`,
+                    followers: Math.floor(Math.random() * 50000 + 100),
+                    following: Math.floor(Math.random() * 2000 + 50),
+                    posts: posts
+                });
+            }
+
+            // Generate images
+            const images = [];
+            const imageTitles = ['Surveillance Photo', 'Meeting Location', 'Asset Identification', 'Document Capture',
+                'Event Coverage', 'Person of Interest', 'Location Recon', 'Evidence Photo'
+            ];
+            for (let i = 0; i < 4 + Math.floor(Math.random() * 4); i++) {
+                images.push({
+                    url: `https://picsum.photos/seed/${Math.random().toString(36).substring(7)}/400/300`,
+                    title: `${imageTitles[i % imageTitles.length]} ${i+1}`,
+                    source: ['OSINT', 'SOCIAL', 'SIGINT', 'HUMINT'][Math.floor(Math.random() * 4)],
+                    date: new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+                });
+            }
+
+            // Generate videos
+            const videos = [];
+            const videoTitles = ['Interview Footage', 'Briefing Recording', 'Press Conference', 'Surveillance Clip',
+                'Meeting Recording'
+            ];
+            for (let i = 0; i < 2 + Math.floor(Math.random() * 3); i++) {
+                videos.push({
+                    url: `https://www.youtube.com/watch?v=${Math.random().toString(36).substring(2, 13)}`,
+                    title: `${videoTitles[i % videoTitles.length]} - ${name}`,
+                    source: ['YouTube', 'Vimeo', 'Archive'][Math.floor(Math.random() * 3)],
+                    views: Math.floor(Math.random() * 100000 + 1000),
+                    date: new Date(Date.now() - Math.random() * 60 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+                });
+            }
+
+            // Generate news articles
+            const news = [];
+            const headlines = [
+                `${name} involved in major ${isCompany ? 'corporate merger' : 'development'}`,
+                `Exclusive: ${name} linked to recent ${isCompany ? 'financial' : 'security'} investigation`,
+                `${name} announces ${isCompany ? 'record profits' : 'new initiative'}`,
+                `Sources say ${name} connected to ${isCompany ? 'regulatory probe' : 'intelligence operation'}`,
+                `${name} to appear before ${isCompany ? 'Congress' : 'international tribunal'}`,
+                `New evidence emerges in ${isCompany ? 'tax evasion' : 'personal conduct'} case involving ${name}`,
+                `${name} expands operations into ${locations[Math.floor(Math.random() * locations.length)]}`,
+                `Leaked documents reveal ${isCompany ? 'offshore accounts' : 'hidden assets'} tied to ${name}`
+            ];
+            for (let i = 0; i < 4 + Math.floor(Math.random() * 4); i++) {
+                const date = new Date(Date.now() - Math.random() * 90 * 24 * 60 * 60 * 1000);
+                news.push({
+                    headline: headlines[i % headlines.length],
+                    snippet: `Recent reporting indicates ${name} is at the center of a developing story. Sources close to the investigation suggest ${isCompany ? 'financial irregularities' : 'potential connections to multiple agencies'}. The full extent of ${name}'s involvement remains unclear.`,
+                    source: ['Reuters', 'Bloomberg', 'BBC', 'CNN', 'The Guardian', 'WSJ', 'Associated Press'][Math.floor(
+                        Math.random() * 7)],
+                    date: date.toISOString().split('T')[0],
+                    url: `https://news.example.com/${name.toLowerCase().replace(/\s/g, '-')}-${i}`
+                });
+            }
+
+            // Generate associates
+            const associateCount = 2 + Math.floor(Math.random() * 4);
+            const associates = [];
+            for (let i = 0; i < associateCount; i++) {
+                const n = names[Math.floor(Math.random() * names.length)];
+                if (n !== name) {
+                    associates.push({
+                        name: n,
+                        relation: ['ASSOCIATE', 'CONTACT', 'RELATIVE', 'BUSINESS_PARTNER', 'SUBORDINATE', 'SUPERIOR'][Math
+                            .floor(Math.random() * 6)
+                        ],
+                        confidence: Math.floor(70 + Math.random() * 25) + '%'
+                    });
+                }
+            }
+
+            // Generate timeline
+            const timeline = [];
+            const nowDate = new Date();
+            for (let i = 0; i < 3 + Math.floor(Math.random() * 4); i++) {
+                const d = new Date(nowDate);
+                d.setMonth(d.getMonth() - i * (1 + Math.floor(Math.random() * 3)));
+                timeline.push({
+                    date: d.toISOString().split('T')[0],
+                    event: ['MEETING', 'TRAVEL', 'COMMUNICATION', 'FINANCIAL_TRANSACTION', 'ASSOCIATE_CONTACT', 'LOCATION_CHANGE'][
+                        Math.floor(Math.random() * 6)
+                    ],
+                    details: `Activity recorded at ${locations[Math.floor(Math.random() * locations.length)]}`
+                });
+            }
+
+            // Generate financial data
+            const financials = [
+                { source: 'BANK ACCOUNT', details: `XX-${String(Math.floor(Math.random() * 1000000)).padStart(6, '0')}` },
+                { source: 'CRYPTO WALLET', details: `0x${Array.from({length: 20}, () => Math.floor(Math.random() * 16).toString(16)).join('')}` },
+                { source: 'OFFSHORE ENTITY', details: `${companies[Math.floor(Math.random() * companies.length)]} LTD` }
+            ];
+
+            const targetType = isCompany ? 'COMPANY' : isLocation ? 'LOCATION' : 'PERSON';
+
+            return {
+                id,
+                name,
+                type: targetType,
+                classification,
+                agency,
+                codename,
+                date: now,
+                query,
+                depth,
+                socialHandle: socialHandle || 'N/A',
+                summary: `${isCompany ? 'Corporate entity' : isLocation ? 'Geographic location' : 'Person of interest'} with significant intelligence value. Multiple data points indicate ${isCompany ? 'business operations' : isLocation ? 'strategic importance' : 'network connections'} across multiple sectors.`,
+                details: {
+                    aliases: isCompany ? [name, name.split(' ').map(w => w[0]).join('')] : [name, name.split(' ').map(w =>
+                        w[0]).join('')],
+                    location: locations[Math.floor(Math.random() * locations.length)],
+                    country: locations[Math.floor(Math.random() * locations.length)].split(',')[1]?.trim() || 'Unknown',
+                    status: ['ACTIVE', 'INACTIVE', 'DECEASED', 'RELOCATED', 'DETENTION'][Math.floor(Math.random() * 5)],
+                    risk_level: ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL'][Math.floor(Math.random() * 4)],
+                    confidence: Math.floor(70 + Math.random() * 25) + '%',
+                    last_updated: now,
+                },
+                social_profiles: socialProfiles,
+                images: images,
+                videos: videos,
+                news: news.sort((a, b) => new Date(b.date) - new Date(a.date)),
+                associates: associates,
+                timeline: timeline,
+                financials: financials,
+                tags: tags.sort(() => Math.random() - 0.5).slice(0, 4 + Math.floor(Math.random() * 3)),
+                raw_data: `// INTELLIGENCE DOSSIER\n// TIMESTAMP: ${now}\n// AGENCY: ${agency}\n// CLASSIFICATION: ${classification}\n// TARGET: ${name}\n// TYPE: ${targetType}\n// SOCIAL HANDLES: ${socialHandle || 'N/A'}\n\nSTATUS: ${isCompany ? 'OPERATIONAL' : 'ACTIVE'}\nLOCATION: ${locations[0]}\n\nNOTES: Extensive data collected from open source intelligence (OSINT), signals intelligence (SIGINT), and human intelligence (HUMINT) sources. Social media footprint analyzed for network mapping.`,
+            };
+        }
+
+        // ==================== TOAST HOOK ====================
+        function useToasts() {
+            const [toasts, setToasts] = useState([]);
+            const idRef = useRef(0);
+
+            const push = useCallback((type, title, msg, duration = 3500) => {
+                const id = ++idRef.current;
+                setToasts(prev => [...prev, { id, type, title, msg }]);
+                setTimeout(() => {
+                    setToasts(prev => prev.map(t => t.id === id ? { ...t, out: true } : t));
+                    setTimeout(() => {
+                        setToasts(prev => prev.filter(t => t.id !== id));
+                    }, 250);
+                }, duration);
+            }, []);
+
+            return { toasts, push };
+        }
+
+        // ==================== IDENTITY VAULT ====================
+        function useIdentityVault() {
+            const [identities, setIdentities] = useState([]);
+
+            useEffect(() => {
+                const stored = localStorage.getItem('ironclad_identities');
+                if (stored) {
+                    try {
+                        setIdentities(JSON.parse(stored));
+                    } catch (_) {
+                        setIdentities([]);
+                    }
+                }
+            }, []);
+
+            useEffect(() => {
+                localStorage.setItem('ironclad_identities', JSON.stringify(identities));
+            }, [identities]);
+
+            const addIdentity = useCallback((dossier) => {
+                const identity = {
+                    id: 'ID-' + Date.now().toString(36).toUpperCase() + '-' + Math.floor(Math.random() * 9000 + 1000),
+                    name: dossier.name,
+                    type: dossier.type,
+                    classification: dossier.classification,
+                    agency: dossier.agency,
+                    codename: dossier.codename,
+                    location: dossier.details.location,
+                    status: dossier.details.status,
+                    tags: dossier.tags,
+                    dossier_id: dossier.id,
+                    added: new Date().toISOString(),
+                    data: dossier
+                };
+                setIdentities(prev => [identity, ...prev]);
+                return identity;
+            }, []);
+
+            const removeIdentity = useCallback((id) => {
+                setIdentities(prev => prev.filter(i => i.id !== id));
+            }, []);
+
+            return { identities, addIdentity, removeIdentity };
+        }
+
+        // ==================== MAIN APP ====================
+        function App() {
+            const { toasts, push } = useToasts();
+            const { identities, addIdentity, removeIdentity } = useIdentityVault();
+            const [searchQuery, setSearchQuery] = useState('');
+            const [socialMediaHandle, setSocialMediaHandle] = useState('');
+            const [searchType, setSearchType] = useState('person');
+            const [searchDepth, setSearchDepth] = useState('standard');
+            const [additionalContext, setAdditionalContext] = useState('');
+            const [isSearching, setIsSearching] = useState(false);
+            const [progress, setProgress] = useState(0);
+            const [results, setResults] = useState(null);
+            const [showVault, setShowVault] = useState(false);
+            const [addedToVault, setAddedToVault] = useState({});
+            const [activeTab, setActiveTab] = useState('profile');
+            const [clock, setClock] = useState('');
+
+            // Clock
+            useEffect(() => {
+                const tick = () => {
+                    const d = new Date();
+                    const y = d.getUTCFullYear();
+                    const m = String(d.getUTCMonth() + 1).padStart(2, '0');
+                    const day = String(d.getUTCDate()).padStart(2, '0');
+                    const hh = String(d.getUTCHours()).padStart(2, '0');
+                    const mm = String(d.getUTCMinutes()).padStart(2, '0');
+                    const ss = String(d.getUTCSeconds()).padStart(2, '0');
+                    setClock(`${y}.${m}.${day} ${hh}:${mm}:${ss} UTC`);
+                };
+                tick();
+                const id = setInterval(tick, 1000);
+                return () => clearInterval(id);
+            }, []);
+
+            // Close vault on escape
+            useEffect(() => {
+                const handleKey = (e) => {
+                    if (e.key === 'Escape' && showVault) setShowVault(false);
+                };
+                document.addEventListener('keydown', handleKey);
+                return () => document.removeEventListener('keydown', handleKey);
+            }, [showVault]);
+
+            const handleSearch = async () => {
+                if (!searchQuery.trim()) {
+                    push('warn', 'INVALID QUERY', 'Please enter search parameters');
+                    return;
+                }
+
+                setIsSearching(true);
+                setProgress(0);
+                setResults(null);
+                setAddedToVault({});
+                setActiveTab('profile');
+
+                try {
+                    const progressInterval = setInterval(() => {
+                        setProgress(p => {
+                            if (p >= 95) {
+                                clearInterval(progressInterval);
+                                return 95;
+                            }
+                            return p + Math.random() * 8 + 2;
+                        });
+                    }, 200);
+
+                    const data = await mockIntelligenceSearch(
+                        searchQuery + (additionalContext ? ' ' + additionalContext : ''),
+                        searchType,
+                        searchDepth,
+                        socialMediaHandle
+                    );
+
+                    clearInterval(progressInterval);
+                    setProgress(100);
+                    setResults(data);
+                    push('success', 'DOSSIER COMPLETE', `Intelligence gathered on ${data.name}`);
+                } catch (err) {
+                    push('error', 'SEARCH FAILED', 'Error retrieving intelligence data');
+                } finally {
+                    setIsSearching(false);
+                    setTimeout(() => setProgress(0), 500);
+                }
+            };
+
+            const handleAddToVault = (dossier) => {
+                const identity = addIdentity(dossier);
+                setAddedToVault(prev => ({ ...prev, [dossier.id]: true }));
+                push('success', 'IDENTITY ARCHIVED', `${identity.name} added to identity vault`);
+                setTimeout(() => {
+                    setAddedToVault(prev => ({ ...prev, [dossier.id]: false }));
+                }, 3000);
+            };
+
+            const handleExport = (dossier) => {
+                const blob = new Blob([dossier.raw_data], { type: 'text/plain' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `DOSSIER_${dossier.name.replace(/\s/g, '_')}_${dossier.id}.txt`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                push('success', 'EXPORT COMPLETE', 'Dossier exported to file');
+            };
+
+            const isAdded = (id) => addedToVault[id] || false;
+
+            const tabs = [
+                { id: 'profile', label: 'Intel Profile' },
+                { id: 'media', label: 'Photos & Videos' },
+                { id: 'social', label: 'Social Media' },
+                { id: 'news', label: 'Latest News' },
+            ];
+
+            const getCounts = () => {
+                if (!results) return { media: 0, social: 0, news: 0 };
+                return {
+                    media: (results.images?.length || 0) + (results.videos?.length || 0),
+                    social: results.social_profiles?.reduce((acc, p) => acc + (p.posts?.length || 0), 0) || 0,
+                    news: results.news?.length || 0,
+                };
+            };
+            const counts = getCounts();
+
+            return (
+                <div className="ir-app">
+                    <div className="ir-grid" />
+                    <div className="ir-vignette" />
+                    <div className="ir-scan" />
+
+                    {/* Top Bar */}
+                    <div className="ir-topbar">
+                        <div className="ir-brand">
+                            <div className="ir-logo">
+                                <span className="ir-logo-text">⚡</span>
+                            </div>
+                            <div>
+                                <div className="ir-brand-title">IRONCLAD</div>
+                                <div className="ir-brand-sub">INTELLIGENCE RETRIEVAL & ANALYSIS</div>
+                            </div>
+                        </div>
+                        <div className="ir-status">
+                            <div className="ir-status-pill">
+                                <span className="ir-dot white"></span>
+                                <span>SECURE</span>
+                            </div>
+                            <div className="ir-status-pill">
+                                <span className="ir-dot"></span>
+                                <span>OSINT</span>
+                            </div>
+                            <div className="ir-status-pill">
+                                <span>VAULT: {identities.length}</span>
+                            </div>
+                            <div className="ir-clock">{clock}</div>
+                        </div>
+                    </div>
+
+                    {/* Main Layout */}
+                    <div className="ir-main">
+                        {/* Search Panel */}
+                        <div className="ir-search-panel">
+                            <div className="ir-search-header">INTELLIGENCE RETRIEVAL</div>
+
+                            <div className="ir-search-input-group">
+                                <label>Query / Target</label>
+                                <input
+                                    className="ir-search-input"
+                                    value={searchQuery}
+                                    onChange={e => setSearchQuery(e.target.value)}
+                                    placeholder="Enter name, company, location..."
+                                    onKeyDown={e => e.key === 'Enter' && handleSearch()}
+                                />
+                            </div>
+
+                            <div className="ir-search-input-group">
+                                <label>Social Media Handle</label>
+                                <input
+                                    className="ir-search-input"
+                                    value={socialMediaHandle}
+                                    onChange={e => setSocialMediaHandle(e.target.value)}
+                                    placeholder="@username or profile URL"
+                                    onKeyDown={e => e.key === 'Enter' && handleSearch()}
+                                />
+                            </div>
+
+                            <div className="ir-search-input-group">
+                                <label>Additional Context</label>
+                                <textarea
+                                    className="ir-search-textarea"
+                                    value={additionalContext}
+                                    onChange={e => setAdditionalContext(e.target.value)}
+                                    placeholder="Known associates, previous locations, affiliations..."
+                                    rows="2"
+                                />
+                            </div>
+
+                            <div className="ir-search-options">
+                                <div className="ir-option-group">
+                                    <label>Target Type</label>
+                                    <select className="ir-select" value={searchType} onChange={e => setSearchType(e.target.value)}>
+                                        <option value="person">Person</option>
+                                        <option value="company">Company</option>
+                                        <option value="location">Location</option>
+                                    </select>
+                                </div>
+                                <div className="ir-option-group">
+                                    <label>Search Depth</label>
+                                    <select className="ir-select" value={searchDepth} onChange={e => setSearchDepth(e.target.value)}>
+                                        <option value="basic">Basic</option>
+                                        <option value="standard">Standard</option>
+                                        <option value="deep">Deep</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <button className="ir-search-btn" onClick={handleSearch} disabled={isSearching}>
+                                {isSearching ? 'SEARCHING...' : 'INITIATE RETRIEVAL'}
+                            </button>
+
+                            <div className="ir-progress-bar">
+                                <div className="ir-progress-fill" style={{ width: `${progress}%` }} />
+                            </div>
+
+                            <div className="ir-search-status">
+                                {isSearching ? (
+                                    <span className="active">⟳ RETRIEVING DATA FROM MULTIPLE SOURCES...</span>
+                                ) : results ? (
+                                    <span>✓ DOSSIER GENERATED · {results.id}</span>
+                                ) : (
+                                    <span>⏻ AWAITING QUERY</span>
+                                )}
+                            </div>
+                        </div>
+
+                        {/* Results Panel */}
+                        <div className="ir-results-panel">
+                            <div className="ir-results-header">
+                                <div className="ir-results-title">INTELLIGENCE DOSSIER</div>
+                                {results && (
+                                    <div className="ir-results-id">
+                                        <span>{results.name}</span> · {results.id}
+                                    </div>
+                                )}
+                            </div>
+
+                            {results && (
+                                <div className="ir-tabs">
+                                    {tabs.map(tab => (
+                                        <button
+                                            key={tab.id}
+                                            className={`ir-tab ${activeTab === tab.id ? 'active' : ''}`}
+                                            onClick={() => setActiveTab(tab.id)}
+                                        >
+                                            {tab.label}
+                                            {tab.id === 'media' && counts.media > 0 && (
+                                                <span className="ir-tab-count">{counts.media}</span>
+                                            )}
+                                            {tab.id === 'social' && counts.social > 0 && (
+                                                <span className="ir-tab-count">{counts.social}</span>
+                                            )}
+                                            {tab.id === 'news' && counts.news > 0 && (
+                                                <span className="ir-tab-count">{counts.news}</span>
+                                            )}
+                                        </button>
+                                    ))}
+                                </div>
+                            )}
+
+                            <div className="ir-results-body">
+                                {results ? (
+                                    <>
+                                        {/* PROFILE TAB */}
+                                        <div className={`ir-tab-content ${activeTab === 'profile' ? 'active' : ''}`}>
+                                            <div className="ir-dossier">
+                                                <div className="ir-dossier-header">
+                                                    <div>
+                                                        <div className="ir-dossier-name">{results.name}</div>
+                                                        <div className="ir-dossier-id">
+                                                            DOSSIER <span>{results.id}</span> · AGENCY <span>{results.agency}</span> · CODENAME <span>{results.codename}</span>
+                                                        </div>
+                                                    </div>
+                                                    <div className="ir-dossier-badge">
+                                                        <span className="ir-dot white" />
+                                                        {results.classification}
+                                                    </div>
+                                                </div>
+
+                                                <div className="ir-dossier-section">
+                                                    <div className="ir-dossier-section-title">SUMMARY</div>
+                                                    <p style={{ fontSize: '11px', color: '#c0c0c0', lineHeight: '1.7' }}>
+                                                        {results.summary}
+                                                    </p>
+                                                </div>
+
+                                                <div className="ir-dossier-section">
+                                                    <div className="ir-dossier-section-title">DETAILS</div>
+                                                    <div className="ir-dossier-grid">
+                                                        <div className="ir-dossier-item">
+                                                            <span className="ir-dossier-item-label">Type</span>
+                                                            <span className="ir-dossier-item-value">{results.type}</span>
+                                                        </div>
+                                                        <div className="ir-dossier-item">
+                                                            <span className="ir-dossier-item-label">Location</span>
+                                                            <span className="ir-dossier-item-value">{results.details.location}</span>
+                                                        </div>
+                                                        <div className="ir-dossier-item">
+                                                            <span className="ir-dossier-item-label">Country</span>
+                                                            <span className="ir-dossier-item-value">{results.details.country}</span>
+                                                        </div>
+                                                        <div className="ir-dossier-item">
+                                                            <span className="ir-dossier-item-label">Status</span>
+                                                            <span className="ir-dossier-item-value">{results.details.status}</span>
+                                                        </div>
+                                                        <div className="ir-dossier-item">
+                                                            <span className="ir-dossier-item-label">Risk Level</span>
+                                                            <span className="ir-dossier-item-value">{results.details.risk_level}</span>
+                                                        </div>
+                                                        <div className="ir-dossier-item">
+                                                            <span className="ir-dossier-item-label">Confidence</span>
+                                                            <span className="ir-dossier-item-value">{results.details.confidence}</span>
+                                                        </div>
+                                                        <div className="ir-dossier-item">
+                                                            <span className="ir-dossier-item-label">Aliases</span>
+                                                            <span className="ir-dossier-item-value">{results.details.aliases.join(', ')}</span>
+                                                        </div>
+                                                        <div className="ir-dossier-item">
+                                                            <span className="ir-dossier-item-label">Social Handle</span>
+                                                            <span className="ir-dossier-item-value highlight">{results.socialHandle || 'N/A'}</span>
+                                                        </div>
+                                                        <div className="ir-dossier-item">
+                                                            <span className="ir-dossier-item-label">Last Updated</span>
+                                                            <span className="ir-dossier-item-value">{new Date(results.details.last_updated).toLocaleString()}</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                {results.associates && results.associates.length > 0 && (
+                                                    <div className="ir-dossier-section">
+                                                        <div className="ir-dossier-section-title">ASSOCIATES</div>
+                                                        <div className="ir-dossier-grid">
+                                                            {results.associates.map((a, i) => (
+                                                                <div key={i} className="ir-dossier-item">
+                                                                    <span className="ir-dossier-item-label">{a.relation} · {a.confidence}</span>
+                                                                    <span className="ir-dossier-item-value highlight">{a.name}</span>
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                    </div>
+                                                )}
+
+                                                {results.financials && results.financials.length > 0 && (
+                                                    <div className="ir-dossier-section">
+                                                        <div className="ir-dossier-section-title">FINANCIAL DATA</div>
+                                                        <div className="ir-dossier-grid">
+                                                            {results.financials.map((f, i) => (
+                                                                <div key={i} className="ir-dossier-item">
+                                                                    <span className="ir-dossier-item-label">{f.source}</span>
+                                                                    <span className="ir-dossier-item-value highlight">{f.details}</span>
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                    </div>
+                                                )}
+
+                                                <div className="ir-dossier-section">
+                                                    <div className="ir-dossier-section-title">TAGS</div>
+                                                    <div className="ir-dossier-tags">
+                                                        {results.tags.map((tag, i) => (
+                                                            <span key={i} className="ir-dossier-tag">{tag}</span>
+                                                        ))}
+                                                    </div>
+                                                </div>
+
+                                                <div className="ir-dossier-actions">
+                                                    <button
+                                                        className={`ir-add-identity ${isAdded(results.id) ? 'added' : ''}`}
+                                                        onClick={() => handleAddToVault(results)}
+                                                        disabled={isAdded(results.id)}
+                                                    >
+                                                        {isAdded(results.id) ? '✓ IN VAULT' : '⊕ ARCHIVE TO VAULT'}
+                                                    </button>
+                                                    <button className="ir-export" onClick={() => handleExport(results)}>EXPORT DOSSIER</button>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {/* MEDIA TAB */}
+                                        <div className={`ir-tab-content ${activeTab === 'media' ? 'active' : ''}`}>
+                                            <div className="ir-dossier">
+                                                <div className="ir-dossier-section">
+                                                    <div className="ir-dossier-section-title">PHOTOS</div>
+                                                    {results.images && results.images.length > 0 ? (
+                                                        <div className="ir-media-grid">
+                                                            {results.images.map((img, i) => (
+                                                                <div key={i} className="ir-media-card">
+                                                                    <img src={img.url} alt={img.title} />
+                                                                    <div className="ir-media-info">
+                                                                        <div className="title">{img.title}</div>
+                                                                        <div className="meta">
+                                                                            <span className="source">{img.source}</span>
+                                                                            <span className="date">{img.date}</span>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                    ) : (
+                                                        <p style={{ color: '#444', fontSize: '10px', padding: '12px 0' }}>No photos found.</p>
+                                                    )}
+                                                </div>
+
+                                                <div className="ir-dossier-section">
+                                                    <div className="ir-dossier-section-title">VIDEOS</div>
+                                                    {results.videos && results.videos.length > 0 ? (
+                                                        results.videos.map((v, i) => (
+                                                            <div key={i} className="ir-video-card">
+                                                                <div className="ir-video-title">
+                                                                    <span className="ir-play-icon">▶</span>
+                                                                    {v.title}
+                                                                </div>
+                                                                <div className="ir-video-meta">
+                                                                    <span>📹 {v.source}</span>
+                                                                    <span>👁 {v.views.toLocaleString()}</span>
+                                                                    <span>📅 {v.date}</span>
+                                                                </div>
+                                                                <div className="ir-video-url">{v.url}</div>
+                                                            </div>
+                                                        ))
+                                                    ) : (
+                                                        <p style={{ color: '#444', fontSize: '10px', padding: '12px 0' }}>No videos found.</p>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {/* SOCIAL TAB */}
+                                        <div className={`ir-tab-content ${activeTab === 'social' ? 'active' : ''}`}>
+                                            <div className="ir-dossier">
+                                                <div className="ir-dossier-section">
+                                                    <div className="ir-dossier-section-title">SOCIAL POSTS</div>
+                                                    {results.social_profiles && results.social_profiles.some(p => p.posts && p
+                                                        .posts.length > 0) ? (
+                                                        <div className="ir-social-feed">
+                                                            {results.social_profiles.flatMap((profile, idx) =>
+                                                                (profile.posts || []).map((post, j) => (
+                                                                    <div key={`${idx}-${j}`} className="ir-social-post-card">
+                                                                        <div className="ir-social-header">
+                                                                            <div className="ir-social-avatar">
+                                                                                {profile.platform.charAt(0).toUpperCase()}
+                                                                            </div>
+                                                                            <div>
+                                                                                <div className="ir-social-name">{profile.handle}</div>
+                                                                                <div className="ir-social-handle">{profile.platform} · {profile.followers.toLocaleString()} followers</div>
+                                                                            </div>
+                                                                            <div className="ir-social-platform">{profile.platform}</div>
+                                                                        </div>
+                                                                        <div className="ir-social-content">
+                                                                            {post.content.split(' ').map((word, wi) => {
+                                                                                if (word.startsWith('#')) return <span key={wi} className="ir-hashtag">{word} </span>;
+                                                                                if (word.startsWith('@')) return <span key={wi} className="ir-mention">{word} </span>;
+                                                                                return word + ' ';
+                                                                            })}
+                                                                        </div>
+                                                                        {post.media && post.media.length > 0 && (
+                                                                            <div className="ir-social-media">
+                                                                                {post.media.slice(0, 3).map((m, mi) => (
+                                                                                    <img key={mi} src={m} alt="post media" />
+                                                                                ))}
+                                                                            </div>
+                                                                        )}
+                                                                        <div className="ir-social-footer">
+                                                                            <div className="ir-social-stats">
+                                                                                <span>❤️ {post.likes}</span>
+                                                                                <span>🔁 {post.retweets}</span>
+                                                                                <span>💬 {post.replies}</span>
+                                                                            </div>
+                                                                            <div className="ir-social-time">
+                                                                                {new Date(post.time).toLocaleString()}
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                ))
+                                                            )}
+                                                        </div>
+                                                    ) : (
+                                                        <p style={{ color: '#444', fontSize: '10px', padding: '12px 0' }}>No social media posts found.</p>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {/* NEWS TAB */}
+                                        <div className={`ir-tab-content ${activeTab === 'news' ? 'active' : ''}`}>
+                                            <div className="ir-dossier">
+                                                <div className="ir-dossier-section">
+                                                    <div className="ir-dossier-section-title">LATEST NEWS</div>
+                                                    {results.news && results.news.length > 0 ? (
+                                                        <div className="ir-news-grid">
+                                                            {results.news.map((item, i) => (
+                                                                <div key={i} className="ir-news-card">
+                                                                    <div className="ir-news-headline">{item.headline}</div>
+                                                                    <div className="ir-news-snippet">{item.snippet}</div>
+                                                                    <div className="ir-news-footer">
+                                                                        <span className="source">{item.source}</span>
+                                                                        <span className="date">{item.date}</span>
+                                                                        <a href="#" className="ir-news-link">Read →</a>
+                                                                    </div>
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                    ) : (
+                                                        <p style={{ color: '#444', fontSize: '10px', padding: '12px 0' }}>No news articles found.</p>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </>
+                                ) : (
+                                    <div className="ir-empty-results">
+                                        <div className="ir-empty-icon">⎔</div>
+                                        <div className="ir-empty-title">NO DOSSIER LOADED</div>
+                                        <div className="ir-empty-sub">Enter query parameters and initiate retrieval</div>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Vault Toggle Button */}
+                    <button className="ir-vault-toggle" onClick={() => setShowVault(true)}>
+                        IDENTITY VAULT · <span className="count">{identities.length}</span>
+                    </button>
+
+                    {/* Vault Modal */}
+                    <div className={`ir-modal-overlay ${showVault ? 'open' : ''}`} onClick={e => { if (e.target === e.currentTarget) setShowVault(false); }}>
+                        <div className="ir-modal">
+                            <div className="ir-modal-corner tl" />
+                            <div className="ir-modal-corner tr" />
+                            <div className="ir-modal-corner bl" />
+                            <div className="ir-modal-corner br" />
+                            <div className="ir-modal-header">
+                                <span className="ir-modal-title">IDENTITY VAULT · {identities.length} ASSETS</span>
+                                <button className="ir-modal-close" onClick={() => setShowVault(false)}>×</button>
+                            </div>
+                            <div className="ir-modal-body">
+                                {identities.length === 0 ? (
+                                    <div className="ir-empty-vault">
+                                        <div style={{ fontSize: '28px', marginBottom: '10px' }}>◈</div>
+                                        <div>NO IDENTITIES ARCHIVED</div>
+                                        <div style={{ fontSize: '8px', color: '#333', marginTop: '4px' }}>
+                                            Retrieve intelligence and add to vault
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div className="ir-identity-grid">
+                                        {identities.map(id => (
+                                            <div key={id.id} className="ir-identity-card">
+                                                <div className="ir-identity-name">{id.name}</div>
+                                                <div className="ir-identity-meta">
+                                                    {id.type} · <span>{id.classification}</span> · {id.codename}
+                                                </div>
+                                                <div className="ir-identity-meta" style={{ fontSize: '7px' }}>
+                                                    {id.location} · {id.status}
+                                                </div>
+                                                <div className="ir-identity-tags">
+                                                    {(id.tags || []).slice(0, 4).map((t, i) => (
+                                                        <span key={i} className="ir-identity-tag">{t}</span>
+                                                    ))}
+                                                </div>
+                                                <div className="ir-identity-actions">
+                                                    <button onClick={() => { /* View dossier */ }}>VIEW</button>
+                                                    <button className="ir-id-del" onClick={() => removeIdentity(id.id)}>PURGE</button>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Toasts */}
+                    <div className="ir-toast-wrap">
+                        {toasts.map(t => (
+                            <div key={t.id} className={`ir-toast ${t.type} ${t.out ? 'out' : ''}`}>
+                                <div className="ir-toast-title">{t.title}</div>
+                                <div className="ir-toast-msg">{t.msg}</div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            );
+        }
+
+        // Mount
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
