@@ -7,6 +7,31 @@
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
     <style>
         /* ──────────────────────────────────────────────────────
+           TOKENS
+           ────────────────────────────────────────────────────── */
+        :root {
+            /* refined amber-gold (replaces the harsh #ffd000) */
+            --amber: #e8b64c;
+            --amber-bright: #ffcf72;
+            --amber-deep: #a87c26;
+            --amber-soft: rgba(232, 182, 76, 0.12);
+            --amber-line: rgba(232, 182, 76, 0.22);
+
+            /* greyscale ink scale */
+            --ink-1: rgba(255, 255, 255, 0.92);
+            --ink-2: rgba(255, 255, 255, 0.70);
+            --ink-3: rgba(255, 255, 255, 0.48);
+            --ink-4: rgba(255, 255, 255, 0.30);
+            --ink-5: rgba(255, 255, 255, 0.16);
+
+            --line: rgba(255, 255, 255, 0.07);
+            --line-strong: rgba(255, 255, 255, 0.13);
+
+            --glass: rgba(255, 255, 255, 0.025);
+            --glass-hover: rgba(255, 255, 255, 0.05);
+        }
+
+        /* ──────────────────────────────────────────────────────
            RESET & BASE
            ────────────────────────────────────────────────────── */
         * {
@@ -17,13 +42,15 @@
 
         body {
             background: #000000;
-            color: #e0e0e0;
+            color: var(--ink-1);
             font-family: 'Inter', sans-serif;
             height: 100vh;
             width: 100vw;
             overflow: hidden;
             user-select: none;
             cursor: default;
+            -webkit-font-smoothing: antialiased;
+            text-rendering: optimizeLegibility;
         }
 
         /* ──────────────────────────────────────────────────────
@@ -35,11 +62,11 @@
             height: 100vh;
             width: 100vw;
             background:
-                radial-gradient(ellipse at 50% 0%, #1a1a1a 0%, #070707 60%, #000000 100%);
+                radial-gradient(ellipse at 50% -10%, #1c1c1c 0%, #0a0a0a 55%, #000000 100%);
             padding: 16px 20px 14px 20px;
             position: relative;
             z-index: 1;
-            box-shadow: inset 0 0 120px rgba(0, 0, 0, 0.9);
+            box-shadow: inset 0 0 140px rgba(0, 0, 0, 0.95);
         }
 
         /* Glossy highlight sweep */
@@ -50,18 +77,14 @@
             left: -50%;
             width: 200%;
             height: 200%;
-            background: radial-gradient(ellipse at 70% 10%, rgba(255, 255, 255, 0.015) 0%, transparent 50%);
+            background: radial-gradient(ellipse at 70% 8%, rgba(255, 255, 255, 0.022) 0%, transparent 50%);
             pointer-events: none;
             z-index: 0;
-            animation: glossRotate 20s linear infinite;
+            animation: glossRotate 24s linear infinite;
         }
         @keyframes glossRotate {
-            0% {
-                transform: rotate(0deg);
-            }
-            100% {
-                transform: rotate(360deg);
-            }
+            0%   { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
 
         /* ──────────────────────────────────────────────────────
@@ -70,14 +93,11 @@
         .desktop::after {
             content: '';
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            inset: 0;
             background-image:
-                linear-gradient(rgba(255, 208, 0, 0.01) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255, 208, 0, 0.01) 1px, transparent 1px);
-            background-size: 40px 40px;
+                linear-gradient(rgba(255, 255, 255, 0.018) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.018) 1px, transparent 1px);
+            background-size: 42px 42px;
             pointer-events: none;
             z-index: 0;
         }
@@ -87,30 +107,23 @@
            ────────────────────────────────────────────────────── */
         .scanline {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            inset: 0;
             pointer-events: none;
             z-index: 9999;
             background: repeating-linear-gradient(0deg,
-                    rgba(0, 0, 0, 0.03) 0px,
-                    rgba(0, 0, 0, 0.03) 2px,
+                    rgba(0, 0, 0, 0.035) 0px,
+                    rgba(0, 0, 0, 0.035) 2px,
                     transparent 2px,
                     transparent 6px);
             animation: scanMove 0.8s linear infinite;
         }
         @keyframes scanMove {
-            0% {
-                transform: translateY(0);
-            }
-            100% {
-                transform: translateY(6px);
-            }
+            0%   { transform: translateY(0); }
+            100% { transform: translateY(6px); }
         }
 
         /* ──────────────────────────────────────────────────────
-           GLITCH LINE
+           GLITCH LINE  (now white / grey)
            ────────────────────────────────────────────────────── */
         .glitch-line {
             position: fixed;
@@ -118,55 +131,57 @@
             left: 0;
             width: 100%;
             height: 1px;
-            background: rgba(255, 208, 0, 0.02);
+            background: rgba(255, 255, 255, 0.10);
+            box-shadow: 0 0 8px rgba(255, 255, 255, 0.06);
             z-index: 9998;
             pointer-events: none;
-            animation: glitchLine 6s linear infinite;
+            opacity: 0;
+            animation: glitchLine 7s linear infinite;
         }
         @keyframes glitchLine {
-            0%,
-            100% {
-                opacity: 0;
-                transform: translateY(0);
-            }
-            5% {
-                opacity: 1;
-                transform: translateY(0);
-            }
-            6% {
-                opacity: 0;
-            }
-            15% {
-                opacity: 0.6;
-                transform: translateY(4px);
-            }
-            16% {
-                opacity: 0;
-            }
-            50% {
-                opacity: 0;
-            }
-            55% {
-                opacity: 0.8;
-                transform: translateY(2px);
-            }
-            56% {
-                opacity: 0;
-            }
-            80% {
-                opacity: 0;
-            }
-            85% {
-                opacity: 0.5;
-                transform: translateY(0);
-            }
-            86% {
-                opacity: 0;
-            }
+            0%, 100% { opacity: 0; transform: translateY(0); }
+            4%   { opacity: 0.9; transform: translateY(0); }
+            5%   { opacity: 0; }
+            14%  { opacity: 0.5; transform: translateY(5px); }
+            15%  { opacity: 0; }
+            49%  { opacity: 0; }
+            54%  { opacity: 0.7; transform: translateY(2px); }
+            55%  { opacity: 0; }
+            79%  { opacity: 0; }
+            84%  { opacity: 0.45; transform: translateY(0); }
+            85%  { opacity: 0; }
         }
 
         /* ──────────────────────────────────────────────────────
-           TOP BAR (BORDERLESS)
+           FULL-SCREEN GLITCH TEAR OVERLAY
+           ────────────────────────────────────────────────────── */
+        .screen-glitch {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 9997;
+            opacity: 0;
+            background:
+                linear-gradient(transparent 0%,
+                    rgba(255, 255, 255, 0.03) 46%,
+                    rgba(255, 255, 255, 0.10) 50%,
+                    rgba(255, 255, 255, 0.03) 54%,
+                    transparent 100%);
+            mix-blend-mode: screen;
+        }
+        .screen-glitch.active {
+            animation: screenTear 0.22s steps(3, end) 1;
+        }
+        @keyframes screenTear {
+            0%   { opacity: 0; transform: translateY(-4%) scaleY(1); }
+            20%  { opacity: 1; transform: translateY(3%)  scaleY(1.02); }
+            45%  { opacity: 0.4; transform: translateY(-2%) scaleY(0.99); }
+            70%  { opacity: 0.9; transform: translateY(2%); }
+            100% { opacity: 0; transform: translateY(0); }
+        }
+
+        /* ──────────────────────────────────────────────────────
+           TOP BAR
            ────────────────────────────────────────────────────── */
         .topbar {
             display: flex;
@@ -177,7 +192,7 @@
             flex-shrink: 0;
             position: relative;
             z-index: 2;
-            border-bottom: 1px solid rgba(255, 208, 0, 0.05);
+            border-bottom: 1px solid var(--line);
         }
 
         .topbar-left {
@@ -197,62 +212,57 @@
             color: #ffffff;
         }
         .brand .badge {
-            font-weight: 400;
+            font-weight: 500;
             font-size: 8px;
-            color: rgba(255, 208, 0, 0.8);
-            background: rgba(255, 208, 0, 0.08);
-            padding: 2px 10px;
-            border: 1px solid rgba(255, 208, 0, 0.1);
-            letter-spacing: 0.1em;
+            color: var(--amber);
+            background: var(--amber-soft);
+            padding: 3px 10px;
+            border: 1px solid var(--amber-line);
+            letter-spacing: 0.12em;
         }
         .brand .dot {
             display: inline-block;
             width: 8px;
             height: 8px;
-            background: #ffd000;
-            box-shadow: 0 0 25px rgba(255, 208, 0, 0.4);
+            background: var(--amber);
+            box-shadow: 0 0 22px rgba(232, 182, 76, 0.5);
             animation: pulseDot 1.6s ease-in-out infinite;
         }
         @keyframes pulseDot {
-            0%,
-            100% {
-                opacity: 1;
-                transform: scale(1);
-            }
-            50% {
-                opacity: 0.2;
-                transform: scale(0.6);
-            }
+            0%, 100% { opacity: 1;   transform: scale(1); }
+            50%      { opacity: 0.25; transform: scale(0.6); }
         }
 
         .topbar-center {
             display: flex;
             align-items: center;
-            gap: 24px;
+            gap: 12px;
             font-family: 'Orbitron', monospace;
             font-size: 9px;
-            font-weight: 400;
+            font-weight: 500;
             letter-spacing: 0.15em;
-            color: rgba(255, 255, 255, 0.15);
+            color: var(--ink-3);
         }
         .topbar-center .status-item {
             display: flex;
             align-items: center;
             gap: 8px;
-            padding: 4px 12px;
-            border: 1px solid rgba(255, 255, 255, 0.03);
-            background: rgba(255, 255, 255, 0.01);
+            padding: 5px 12px;
+            border: 1px solid var(--line);
+            background: var(--glass);
         }
         .topbar-center .status-item .indicator {
             display: inline-block;
-            width: 4px;
-            height: 4px;
-            background: #00f0ff;
+            width: 5px;
+            height: 5px;
+            background: #ffffff;
+            box-shadow: 0 0 8px rgba(255, 255, 255, 0.5);
             animation: pulseDot 2s ease-in-out infinite;
         }
         .topbar-center .status-item .indicator.warn {
-            background: #ffd000;
-            animation-duration: 0.8s;
+            background: var(--amber);
+            box-shadow: 0 0 10px rgba(232, 182, 76, 0.6);
+            animation-duration: 0.9s;
         }
 
         .topbar-right {
@@ -266,21 +276,17 @@
             font-size: 18px;
             letter-spacing: 0.06em;
             color: #ffffff;
-            background: transparent;
-            padding: 2px 0;
-            border: none;
-            text-shadow: 0 0 30px rgba(255, 208, 0, 0.1);
-            font-family: 'Orbitron', monospace;
+            text-shadow: 0 0 30px rgba(255, 255, 255, 0.12);
         }
         .topbar-right .date-display {
-            color: rgba(255, 255, 255, 0.2);
+            color: var(--ink-3);
             font-size: 11px;
-            font-weight: 300;
-            letter-spacing: 0.1em;
+            font-weight: 400;
+            letter-spacing: 0.12em;
         }
 
         /* ──────────────────────────────────────────────────────
-           MAIN GRID (3-COLUMN COMMAND CENTER)
+           MAIN GRID
            ────────────────────────────────────────────────────── */
         .main-grid {
             display: grid;
@@ -294,13 +300,13 @@
 
         /* ─── PANEL BASE ─── */
         .panel {
-            background: rgba(0, 0, 0, 0.65);
-            border: 1px solid rgba(255, 255, 255, 0.04);
-            backdrop-filter: blur(4px);
+            background: rgba(8, 8, 8, 0.72);
+            border: 1px solid var(--line);
+            backdrop-filter: blur(6px);
             display: flex;
             flex-direction: column;
             overflow: hidden;
-            box-shadow: 0 0 40px rgba(0, 0, 0, 0.6);
+            box-shadow: 0 0 50px rgba(0, 0, 0, 0.7);
             position: relative;
         }
         .panel::before {
@@ -310,97 +316,117 @@
             left: 0;
             width: 100%;
             height: 1px;
-            background: linear-gradient(90deg, transparent, rgba(255, 208, 0, 0.15), transparent);
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.14), transparent);
         }
         .panel-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 14px 18px 10px 18px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+            padding: 14px 18px 11px 18px;
+            border-bottom: 1px solid var(--line);
             flex-shrink: 0;
         }
         .panel-header h2 {
+            display: flex;
+            align-items: center;
+            gap: 8px;
             font-family: 'Orbitron', monospace;
             font-size: 10px;
             font-weight: 700;
             letter-spacing: 0.2em;
             text-transform: uppercase;
-            color: rgba(255, 255, 255, 0.2);
+            color: var(--ink-2);
         }
-        .panel-header .badge {
-            font-family: 'Orbitron', monospace;
-            font-size: 7px;
-            font-weight: 400;
-            color: rgba(255, 208, 0, 0.4);
-            background: rgba(255, 208, 0, 0.05);
-            padding: 1px 10px;
-            border: 1px solid rgba(255, 208, 0, 0.06);
-            letter-spacing: 0.1em;
-        }
-
-        /* ─── FILES PANEL (LEFT) ─── */
-        .files-panel {
-            border-left: 2px solid rgba(255, 208, 0, 0.1);
-        }
-        .file-list {
-            flex: 1;
-            overflow-y: auto;
-            padding: 6px 12px 12px 12px;
-            display: flex;
-            flex-direction: column;
-            gap: 2px;
-        }
-        .file-item {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 8px 12px;
-            border-left: 2px solid transparent;
-            cursor: pointer;
-            transition: all 0.15s ease;
-            background: transparent;
-            border: 1px solid transparent;
-            border-left-width: 2px;
-        }
-        .file-item:hover {
-            background: rgba(255, 208, 0, 0.04);
-            border-color: rgba(255, 208, 0, 0.06);
-            border-left-color: #ffd000;
-            transform: translateX(2px);
-        }
-        .file-item:active {
-            transform: scale(0.98);
-            background: rgba(255, 208, 0, 0.08);
-        }
-        .file-item .icon-wrap {
-            width: 24px;
-            height: 24px;
-            flex-shrink: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: rgba(255, 255, 255, 0.2);
-        }
-        .file-item .icon-wrap svg {
-            width: 18px;
-            height: 18px;
+        .hdr-icon {
+            width: 12px;
+            height: 12px;
             fill: none;
             stroke: currentColor;
             stroke-width: 1.8;
             stroke-linecap: round;
             stroke-linejoin: round;
+            opacity: 0.9;
         }
+        .panel-header .badge {
+            font-family: 'Orbitron', monospace;
+            font-size: 7px;
+            font-weight: 500;
+            color: var(--amber);
+            background: var(--amber-soft);
+            padding: 3px 10px;
+            border: 1px solid var(--amber-line);
+            letter-spacing: 0.12em;
+        }
+
+        /* ─── FILES PANEL (LEFT) ─── */
+        .files-panel {
+            border-left: 2px solid var(--amber-line);
+        }
+        .file-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 8px 12px 12px 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+        .file-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 9px 12px;
+            cursor: pointer;
+            transition: background 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
+            background: var(--glass);
+            border: 1px solid var(--line);
+            border-left: 2px solid transparent;
+        }
+        .file-item:hover {
+            background: var(--glass-hover);
+            border-color: var(--line-strong);
+            border-left-color: var(--amber);
+            transform: translateX(2px);
+        }
+        .file-item:active {
+            transform: scale(0.985);
+            background: rgba(232, 182, 76, 0.07);
+        }
+
+        .file-item .icon-wrap {
+            width: 26px;
+            height: 26px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--ink-3);
+            transition: color 0.18s ease, filter 0.18s ease;
+        }
+        .file-item .icon-wrap svg {
+            width: 17px;
+            height: 17px;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 1.7;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+        .file-item:hover .icon-wrap {
+            color: #ffffff;
+            filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.35));
+        }
+
         .file-item .info {
             display: flex;
             flex-direction: column;
             flex: 1;
             min-width: 0;
+            gap: 2px;
         }
         .file-item .info .name {
             font-size: 12px;
             font-weight: 500;
-            color: #d0d0d0;
+            color: var(--ink-1);
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -408,42 +434,33 @@
         }
         .file-item .info .meta {
             font-size: 8px;
-            color: rgba(255, 255, 255, 0.08);
+            color: var(--ink-4);
             font-family: 'Orbitron', monospace;
-            letter-spacing: 0.06em;
+            letter-spacing: 0.08em;
             text-transform: uppercase;
         }
         .file-item .size {
             font-size: 9px;
-            color: rgba(255, 255, 255, 0.06);
+            color: var(--ink-4);
             font-family: 'Orbitron', monospace;
-        }
-        .file-item.folder .icon-wrap {
-            color: #ffd000;
-        }
-        .file-item.folder .info .name {
-            color: #ffffff;
-            font-weight: 600;
-        }
-        .file-item.pdf .icon-wrap {
-            color: #ff4444;
-        }
-        .file-item.csv .icon-wrap {
-            color: #44ff88;
-        }
-        .file-item.txt .icon-wrap {
-            color: #ffd700;
-        }
-        .file-item.img .icon-wrap {
-            color: #cc66ff;
-        }
-        .file-divider {
-            height: 1px;
-            background: rgba(255, 255, 255, 0.02);
-            margin: 4px 0 6px 12px;
+            letter-spacing: 0.04em;
         }
 
-        /* ─── CENTER PANEL (BORDERLESS, NO BLOCK) ─── */
+        /* monochrome icon treatment — folders brighter, files grey */
+        .file-item.folder .icon-wrap { color: rgba(255, 255, 255, 0.78); }
+        .file-item.folder .info .name { color: #ffffff; font-weight: 600; }
+        .file-item.pdf  .icon-wrap { color: #c8ccd3; }
+        .file-item.csv  .icon-wrap { color: #cfd4db; }
+        .file-item.txt  .icon-wrap { color: #c2c7cf; }
+        .file-item.img  .icon-wrap { color: #d4d9e0; }
+
+        .file-divider {
+            height: 1px;
+            background: var(--line);
+            margin: 6px 0 7px 12px;
+        }
+
+        /* ─── CENTER PANEL (BORDERLESS, FLOATING) ─── */
         .center-panel {
             background: transparent;
             border: none;
@@ -463,26 +480,25 @@
 
         .hub-time {
             font-family: 'Orbitron', monospace;
-            font-size: 6.5rem;
+            font-size: clamp(3.2rem, 8.6vw, 6.5rem);
             font-weight: 900;
             color: #ffffff;
             letter-spacing: 0.08em;
-            text-shadow: 0 0 50px rgba(255, 208, 0, 0.1);
+            text-shadow: 0 0 60px rgba(255, 255, 255, 0.10);
             line-height: 1;
-            margin-bottom: 4px;
+            margin-bottom: 8px;
             z-index: 1;
             position: relative;
-            transition: all 0.05s ease;
         }
         .hub-date {
             font-family: 'Orbitron', monospace;
             font-size: 0.9rem;
             font-weight: 400;
-            color: rgba(255, 255, 255, 0.15);
-            letter-spacing: 0.3em;
+            color: var(--ink-3);
+            letter-spacing: 0.34em;
             text-transform: uppercase;
             z-index: 1;
-            margin-bottom: 16px;
+            margin-bottom: 18px;
         }
         .hub-status {
             display: flex;
@@ -491,12 +507,12 @@
             z-index: 1;
             font-family: 'Orbitron', monospace;
             font-size: 9px;
-            font-weight: 400;
-            letter-spacing: 0.1em;
-            color: rgba(255, 255, 255, 0.1);
-            border-top: 1px solid rgba(255, 208, 0, 0.05);
-            padding-top: 14px;
-            width: 60%;
+            font-weight: 500;
+            letter-spacing: 0.12em;
+            color: var(--ink-4);
+            border-top: 1px solid var(--line);
+            padding-top: 15px;
+            width: 62%;
             justify-content: center;
         }
         .hub-status .stat-item {
@@ -505,25 +521,27 @@
             gap: 8px;
         }
         .hub-status .stat-item .dot {
-            width: 4px;
-            height: 4px;
-            background: #00f0ff;
+            width: 5px;
+            height: 5px;
+            background: #ffffff;
+            box-shadow: 0 0 8px rgba(255, 255, 255, 0.45);
             animation: pulseDot 1.8s ease-in-out infinite;
         }
         .hub-status .stat-item .dot.orange {
-            background: #ffd000;
+            background: var(--amber);
+            box-shadow: 0 0 10px rgba(232, 182, 76, 0.6);
             animation-duration: 1s;
         }
 
         /* ─── APPS PANEL (RIGHT) ─── */
         .apps-panel {
-            border-right: 2px solid rgba(255, 208, 0, 0.1);
+            border-right: 2px solid var(--amber-line);
         }
         .apps-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 6px;
-            padding: 12px 14px 14px 14px;
+            gap: 7px;
+            padding: 14px;
             flex: 1;
             overflow-y: auto;
             align-content: start;
@@ -533,69 +551,72 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 12px 4px 10px 4px;
-            border: 1px solid rgba(255, 255, 255, 0.02);
-            background: rgba(255, 255, 255, 0.01);
+            padding: 13px 4px 11px 4px;
+            border: 1px solid var(--line);
+            background: var(--glass);
             cursor: pointer;
-            transition: all 0.15s ease;
+            transition: background 0.16s ease, border-color 0.16s ease,
+                        transform 0.16s ease, box-shadow 0.16s ease;
             text-align: center;
-            min-height: 80px;
+            min-height: 84px;
             position: relative;
         }
         .app-item:hover {
-            background: rgba(255, 208, 0, 0.04);
-            border-color: rgba(255, 208, 0, 0.08);
+            background: var(--glass-hover);
+            border-color: var(--line-strong);
             transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 10px 26px rgba(0, 0, 0, 0.6);
         }
         .app-item:active {
-            transform: scale(0.93);
-            background: rgba(255, 208, 0, 0.08);
+            transform: scale(0.94);
+            background: rgba(232, 182, 76, 0.08);
         }
         .app-item .app-icon {
-            width: 32px;
-            height: 32px;
+            width: 34px;
+            height: 34px;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: rgba(255, 255, 255, 0.2);
-            margin-bottom: 4px;
-            transition: color 0.2s ease;
+            color: rgba(255, 255, 255, 0.55);
+            margin-bottom: 6px;
+            transition: color 0.2s ease, filter 0.2s ease, transform 0.2s ease;
         }
         .app-item:hover .app-icon {
-            color: #ffd000;
+            color: #ffffff;
+            filter: drop-shadow(0 0 7px rgba(255, 255, 255, 0.35));
+            transform: scale(1.06);
         }
         .app-item .app-icon svg {
-            width: 24px;
-            height: 24px;
+            width: 23px;
+            height: 23px;
             fill: none;
             stroke: currentColor;
-            stroke-width: 1.6;
+            stroke-width: 1.55;
             stroke-linecap: round;
             stroke-linejoin: round;
         }
         .app-item .app-name {
             font-size: 7px;
             font-weight: 600;
-            color: rgba(255, 255, 255, 0.15);
-            letter-spacing: 0.1em;
+            color: var(--ink-3);
+            letter-spacing: 0.11em;
             text-transform: uppercase;
             font-family: 'Orbitron', monospace;
             transition: color 0.2s ease;
         }
         .app-item:hover .app-name {
-            color: rgba(255, 255, 255, 0.4);
+            color: #ffffff;
         }
         .app-item .app-shortcut {
             font-size: 6px;
-            color: rgba(255, 255, 255, 0.02);
-            margin-top: 2px;
+            color: var(--ink-5);
+            margin-top: 3px;
             font-family: 'Orbitron', monospace;
-            letter-spacing: 0.05em;
+            letter-spacing: 0.06em;
         }
 
         /* ──────────────────────────────────────────────────────
-           BOTTOM BAR (BORDERLESS)
+           BOTTOM BAR
            ────────────────────────────────────────────────────── */
         .bottombar {
             display: flex;
@@ -606,136 +627,261 @@
             flex-shrink: 0;
             position: relative;
             z-index: 2;
-            border-top: 1px solid rgba(255, 208, 0, 0.05);
+            border-top: 1px solid var(--line);
         }
         .bottombar-left {
             display: flex;
             align-items: center;
-            gap: 16px;
+            gap: 10px;
         }
         .bottombar-left .dock-item {
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 7px;
             font-size: 9px;
             font-weight: 600;
-            color: rgba(255, 255, 255, 0.1);
-            padding: 4px 14px;
-            border: 1px solid transparent;
-            transition: all 0.15s ease;
+            color: var(--ink-3);
+            padding: 5px 13px;
+            border: 1px solid var(--line);
+            background: var(--glass);
+            transition: color 0.15s ease, background 0.15s ease,
+                        border-color 0.15s ease, transform 0.1s ease;
             cursor: pointer;
             font-family: 'Orbitron', monospace;
             letter-spacing: 0.1em;
             text-transform: uppercase;
         }
+        .bottombar-left .dock-item svg {
+            width: 11px;
+            height: 11px;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 1.9;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            opacity: 0.85;
+        }
         .bottombar-left .dock-item:hover {
             color: #ffffff;
-            background: rgba(255, 255, 255, 0.02);
-            border-color: rgba(255, 255, 255, 0.04);
+            background: var(--glass-hover);
+            border-color: var(--line-strong);
         }
         .bottombar-left .dock-item:active {
             transform: scale(0.95);
         }
         .bottombar-left .dock-item .dot {
-            width: 4px;
-            height: 4px;
-            background: #ffd000;
-            opacity: 0.2;
+            width: 5px;
+            height: 5px;
+            background: var(--amber);
+            opacity: 0.35;
+            transition: opacity 0.2s ease, box-shadow 0.2s ease;
+        }
+        .bottombar-left .dock-item.active {
+            color: #ffffff;
+            border-color: var(--amber-line);
+            background: rgba(232, 182, 76, 0.06);
         }
         .bottombar-left .dock-item.active .dot {
             opacity: 1;
-            box-shadow: 0 0 12px rgba(255, 208, 0, 0.3);
-        }
-        .bottombar-left .dock-item.active {
-            color: rgba(255, 255, 255, 0.3);
+            box-shadow: 0 0 12px rgba(232, 182, 76, 0.6);
         }
 
         .search-box {
             display: flex;
             align-items: center;
             gap: 8px;
-            background: rgba(255, 255, 255, 0.01);
-            border: 1px solid rgba(255, 255, 255, 0.03);
-            padding: 2px 12px 2px 16px;
-            transition: all 0.25s ease;
+            background: rgba(255, 255, 255, 0.035);
+            border: 1px solid var(--line-strong);
+            padding: 4px 12px 4px 14px;
+            transition: border-color 0.25s ease, background 0.25s ease, box-shadow 0.25s ease;
         }
         .search-box:focus-within {
-            border-color: rgba(255, 208, 0, 0.10);
-            background: rgba(255, 208, 0, 0.01);
+            border-color: var(--amber-line);
+            background: rgba(232, 182, 76, 0.05);
+            box-shadow: 0 0 18px rgba(232, 182, 76, 0.08);
+        }
+        .search-box .lead {
+            color: var(--ink-4);
+            font-size: 10px;
         }
         .search-box input {
             background: transparent;
             border: none;
             outline: none;
-            color: #d0d0d0;
+            color: var(--ink-1);
             font-size: 10px;
-            font-weight: 400;
+            font-weight: 500;
             padding: 4px 0;
-            width: 120px;
+            width: 130px;
             font-family: 'Orbitron', monospace;
-            letter-spacing: 0.06em;
+            letter-spacing: 0.07em;
         }
         .search-box input::placeholder {
-            color: rgba(255, 255, 255, 0.04);
+            color: var(--ink-4);
             text-transform: uppercase;
             font-size: 8px;
-            letter-spacing: 0.1em;
+            letter-spacing: 0.14em;
         }
         .search-box .kbd {
             font-size: 7px;
-            color: rgba(255, 255, 255, 0.02);
-            background: rgba(255, 255, 255, 0.01);
-            padding: 0px 6px;
-            border: 1px solid rgba(255, 255, 255, 0.02);
+            color: var(--ink-3);
+            background: rgba(255, 255, 255, 0.05);
+            padding: 2px 6px;
+            border: 1px solid var(--line);
             font-family: 'Orbitron', monospace;
         }
 
         .bottombar-right {
             display: flex;
             align-items: center;
-            gap: 16px;
+            gap: 14px;
             font-family: 'Orbitron', monospace;
             font-size: 8px;
-            color: rgba(255, 255, 255, 0.04);
-            letter-spacing: 0.06em;
+            color: var(--ink-4);
+            letter-spacing: 0.08em;
         }
         .bottombar-right .sys-stat {
             display: flex;
             align-items: center;
             gap: 8px;
-            padding: 2px 12px;
-            border: 1px solid rgba(255, 255, 255, 0.01);
+            padding: 3px 12px;
+            border: 1px solid var(--line);
+            background: var(--glass);
         }
         .bottombar-right .sys-stat .bar {
-            width: 40px;
-            height: 2px;
-            background: rgba(255, 255, 255, 0.02);
+            width: 42px;
+            height: 3px;
+            background: rgba(255, 255, 255, 0.06);
             overflow: hidden;
         }
         .bottombar-right .sys-stat .bar .fill {
             height: 100%;
             width: 62%;
-            background: #ffd000;
-            transition: width 1.2s ease;
+            background: var(--amber);
+            transition: width 1.2s ease, background 0.4s ease;
+            box-shadow: 0 0 8px rgba(232, 182, 76, 0.35);
         }
         .bottombar-right .sys-stat .bar .fill.warn {
-            background: #ffaa00;
+            background: #ffb347;
         }
         .bottombar-right .sys-stat .bar .fill.danger {
-            background: #ff3333;
+            background: #ff5a5a;
+            box-shadow: 0 0 8px rgba(255, 90, 90, 0.4);
+        }
+        .bottombar-right .sep {
+            opacity: 0.25;
         }
 
         /* ──────────────────────────────────────────────────────
            SCROLLBAR
            ────────────────────────────────────────────────────── */
         ::-webkit-scrollbar {
-            width: 2px;
+            width: 3px;
         }
         ::-webkit-scrollbar-track {
-            background: rgba(255, 255, 255, 0.01);
+            background: rgba(255, 255, 255, 0.02);
         }
         ::-webkit-scrollbar-thumb {
-            background: rgba(255, 208, 0, 0.15);
+            background: rgba(255, 255, 255, 0.14);
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(232, 182, 76, 0.4);
+        }
+
+        /* ──────────────────────────────────────────────────────
+           GLITCH ENGINE — WHITE / GREY HACKER STYLE
+           ────────────────────────────────────────────────────── */
+        .glitch-wrapper {
+            position: relative;
+            display: inline-block;
+            will-change: transform;
+        }
+
+        .glitch-text {
+            display: block;
+            position: relative;
+            will-change: transform, opacity;
+        }
+
+        /* chromatic split layers — monochrome */
+        .glitch-active .glitch-text::before,
+        .glitch-active .glitch-text::after {
+            content: attr(data-text);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            white-space: nowrap;
+        }
+
+        .glitch-active .glitch-text::before {
+            color: #ffffff;
+            text-shadow: 2px 0 0 rgba(255, 255, 255, 0.55);
+            clip-path: polygon(0 0, 100% 0, 100% 36%, 0 36%);
+            animation: glitchBefore 0.16s steps(2, end) infinite;
+            opacity: 0.9;
+        }
+
+        .glitch-active .glitch-text::after {
+            color: #8f959c;
+            text-shadow: -2px 0 0 rgba(255, 255, 255, 0.28);
+            clip-path: polygon(0 62%, 100% 62%, 100% 100%, 0 100%);
+            animation: glitchAfter 0.16s steps(2, end) infinite;
+            opacity: 0.9;
+        }
+
+        @keyframes glitchBefore {
+            0%   { transform: translate(0, 0); }
+            25%  { transform: translate(-6px, -1px); }
+            50%  { transform: translate(4px, 1px); }
+            75%  { transform: translate(-3px, 2px); }
+            100% { transform: translate(0, 0); }
+        }
+        @keyframes glitchAfter {
+            0%   { transform: translate(0, 0); }
+            25%  { transform: translate(5px, 1px); }
+            50%  { transform: translate(-5px, -2px); }
+            75%  { transform: translate(3px, -1px); }
+            100% { transform: translate(0, 0); }
+        }
+
+        /* scan-tear bars over the glitching element */
+        .glitch-wrapper::after {
+            content: '';
+            position: absolute;
+            left: -8%;
+            right: -8%;
+            top: 0;
+            height: 100%;
+            background: repeating-linear-gradient(0deg,
+                    rgba(255, 255, 255, 0.10) 0px,
+                    rgba(255, 255, 255, 0.10) 1px,
+                    transparent 1px,
+                    transparent 5px);
+            opacity: 0;
+            pointer-events: none;
+            mix-blend-mode: screen;
+        }
+        .glitch-active.glitch-wrapper::after {
+            opacity: 1;
+            animation: tearSlide 0.22s steps(4, end) infinite;
+        }
+        @keyframes tearSlide {
+            0%   { transform: translateY(0); }
+            100% { transform: translateY(5px); }
+        }
+
+        /* main text flicker while glitching */
+        .glitch-active .glitch-text {
+            animation: glitchFlicker 0.12s steps(2, end) infinite;
+        }
+        @keyframes glitchFlicker {
+            0%   { opacity: 1; }
+            40%  { opacity: 0.72; }
+            70%  { opacity: 1; }
+            100% { opacity: 0.85; }
         }
 
         /* ──────────────────────────────────────────────────────
@@ -746,9 +892,6 @@
                 grid-template-columns: 240px 1fr 260px;
                 gap: 12px;
             }
-            .hub-time {
-                font-size: 4.5rem;
-            }
             .topbar-center {
                 display: none;
             }
@@ -756,7 +899,7 @@
 
         @media (max-width: 768px) {
             .desktop {
-                padding: 10px 12px 10px 12px;
+                padding: 10px 12px;
             }
             .topbar {
                 flex-wrap: wrap;
@@ -772,42 +915,40 @@
                 gap: 10px;
             }
             .files-panel {
-                max-height: 160px;
+                max-height: 170px;
                 border-left: none;
-                border-top: 2px solid rgba(255, 208, 0, 0.1);
+                border-top: 2px solid var(--amber-line);
             }
             .center-panel {
                 min-height: 180px;
                 padding: 10px 0;
             }
-            .hub-time {
-                font-size: 3.8rem;
-            }
             .apps-panel {
-                max-height: 200px;
+                max-height: 210px;
                 border-right: none;
-                border-bottom: 2px solid rgba(255, 208, 0, 0.1);
+                border-bottom: 2px solid var(--amber-line);
             }
             .apps-grid {
                 grid-template-columns: repeat(4, 1fr);
             }
             .bottombar {
                 flex-wrap: wrap;
-                gap: 6px;
-                padding: 6px 0;
+                gap: 8px;
+                padding: 8px 0;
             }
             .bottombar-left {
                 flex-wrap: wrap;
-                gap: 4px;
+                gap: 6px;
             }
             .search-box input {
-                width: 80px;
+                width: 90px;
             }
             .topbar-right .date-display {
                 display: none;
             }
             .hub-status {
-                width: 90%;
+                width: 92%;
+                gap: 18px;
             }
         }
 
@@ -815,19 +956,16 @@
             .topbar-right .time-display {
                 font-size: 14px;
             }
-            .hub-time {
-                font-size: 3rem;
-            }
             .apps-grid {
                 grid-template-columns: repeat(3, 1fr);
             }
             .app-item {
-                min-height: 60px;
-                padding: 6px 2px 4px 2px;
+                min-height: 66px;
+                padding: 8px 2px 6px 2px;
             }
             .app-item .app-icon {
-                width: 24px;
-                height: 24px;
+                width: 26px;
+                height: 26px;
             }
             .app-item .app-icon svg {
                 width: 18px;
@@ -836,150 +974,20 @@
             .app-item .app-name {
                 font-size: 6px;
             }
-            .file-item .info .meta {
-                display: none;
-            }
+            .file-item .info .meta,
             .file-item .size {
                 display: none;
             }
             .files-panel {
-                max-height: 120px;
+                max-height: 130px;
             }
             .bottombar-left .dock-item {
                 font-size: 7px;
-                padding: 2px 8px;
+                padding: 4px 8px;
             }
             .search-box input {
-                width: 60px;
+                width: 70px;
                 font-size: 8px;
-            }
-        }
-
-        /* ──────────────────────────────────────────────────────
-           HARD GLITCH EFFECTS
-           ────────────────────────────────────────────────────── */
-        .glitch-wrapper {
-            position: relative;
-            display: inline-block;
-        }
-
-        .glitch-text {
-            display: block;
-            position: relative;
-        }
-
-        .glitch-text .line {
-            display: block;
-        }
-
-        .glitch-active .glitch-text::before,
-        .glitch-active .glitch-text::after {
-            content: attr(data-text);
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: transparent;
-            pointer-events: none;
-            opacity: 0.8;
-        }
-
-        .glitch-active .glitch-text::before {
-            color: #ff00c8;
-            z-index: -1;
-            animation: glitch-before 0.15s cubic-bezier(0.25, 0.46, 0.45, 0.94) both infinite;
-            clip-path: polygon(0 0, 100% 0, 100% 35%, 0 35%);
-        }
-
-        .glitch-active .glitch-text::after {
-            color: #00f0ff;
-            z-index: -2;
-            animation: glitch-after 0.15s cubic-bezier(0.25, 0.46, 0.45, 0.94) both infinite;
-            clip-path: polygon(0 65%, 100% 65%, 100% 100%, 0 100%);
-        }
-
-        @keyframes glitch-before {
-            0% {
-                transform: translate(0);
-            }
-            20% {
-                transform: translate(-3px, 2px);
-            }
-            40% {
-                transform: translate(3px, -1px);
-            }
-            60% {
-                transform: translate(-1px, 2px);
-            }
-            80% {
-                transform: translate(2px, -2px);
-            }
-            100% {
-                transform: translate(0);
-            }
-        }
-
-        @keyframes glitch-after {
-            0% {
-                transform: translate(0);
-            }
-            20% {
-                transform: translate(3px, -1px);
-            }
-            40% {
-                transform: translate(-3px, 2px);
-            }
-            60% {
-                transform: translate(1px, -2px);
-            }
-            80% {
-                transform: translate(-2px, 1px);
-            }
-            100% {
-                transform: translate(0);
-            }
-        }
-
-        /* Random flicker */
-        .glitch-flicker {
-            animation: flicker 0.08s infinite alternate;
-        }
-
-        @keyframes flicker {
-            0% {
-                opacity: 1;
-            }
-            50% {
-                opacity: 0.2;
-            }
-            100% {
-                opacity: 1;
-            }
-        }
-
-        /* Screen tear effect */
-        .glitch-tear {
-            position: relative;
-        }
-        .glitch-tear::after {
-            content: '';
-            position: absolute;
-            top: 10%;
-            left: 0;
-            width: 100%;
-            height: 2px;
-            background: rgba(255, 208, 0, 0.3);
-            box-shadow: 0 0 10px rgba(255, 208, 0, 0.2);
-            pointer-events: none;
-            animation: tearSlide 0.3s linear infinite;
-        }
-        @keyframes tearSlide {
-            0% {
-                transform: translateY(0);
-            }
-            100% {
-                transform: translateY(40px);
             }
         }
     </style>
@@ -990,10 +998,12 @@
     <div class="scanline"></div>
     <!-- ─── GLITCH LINE ─── -->
     <div class="glitch-line"></div>
+    <!-- ─── FULL-SCREEN TEAR ─── -->
+    <div class="screen-glitch" id="screenGlitch"></div>
 
     <div class="desktop">
 
-        <!-- ═══ TOP BAR (BORDERLESS) ═══ -->
+        <!-- ═══ TOP BAR ═══ -->
         <header class="topbar">
             <div class="topbar-left">
                 <div class="brand">
@@ -1009,8 +1019,8 @@
                 <span class="status-item">
                     <span class="indicator warn"></span> ENCRYPTION
                 </span>
-                <span class="status-item" style="border-color:transparent;background:transparent;">
-                    <span style="opacity:0.1;">●</span> 12 NODES
+                <span class="status-item">
+                    <span style="opacity:0.35;">●</span> 12 NODES
                 </span>
             </div>
             <div class="topbar-right">
@@ -1025,7 +1035,10 @@
             <!-- ─── FILES PANEL ─── -->
             <section class="panel files-panel">
                 <div class="panel-header">
-                    <h2>📁 ASSETS</h2>
+                    <h2>
+                        <svg class="hdr-icon" viewBox="0 0 24 24"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+                        ASSETS
+                    </h2>
                     <span class="badge">12 ITEMS</span>
                 </div>
                 <div class="file-list">
@@ -1072,7 +1085,7 @@
                     <div class="file-divider"></div>
                     <div class="file-item pdf">
                         <span class="icon-wrap">
-                            <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                            <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
                         </span>
                         <div class="info">
                             <span class="name">Q3_ASSESSMENT.pdf</span>
@@ -1092,7 +1105,7 @@
                     </div>
                     <div class="file-item txt">
                         <span class="icon-wrap">
-                            <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                            <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
                         </span>
                         <div class="info">
                             <span class="name">BRIEFING_NOTES.txt</span>
@@ -1113,7 +1126,7 @@
                 </div>
             </section>
 
-            <!-- ─── CENTER PANEL (BORDERLESS, FLOATING) ─── -->
+            <!-- ─── CENTER PANEL ─── -->
             <section class="panel center-panel">
                 <div class="hub-time glitch-wrapper" id="hubTimeWrapper">
                     <span class="glitch-text" data-text="14:32:07" id="hubTime">14:32:07</span>
@@ -1127,7 +1140,7 @@
                         <span class="dot orange"></span> TARGET LOCK
                     </span>
                     <span class="stat-item">
-                        <span style="opacity:0.1;">●</span> 256-BIT
+                        <span style="opacity:0.35;">●</span> 256-BIT
                     </span>
                 </div>
             </section>
@@ -1135,7 +1148,10 @@
             <!-- ─── APPS PANEL ─── -->
             <section class="panel apps-panel">
                 <div class="panel-header">
-                    <h2>⚡ TOOLKIT</h2>
+                    <h2>
+                        <svg class="hdr-icon" viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                        TOOLKIT
+                    </h2>
                     <span class="badge">12 APPS</span>
                 </div>
                 <div class="apps-grid">
@@ -1148,7 +1164,7 @@
                     </div>
                     <div class="app-item">
                         <span class="app-icon">
-                            <svg viewBox="0 0 24 24"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/><path d="M5 12l7-7 7 7-7 7"/></svg>
+                            <svg viewBox="0 0 24 24"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>
                         </span>
                         <span class="app-name">SIGNALS</span>
                         <span class="app-shortcut">⌘G</span>
@@ -1218,7 +1234,7 @@
                     </div>
                     <div class="app-item">
                         <span class="app-icon">
-                            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="2"/><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="M12 2v20"/><path d="M2 12h20"/></svg>
+                            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="2"/><circle cx="12" cy="12" r="10"/><path d="M12 2v20"/><path d="M2 12h20"/></svg>
                         </span>
                         <span class="app-name">NETWORK</span>
                         <span class="app-shortcut">⌘W</span>
@@ -1228,17 +1244,26 @@
 
         </div>
 
-        <!-- ═══ BOTTOM BAR (BORDERLESS) ═══ -->
+        <!-- ═══ BOTTOM BAR ═══ -->
         <footer class="bottombar">
             <div class="bottombar-left">
                 <span class="dock-item active">
                     <span class="dot"></span> SYSTEM
                 </span>
-                <span class="dock-item">📁 FILES</span>
-                <span class="dock-item">⚡ APPS</span>
-                <span class="dock-item">🔍 SEARCH</span>
+                <span class="dock-item">
+                    <svg viewBox="0 0 24 24"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+                    FILES
+                </span>
+                <span class="dock-item">
+                    <svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                    APPS
+                </span>
+                <span class="dock-item">
+                    <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    SEARCH
+                </span>
                 <div class="search-box">
-                    <span style="color:rgba(255,255,255,0.03);font-size:9px;">⌘</span>
+                    <span class="lead">⌘</span>
                     <input type="text" placeholder="SEARCH" />
                     <span class="kbd">K</span>
                 </div>
@@ -1254,141 +1279,178 @@
                     <span class="bar"><span class="fill" style="width:23%;"></span></span>
                     23%
                 </span>
-                <span style="opacity:0.03;">|</span>
-                <span style="opacity:0.04;">v2.4.1</span>
+                <span class="sep">|</span>
+                <span>v2.4.1</span>
             </div>
         </footer>
 
     </div>
 
     <script>
-        // ─── CLOCK ───
+        // ─────────────────────────────────────────────
+        //  CLOCK
+        // ─────────────────────────────────────────────
+        let isGlitching = false;
+
         function updateClock() {
             const now = new Date();
-            const h = String(now.getHours()).padStart(2, '0');
-            const m = String(now.getMinutes()).padStart(2, '0');
-            const s = String(now.getSeconds()).padStart(2, '0');
+            const h  = String(now.getHours()).padStart(2, '0');
+            const m  = String(now.getMinutes()).padStart(2, '0');
+            const s  = String(now.getSeconds()).padStart(2, '0');
             const timeStr = `${h}:${m}:${s}`;
-            document.getElementById('timeDisplay').textContent = timeStr;
-            document.getElementById('hubTime').textContent = timeStr;
-            document.getElementById('hubTime').setAttribute('data-text', timeStr);
 
-            const y = now.getFullYear();
+            document.getElementById('timeDisplay').textContent = timeStr;
+
+            const hub = document.getElementById('hubTime');
+            hub.dataset.text = timeStr;          // always keep truth source updated
+            if (!isGlitching) hub.textContent = timeStr;
+
+            const y  = now.getFullYear();
             const mo = String(now.getMonth() + 1).padStart(2, '0');
-            const d = String(now.getDate()).padStart(2, '0');
+            const d  = String(now.getDate()).padStart(2, '0');
             document.getElementById('dateDisplay').textContent = `${y}-${mo}-${d}`;
             document.getElementById('hubDate').textContent = `${y} · ${mo} · ${d}`;
         }
         updateClock();
         setInterval(updateClock, 1000);
 
-        // ─── HARD GLITCH ENGINE ───
-        function triggerHardGlitch() {
-            const el = document.getElementById('hubTime');
-            const wrapper = document.getElementById('hubTimeWrapper');
-            if (!el) return;
+        // ─────────────────────────────────────────────
+        //  GLITCH ENGINE  (white / grey hacker scramble)
+        // ─────────────────────────────────────────────
+        const GLYPHS = '!<>-_\\/[]{}—=+*^?#01%$&@▓▒░█│┤┐└┴┬';
 
-            // Apply glitch class for CSS tearing + skew
-            wrapper.classList.add('glitch-active');
-
-            // Random character injection
-            const original = el.textContent;
-            const chars = '0123456789:';
-            let glitched = '';
-            for (let i = 0; i < original.length; i++) {
-                if (Math.random() > 0.7) {
-                    glitched += chars[Math.floor(Math.random() * chars.length)];
+        function scramble(text, intensity) {
+            let out = '';
+            for (let i = 0; i < text.length; i++) {
+                const ch = text[i];
+                const hit = Math.random() < intensity;
+                if (ch === ':') {
+                    out += (Math.random() < intensity * 0.4)
+                        ? GLYPHS[(Math.random() * GLYPHS.length) | 0]
+                        : ch;
                 } else {
-                    glitched += original[i];
+                    out += hit ? GLYPHS[(Math.random() * GLYPHS.length) | 0] : ch;
                 }
             }
-            el.textContent = glitched;
-            el.style.color = '#ffd000';
-            el.style.textShadow = '0 0 60px rgba(255,208,0,0.6), 0 0 120px rgba(255,0,200,0.3)';
-
-            // Random screen tear (horizontal shift)
-            if (Math.random() > 0.5) {
-                wrapper.style.transform = `translateX(${(Math.random() - 0.5) * 20}px) skewX(${(Math.random() - 0.5) * 6}deg)`;
-            }
-
-            // Reset after intense burst
-            setTimeout(() => {
-                el.textContent = original;
-                el.style.color = '#ffffff';
-                el.style.textShadow = '0 0 50px rgba(255,208,0,0.1)';
-                wrapper.classList.remove('glitch-active');
-                wrapper.style.transform = '';
-            }, 150 + Math.random() * 100);
+            return out;
         }
 
-        // ─── RANDOM GLITCH TRIGGERS ───
-        setInterval(() => {
-            if (Math.random() > 0.6) {
-                triggerHardGlitch();
-            }
-        }, 1200);
+        const wrap = document.getElementById('hubTimeWrapper');
+        const hub  = document.getElementById('hubTime');
+        const screenGlitch = document.getElementById('screenGlitch');
 
-        // ─── SUPER GLITCH BURST (every 8-12 seconds) ───
-        function superGlitchBurst() {
-            for (let i = 0; i < 3; i++) {
-                setTimeout(() => {
-                    triggerHardGlitch();
-                }, i * 200);
+        function triggerGlitch(strength = 1) {
+            if (isGlitching) return;
+            isGlitching = true;
+
+            const real = hub.dataset.text;
+            wrap.classList.add('glitch-active');
+
+            // occasional full screen tear
+            if (strength > 1 || Math.random() > 0.75) {
+                screenGlitch.classList.remove('active');
+                void screenGlitch.offsetWidth;      // restart animation
+                screenGlitch.classList.add('active');
             }
+
+            const frames = 3 + Math.round((2 + Math.random() * 4) * strength);
+            let i = 0;
+
+            (function step() {
+                if (i >= frames) {
+                    hub.textContent = real;
+                    hub.style.opacity = '';
+                    wrap.style.transform = '';
+                    wrap.classList.remove('glitch-active');
+                    isGlitching = false;
+                    return;
+                }
+
+                hub.textContent = scramble(real, 0.22 + Math.random() * 0.48);
+                hub.style.opacity = (0.55 + Math.random() * 0.45).toFixed(2);
+
+                const dx = (Math.random() - 0.5) * 12 * strength;
+                const dy = (Math.random() - 0.5) * 3 * strength;
+                const sk = (Math.random() - 0.5) * 9 * strength;
+                wrap.style.transform = `translate(${dx}px, ${dy}px) skewX(${sk}deg)`;
+
+                i++;
+                setTimeout(step, 32 + Math.random() * 42);
+            })();
         }
-        setInterval(() => {
-            if (Math.random() > 0.6) {
-                superGlitchBurst();
-            }
-        }, 8000);
 
-        // ─── FILE ITEM CLICK ──
+        // random single glitches
+        setInterval(() => {
+            if (Math.random() > 0.55) triggerGlitch(1);
+        }, 1300);
+
+        // heavier burst every so often
+        setInterval(() => {
+            if (Math.random() > 0.55) {
+                triggerGlitch(1.6);
+                setTimeout(() => triggerGlitch(1.2), 220);
+                setTimeout(() => triggerGlitch(1), 430);
+            }
+        }, 8500);
+
+        // ─────────────────────────────────────────────
+        //  FILE ITEM CLICK
+        // ─────────────────────────────────────────────
         document.querySelectorAll('.file-item').forEach(el => {
-            el.addEventListener('click', function() {
+            el.addEventListener('click', function () {
                 const name = this.querySelector('.info .name')?.textContent || 'item';
                 this.style.transition = 'all 0.05s ease';
-                this.style.transform = 'scale(0.97)';
-                this.style.background = 'rgba(255,208,0,0.08)';
-                this.style.borderLeftColor = '#ffd000';
+                this.style.transform = 'scale(0.975)';
+                this.style.background = 'rgba(232,182,76,0.09)';
+                this.style.borderLeftColor = 'var(--amber)';
                 setTimeout(() => {
                     this.style.transform = '';
                     this.style.background = '';
                     this.style.borderLeftColor = '';
-                }, 120);
+                    this.style.transition = '';
+                }, 130);
                 console.log(`[ATLAS TALON] FILE ACCESS: ${name}`);
                 if (navigator.vibrate) navigator.vibrate(6);
             });
         });
 
-        // ─── APP ITEM CLICK ──
+        // ─────────────────────────────────────────────
+        //  APP ITEM CLICK
+        // ─────────────────────────────────────────────
         document.querySelectorAll('.app-item').forEach(el => {
-            el.addEventListener('click', function() {
+            el.addEventListener('click', function () {
                 const name = this.querySelector('.app-name')?.textContent || 'app';
                 this.style.transition = 'all 0.06s ease';
-                this.style.transform = 'scale(0.92)';
-                this.style.background = 'rgba(255,208,0,0.08)';
+                this.style.transform = 'scale(0.93)';
+                this.style.background = 'rgba(232,182,76,0.10)';
                 setTimeout(() => {
                     this.style.transform = '';
                     this.style.background = '';
+                    this.style.transition = '';
                 }, 130);
                 console.log(`[ATLAS TALON] LAUNCH: ${name}`);
                 if (navigator.vibrate) navigator.vibrate(8);
             });
         });
 
-        // ─── DOCK ITEMS ──
+        // ─────────────────────────────────────────────
+        //  DOCK / SYS STATS
+        // ─────────────────────────────────────────────
         document.querySelectorAll('.dock-item, .bottombar-right .sys-stat').forEach(el => {
-            el.addEventListener('click', function() {
+            el.addEventListener('click', function () {
                 this.style.transition = 'all 0.05s ease';
-                this.style.opacity = '0.4';
+                this.style.opacity = '0.45';
                 setTimeout(() => {
                     this.style.opacity = '';
-                }, 100);
+                    this.style.transition = '';
+                }, 110);
                 if (navigator.vibrate) navigator.vibrate(4);
             });
         });
 
-        // ─── SEARCH ──
+        // ─────────────────────────────────────────────
+        //  SEARCH
+        // ─────────────────────────────────────────────
         const searchInput = document.querySelector('.search-box input');
         if (searchInput) {
             searchInput.addEventListener('keydown', (e) => {
@@ -1397,39 +1459,39 @@
                     if (val) {
                         console.log(`[ATLAS TALON] SEARCH: "${val}"`);
                         searchInput.value = '';
+                        triggerGlitch(0.8);
                         if (navigator.vibrate) navigator.vibrate(6);
                     }
                 }
             });
             document.addEventListener('keydown', (e) => {
-                if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+                if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
                     e.preventDefault();
                     searchInput.focus();
                     searchInput.select();
                 }
-                if (e.key === 'Escape') {
-                    searchInput.blur();
-                }
+                if (e.key === 'Escape') searchInput.blur();
             });
         }
 
-        // ─── CPU/MEM BARS ──
+        // ─────────────────────────────────────────────
+        //  CPU / MEM BARS
+        // ─────────────────────────────────────────────
         function updateBars() {
-            const fills = document.querySelectorAll('.bar .fill');
-            fills.forEach((fill) => {
+            document.querySelectorAll('.bar .fill').forEach((fill) => {
                 const newVal = 15 + Math.random() * 70;
                 fill.style.width = newVal + '%';
                 fill.className = 'fill';
                 if (newVal > 70) fill.classList.add('warn');
-                if (newVal > 85) fill.classList.add('danger');
+                if (newVal > 86) fill.classList.add('danger');
             });
         }
         setInterval(updateBars, 4000);
 
-        // ─── CONSOLE HINT ──
+        // ─────────────────────────────────────────────
+        console.log('%c[ATLAS TALON] ACTIVE · GLITCH ENGINE ONLINE', 'color:#e8b64c;font-weight:700;');
         console.log('⌘K  → focus search');
         console.log('ESC  → blur search');
-        console.log('[ATLAS TALON] ACTIVE · HARD GLITCH ENGAGED');
     </script>
 
 </body>
