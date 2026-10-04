@@ -83,6 +83,10 @@ a{color:var(--amber);text-decoration:none}
 @keyframes callTopIn{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
 @keyframes callBottomIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
 @keyframes pipIn{from{opacity:0;transform:scale(.85) translateY(-8px)}to{opacity:1;transform:scale(1) translateY(0)}}
+@keyframes mapPing{0%{transform:translate(-50%,-50%) scale(.6);opacity:.9}100%{transform:translate(-50%,-50%) scale(2.6);opacity:0}}
+@keyframes mapSweep{0%{transform:translate(-50%,-50%) rotate(0)}100%{transform:translate(-50%,-50%) rotate(360deg)}}
+@keyframes mapGlow{0%,100%{opacity:.4}50%{opacity:.9}}
+@keyframes dashFlow{to{stroke-dashoffset:-12}}
 
 /* ============================================================
    AMBIENT
@@ -284,7 +288,7 @@ a{color:var(--amber);text-decoration:none}
 .react.mine{background:var(--amber-soft);box-shadow:0 0 0 1px var(--amber-line)}
 .react .n{font-size:9px;color:var(--ink-3);font-family:'Orbitron',monospace}
 
-/* === ACTION TOOLS — appear right beside the message === */
+/* === ACTION TOOLS === */
 .mtools{
   position:absolute;
   top:50%;
@@ -298,72 +302,32 @@ a{color:var(--amber);text-decoration:none}
   z-index:5;
   box-shadow:0 10px 30px rgba(0,0,0,.6), 0 0 0 1px rgba(255,255,255,.02) inset;
 }
-.mrow.in .mtools{
-  left:100%;margin-left:8px;
-  transform:translateY(-50%) translateX(-6px);
-}
-.mrow.out .mtools{
-  right:100%;margin-right:8px;
-  transform:translateY(-50%) translateX(6px);
-}
-.mrow.in:hover .mtools{
-  opacity:1;pointer-events:auto;
-  transform:translateY(-50%) translateX(0);
-}
-.mrow.out:hover .mtools{
-  opacity:1;pointer-events:auto;
-  transform:translateY(-50%) translateX(0);
-}
-.mtools button{
-  width:26px;height:26px;display:grid;place-items:center;
-  color:var(--ink-3);border-radius:6px;
-  transition:color .15s var(--ease), background .15s var(--ease), transform .15s var(--ease);
-}
-.mtools button:hover{
-  color:var(--amber);background:var(--amber-soft);transform:translateY(-1px);
-}
+.mrow.in .mtools{left:100%;margin-left:8px;transform:translateY(-50%) translateX(-6px)}
+.mrow.out .mtools{right:100%;margin-right:8px;transform:translateY(-50%) translateX(6px)}
+.mrow.in:hover .mtools{opacity:1;pointer-events:auto;transform:translateY(-50%) translateX(0)}
+.mrow.out:hover .mtools{opacity:1;pointer-events:auto;transform:translateY(-50%) translateX(0)}
+.mtools button{width:26px;height:26px;display:grid;place-items:center;color:var(--ink-3);border-radius:6px;transition:color .15s var(--ease), background .15s var(--ease), transform .15s var(--ease)}
+.mtools button:hover{color:var(--amber);background:var(--amber-soft);transform:translateY(-1px)}
 .mtools button:active{transform:translateY(0) scale(.9)}
 
-/* === BULK SELECT MODE === */
+/* === BULK SELECT === */
 .mrow.bulk{cursor:pointer}
 .mrow.bulk .mtools{display:none}
 .mrow.bulk .reacts{pointer-events:none;opacity:.6}
-.mrow.bulk .bulk-check{
-  position:absolute;
-  top:50%;transform:translateY(-50%);
-  width:22px;height:22px;border-radius:6px;
-  border:1.5px solid var(--line-strong);background:#0a0a0a;
-  display:grid;place-items:center;color:transparent;
-  z-index:6;transition:all .2s var(--ease);
-}
+.mrow.bulk .bulk-check{position:absolute;top:50%;transform:translateY(-50%);width:22px;height:22px;border-radius:6px;border:1.5px solid var(--line-strong);background:#0a0a0a;display:grid;place-items:center;color:transparent;z-index:6;transition:all .2s var(--ease)}
 .mrow.bulk.in .bulk-check{right:-32px}
 .mrow.bulk.out .bulk-check{left:-32px}
 .mrow.bulk:hover .bulk-check{border-color:var(--amber-line)}
 .mrow.bulk.selected .bulk-check{background:var(--amber);border-color:var(--amber);color:#000;box-shadow:0 0 14px rgba(232,182,76,.4)}
-.mrow.bulk.selected .bub{
-  box-shadow:0 0 0 1px var(--amber-line), inset 0 0 0 1px rgba(232,182,76,.12);
-}
+.mrow.bulk.selected .bub{box-shadow:0 0 0 1px var(--amber-line), inset 0 0 0 1px rgba(232,182,76,.12)}
 .mrow.bulk.selected:hover .bub{background:rgba(232,182,76,.16)}
 
-/* Bulk bar (replaces composer) */
-.bulk-bar{
-  display:flex;gap:12px;align-items:center;
-  padding:14px 4px 6px;
-  animation:cardIn .25s var(--ease) both;
-  flex-wrap:wrap;
-}
-.bulk-bar .bulk-count{
-  font-family:'Orbitron',monospace;font-size:10px;font-weight:700;
-  letter-spacing:.18em;text-transform:uppercase;color:var(--amber);
-  padding:8px 14px;border:1px solid var(--amber-line);background:var(--amber-soft);
-  border-radius:4px;
-}
-.bulk-bar .bulk-actions{
-  display:flex;gap:8px;margin-left:auto;flex-wrap:wrap;
-}
+.bulk-bar{display:flex;gap:12px;align-items:center;padding:14px 4px 6px;animation:cardIn .25s var(--ease) both;flex-wrap:wrap}
+.bulk-bar .bulk-count{font-family:'Orbitron',monospace;font-size:10px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--amber);padding:8px 14px;border:1px solid var(--amber-line);background:var(--amber-soft);border-radius:4px}
+.bulk-bar .bulk-actions{display:flex;gap:8px;margin-left:auto;flex-wrap:wrap}
 .bulk-bar .bulk-actions .btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
 
-/* Attachments, voice, poll — unchanged */
+/* Attachments */
 .att-img{width:230px;height:135px;margin:2px 0 4px;display:grid;place-items:center;font-size:9px;color:rgba(255,255,255,.65);font-weight:600;letter-spacing:.16em;cursor:pointer;font-family:'Orbitron',monospace;text-transform:uppercase;background:linear-gradient(135deg,#1a1814,#0a0a0a);transition:transform .3s var(--ease), filter .3s var(--ease)}
 .att-img:hover{transform:scale(1.015);filter:brightness(1.1)}
 .att-file{display:flex;align-items:center;gap:10px;padding:8px 0;margin-bottom:4px;min-width:200px;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
@@ -443,7 +407,7 @@ a{color:var(--amber);text-decoration:none}
 .itable th{text-align:left;padding:8px 0;color:var(--ink-4);font-size:8.5px;text-transform:uppercase;letter-spacing:.16em;border-bottom:1px solid var(--line);font-weight:700;font-family:'Orbitron',monospace}
 .itable td{padding:10px 0;border-bottom:1px solid var(--line);transition:background .18s var(--ease)}
 .itable tbody tr:hover td{background:rgba(255,255,255,.015)}
-.chip{display:inline-flex;align-items:center;gap:5px;font-size:8px;font-weight:700;padding:3px 8px;color:var(--ink-4);font-family:'Orbitron',monospace;letter-spacing:.12em;text-transform:uppercase;transition:color .18s var(--ease), border-color .18s var(--ease);border:1px solid var(--line)}
+.chip{display:inline-flex;align-items:center;gap:5px;font-size:8px;font-weight:700;padding:3px 8px;color:var(--ink-4);font-family:'Orbitron',monospace;letter-spacing:.12em;text-transform:uppercase;transition:color .18s var(--ease), border-color .18s var(--ease);border:1px solid var(--line);background:transparent;cursor:pointer}
 .chip:hover{color:#fff;border-color:var(--line-strong)}
 .chip.on{color:var(--amber);border-color:var(--amber-line);background:var(--amber-soft)}
 .timeline{position:relative;padding-left:22px}
@@ -527,6 +491,305 @@ a{color:var(--amber);text-decoration:none}
 .media-grid .mtile:hover{transform:scale(1.04);filter:brightness(1.2);z-index:2}
 .media-grid .mtile .lbl-badge{position:absolute;bottom:5px;left:5px;font-size:7px;padding:1px 5px;background:rgba(0,0,0,.65);color:var(--ink-2);font-family:'Orbitron',monospace;letter-spacing:.1em;opacity:0;transition:opacity .2s var(--ease)}
 .media-grid .mtile:hover .lbl-badge{opacity:1}
+
+/* ============================================================
+   MAP
+   ============================================================ */
+.mapwrap{flex:1;position:relative;overflow:hidden;background:#060606}
+.mapcanvas{
+  position:absolute;inset:0;
+  background:
+    radial-gradient(ellipse 32% 22% at 36% 22%, rgba(232,182,76,.05), transparent 65%),
+    radial-gradient(ellipse 26% 18% at 56% 32%, rgba(127,184,216,.045), transparent 65%),
+    radial-gradient(ellipse 22% 24% at 66% 62%, rgba(109,191,138,.035), transparent 65%),
+    radial-gradient(ellipse 28% 16% at 78% 66%, rgba(232,182,76,.04), transparent 65%),
+    radial-gradient(ellipse 24% 20% at 30% 56%, rgba(232,182,76,.03), transparent 65%),
+    #060606;
+}
+.mapgrid{
+  position:absolute;inset:0;
+  background-image:
+    linear-gradient(rgba(255,255,255,.030) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.030) 1px, transparent 1px);
+  background-size:52px 52px;
+  pointer-events:none;
+}
+.mapgrid::after{
+  content:'';position:absolute;inset:0;
+  background-image:
+    linear-gradient(rgba(232,182,76,.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(232,182,76,.06) 1px, transparent 1px);
+  background-size:260px 260px;
+}
+.mapradar{
+  position:absolute;top:50%;left:50%;width:160vmax;height:160vmax;
+  transform:translate(-50%,-50%);
+  background:conic-gradient(from 0deg, transparent 0deg, transparent 342deg, rgba(232,182,76,.10) 356deg, rgba(232,182,76,.02) 360deg);
+  animation:mapSweep 14s linear infinite;
+  pointer-events:none;
+  opacity:.7;
+  mix-blend-mode:screen;
+}
+.maplinks{
+  position:absolute;inset:0;width:100%;height:100%;
+  pointer-events:none;z-index:1;
+}
+.maplinks line{
+  stroke:rgba(232,182,76,.22);
+  stroke-width:1;
+  stroke-dasharray:4 5;
+  vector-effect:non-scaling-stroke;
+  animation:dashFlow 1.4s linear infinite;
+}
+
+/* PINS */
+.mappin{
+  position:absolute;
+  width:38px;height:38px;
+  transform:translate(-50%,-50%);
+  cursor:pointer;
+  z-index:2;
+  transition:transform .22s var(--ease), z-index 0s;
+}
+.mappin:hover{transform:translate(-50%,-50%) scale(1.1);z-index:20}
+.mappin.selected{z-index:20}
+.mappin.selected .mappin-avatar{
+  box-shadow:0 0 0 2px var(--amber), 0 0 24px rgba(232,182,76,.5), 0 0 0 8px rgba(232,182,76,.10);
+}
+.mappin-avatar{
+  width:38px;height:38px;border-radius:50%;
+  display:grid;place-items:center;
+  font-family:'Orbitron',monospace;font-weight:700;font-size:11.5px;
+  border:1.5px solid;
+  background:rgba(0,0,0,.72);
+  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+  position:absolute;top:0;left:0;
+  box-shadow:0 6px 20px rgba(0,0,0,.55);
+  transition:box-shadow .25s var(--ease);
+}
+.mappin-avatar .dot{
+  position:absolute;right:-2px;bottom:-2px;
+  width:10px;height:10px;border-radius:50%;border:2px solid #060606;
+}
+.mappin-avatar .dot.online{background:var(--ok);color:var(--ok);animation:dotBreathe 2.4s ease-in-out infinite}
+.mappin-avatar .dot.offline{background:var(--ink-4)}
+.mappin-avatar .dot.away{background:var(--amber);color:var(--amber);animation:dotBreathe 2.4s ease-in-out infinite}
+.mappin-label{
+  position:absolute;top:calc(100% + 7px);left:50%;transform:translateX(-50%);
+  padding:4px 9px;
+  background:rgba(6,6,6,.88);backdrop-filter:blur(8px);
+  border:1px solid var(--line-strong);
+  border-radius:3px;
+  white-space:nowrap;
+  display:flex;flex-direction:column;align-items:center;gap:1px;
+  pointer-events:none;
+}
+.mappin-name{
+  font-family:'Orbitron',monospace;font-size:8.5px;font-weight:700;
+  letter-spacing:.14em;text-transform:uppercase;color:var(--ink-1);
+}
+.mappin-city{
+  font-family:'Orbitron',monospace;font-size:7px;font-weight:500;
+  letter-spacing:.14em;color:var(--ink-4);text-transform:uppercase;
+}
+
+/* SELF PIN */
+.mapself{
+  position:absolute;width:46px;height:46px;
+  transform:translate(-50%,-50%);
+  z-index:10;pointer-events:none;
+}
+.mapself-avatar{
+  width:46px;height:46px;border-radius:50%;
+  display:grid;place-items:center;
+  font-family:'Orbitron',monospace;font-weight:800;font-size:13px;
+  color:#000;background:var(--amber);
+  border:2px solid #fff;
+  box-shadow:0 0 30px rgba(232,182,76,.6), 0 0 0 6px rgba(232,182,76,.14);
+  position:absolute;top:0;left:0;z-index:2;
+}
+.mapself-pulse{
+  position:absolute;top:50%;left:50%;
+  width:46px;height:46px;border-radius:50%;
+  border:1px solid var(--amber);
+  transform:translate(-50%,-50%);
+  animation:mapPing 2.6s ease-out infinite;
+  pointer-events:none;
+}
+.mapself-pulse:nth-child(2){animation-delay:1.3s}
+.mapself .mappin-label{
+  top:calc(100% + 8px);
+  border-color:var(--amber-line);
+  background:rgba(232,182,76,.16);
+  backdrop-filter:blur(8px);
+}
+.mapself .mappin-name{color:var(--amber)}
+.mapself .mappin-city{color:var(--amber);opacity:.7}
+
+/* MAP HUD ELEMENTS */
+.mapcorner-tl{
+  position:absolute;top:16px;left:16px;z-index:5;
+  display:flex;flex-direction:column;gap:8px;
+  pointer-events:none;
+}
+.mapcorner-tl .compass{
+  width:56px;height:56px;border:1px solid var(--amber-line);
+  background:rgba(6,6,6,.65);backdrop-filter:blur(8px);
+  position:relative;
+  display:grid;place-items:center;
+  border-radius:50%;
+}
+.mapcorner-tl .compass::before{
+  content:'';position:absolute;top:6px;left:50%;transform:translateX(-50%);
+  width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;
+  border-bottom:12px solid var(--amber);
+}
+.mapcorner-tl .compass::after{
+  content:'';position:absolute;bottom:6px;left:50%;transform:translateX(-50%);
+  width:0;height:0;border-left:4px solid transparent;border-right:4px solid transparent;
+  border-top:10px solid rgba(255,255,255,.2);
+}
+.mapcorner-tl .compass span{
+  font-family:'Orbitron',monospace;font-size:7.5px;font-weight:700;
+  letter-spacing:.14em;color:var(--ink-3);
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  padding-top:16px;
+}
+.mapcoord{
+  padding:6px 10px;
+  background:rgba(6,6,6,.72);backdrop-filter:blur(8px);
+  border:1px solid var(--line-strong);
+  font-family:'JetBrains Mono',monospace;font-size:8.5px;
+  letter-spacing:.14em;color:var(--ink-3);text-transform:uppercase;
+  border-radius:2px;
+}
+.mapcoord b{color:var(--amber);font-weight:600}
+
+.maplegend{
+  position:absolute;bottom:18px;left:18px;z-index:5;
+  display:flex;flex-direction:column;gap:7px;
+  padding:12px 14px;
+  background:rgba(6,6,6,.72);backdrop-filter:blur(10px);
+  border:1px solid var(--line-strong);
+  border-radius:4px;
+}
+.maplegend::before,.maplegend::after{content:'';position:absolute;width:10px;height:10px;border-color:var(--amber-line);border-style:solid;pointer-events:none}
+.maplegend::before{top:-1px;left:-1px;border-width:1px 0 0 1px}
+.maplegend::after{bottom:-1px;right:-1px;border-width:0 1px 1px 0}
+.maplegend .lg-title{
+  font-family:'Orbitron',monospace;font-size:7.5px;font-weight:700;
+  letter-spacing:.22em;color:var(--ink-4);text-transform:uppercase;
+  margin-bottom:3px;
+}
+.maplegend .lg-row{
+  display:flex;align-items:center;gap:8px;
+  font-family:'Orbitron',monospace;font-size:8px;font-weight:600;
+  letter-spacing:.12em;color:var(--ink-3);text-transform:uppercase;
+}
+.maplegend .lg-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.maplegend .lg-dot.online{background:var(--ok);color:var(--ok);animation:dotBreathe 2.4s ease-in-out infinite}
+.maplegend .lg-dot.away{background:var(--amber);color:var(--amber);animation:dotBreathe 2.4s ease-in-out infinite}
+.maplegend .lg-dot.offline{background:var(--ink-4)}
+.maplegend .lg-self{
+  width:8px;height:8px;border-radius:50%;background:var(--amber);border:1.5px solid #fff;flex-shrink:0;
+  box-shadow:0 0 8px rgba(232,182,76,.7);
+}
+
+.mapstats{
+  position:absolute;bottom:18px;right:18px;z-index:5;
+  display:flex;flex-direction:column;gap:6px;
+  padding:12px 14px;
+  background:rgba(6,6,6,.72);backdrop-filter:blur(10px);
+  border:1px solid var(--line-strong);
+  border-radius:4px;
+  min-width:160px;
+}
+.mapstats::before,.mapstats::after{content:'';position:absolute;width:10px;height:10px;border-color:var(--amber-line);border-style:solid;pointer-events:none}
+.mapstats::before{top:-1px;left:-1px;border-width:1px 0 0 1px}
+.mapstats::after{bottom:-1px;right:-1px;border-width:0 1px 1px 0}
+.mapstats .ms-row{
+  display:flex;justify-content:space-between;gap:12px;
+  font-family:'Orbitron',monospace;font-size:8px;font-weight:600;
+  letter-spacing:.12em;text-transform:uppercase;
+}
+.mapstats .ms-k{color:var(--ink-4)}
+.mapstats .ms-v{color:var(--ink-1)}
+.mapstats .ms-v.amber{color:var(--amber)}
+.mapstats .ms-v.ok{color:var(--ok)}
+
+/* Pin popup card */
+.mapcard{
+  position:absolute;
+  width:280px;
+  background:rgba(8,8,8,.96);
+  border:1px solid var(--amber-line);
+  backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  padding:16px;
+  z-index:30;
+  box-shadow:0 24px 70px rgba(0,0,0,.85), 0 0 40px rgba(232,182,76,.08);
+  animation:modalIn .22s var(--ease) both;
+  border-radius:4px;
+}
+.mapcard::before,.mapcard::after{content:'';position:absolute;width:14px;height:14px;border-color:var(--amber);border-style:solid;pointer-events:none}
+.mapcard::before{top:-1px;left:-1px;border-width:1px 0 0 1px}
+.mapcard::after{bottom:-1px;right:-1px;border-width:0 1px 1px 0}
+.mapcard-head{
+  display:flex;align-items:flex-start;gap:12px;margin-bottom:14px;
+  padding-bottom:12px;border-bottom:1px solid var(--line);
+}
+.mapcard-av{
+  width:44px;height:44px;border-radius:50%;display:grid;place-items:center;
+  font-family:'Orbitron',monospace;font-weight:700;font-size:12.5px;
+  border:1.5px solid;flex-shrink:0;position:relative;
+}
+.mapcard-av .dot{position:absolute;right:-2px;bottom:-2px;width:10px;height:10px;border-radius:50%;border:2px solid #080808}
+.mapcard-av .dot.online{background:var(--ok);color:var(--ok);animation:dotBreathe 2.4s ease-in-out infinite}
+.mapcard-av .dot.offline{background:var(--ink-4)}
+.mapcard-av .dot.away{background:var(--amber);color:var(--amber);animation:dotBreathe 2.4s ease-in-out infinite}
+.mapcard-info{flex:1;min-width:0}
+.mapcard-name{
+  font-family:'Orbitron',monospace;font-size:12px;font-weight:700;
+  letter-spacing:.12em;text-transform:uppercase;color:var(--ink-1);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.mapcard-sub{
+  font-family:'Orbitron',monospace;font-size:9px;font-weight:500;
+  letter-spacing:.12em;color:var(--ink-4);text-transform:uppercase;
+  margin-top:3px;
+}
+.mapcard-close{
+  width:24px;height:24px;display:grid;place-items:center;color:var(--ink-4);
+  transition:color .2s var(--ease), background .2s var(--ease);border-radius:2px;
+}
+.mapcard-close:hover{color:#fff;background:rgba(255,255,255,.06)}
+.mapcard-rows{display:flex;flex-direction:column;gap:7px;margin-bottom:14px}
+.mapcard-row{
+  display:flex;justify-content:space-between;gap:10px;
+  font-family:'Orbitron',monospace;font-size:8.5px;font-weight:600;
+  letter-spacing:.12em;text-transform:uppercase;
+}
+.mapcard-row .k{color:var(--ink-4)}
+.mapcard-row .v{color:var(--ink-1);text-align:right}
+.mapcard-row .v.amber{color:var(--amber)}
+.mapcard-row .v.ok{color:var(--ok)}
+.mapcard-actions{display:flex;gap:6px;flex-wrap:wrap}
+.mapcard-actions .btn{padding:6px 10px;font-size:8px}
+
+.mapbanner{
+  position:absolute;top:16px;left:50%;transform:translateX(-50%);
+  padding:9px 18px;
+  background:rgba(8,8,8,.9);backdrop-filter:blur(10px);
+  border:1px solid var(--line-strong);
+  border-left:3px solid var(--amber);
+  font-family:'Orbitron',monospace;font-size:9px;font-weight:700;
+  letter-spacing:.16em;text-transform:uppercase;
+  color:var(--ink-2);
+  z-index:8;
+  display:flex;align-items:center;gap:10px;
+  border-radius:3px;
+  box-shadow:0 12px 40px rgba(0,0,0,.6);
+}
+.mapbanner .ic{color:var(--amber);animation:pulseDot 1.8s ease-in-out infinite}
 
 /* ============================================================
    PURGE CONFIRM — AMBER THEMED
@@ -708,6 +971,9 @@ a{color:var(--amber);text-decoration:none}
   .sidebar.hide{display:none}
   .main{padding-left:0}
   .keys-confirm-box{width:92vw;padding:24px 18px 20px}
+  .mapcorner-tl .compass{width:44px;height:44px}
+  .mapstats{display:none}
+  .mapcard{width:240px;right:10px !important;left:auto !important;top:10px !important}
 }
 </style>
 </head>
@@ -769,6 +1035,7 @@ const P = {
   poll:'M18 20V10M12 20V4M6 20v-6',
   alert:'M10.3 3.9L1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z|M12 9v4M12 17h.01',
   eye:'M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z|M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z',
+  eyeoff:'M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24|M1 1l22 22',
   lock:'M5 11h14v11H5z|M8 11V7a4 4 0 0 1 8 0v4',
   volume:'M11 5L6 9H2v6h4l5 4z|M19.1 4.9a10 10 0 0 1 0 14.2M15.5 8.5a5 5 0 0 1 0 7',
   chevr:'M9 18l6-6-6-6',
@@ -785,7 +1052,10 @@ const P = {
   arrowleft:'M19 12H5|M12 19l-7-7 7-7',
   restore:'M1 4v6h6|M3.5 9a9 9 0 1 1 2.8 6.5',
   settings:'M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z|M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z',
-  monitor:'M2 3h20v14H2z|M8 21h8M12 17v4'
+  monitor:'M2 3h20v14H2z|M8 21h8M12 17v4',
+  map:'M1 6l7-3 8 3 7-3v15l-7 3-8-3-7 3z|M8 3v15M16 6v15',
+  crosshair:'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18z|M12 1v4M12 19v4M1 12h4M19 12h4',
+  navigation:'M3 11l19-9-9 19-2-8-8-2z'
 };
 function ic(n, cls){
   const d = (P[n]||P.info).split('|').map(x=>`<path d="${x}"/>`).join('');
@@ -806,17 +1076,17 @@ const ME_BY_ACC = {
   a3:{id:'u0', name:'Kai R.',     handle:'@kai.r',    init:'KR', color:'#7fb8d8', bio:'Off duty', status:'Do not disturb'}
 };
 const CONTACTS = [
-  {id:'u2', name:'Mira Solberg',    handle:'@msolberg',   init:'MS', color:'#e8b64c', presence:'online',  lastSeen:'now',        tags:['work','priority'], note:'Nordic desk lead. Prefers voice notes after 18:00.', bio:'Signals analyst based in Oslo. Focused on the northern corridor. Available for voice coordination after 18:00.', phone:'+47 ••• •• 218', email:'m.solberg@AtlasTalon.no', blocked:false, role:'Nordic Desk Lead', org:'AtlasTalon · Oslo'},
-  {id:'u3', name:'Dmitri Volkov',   handle:'@dvolkov',    init:'DV', color:'#7fb8d8', presence:'away',    lastSeen:'12m ago',    tags:['work'],            note:'Handles intercept queue.',                           bio:'Intercept operations from Riga. Manages the queue.',  phone:'+371 ••• •• 044', email:'d.volkov@AtlasTalon.lv', blocked:false, role:'Intercept Ops', org:'AtlasTalon · Riga'},
-  {id:'u4', name:'Ana Reyes',       handle:'@areyes',     init:'AR', color:'#6dbf8a', presence:'online',  lastSeen:'now',        tags:['work','priority'], note:'Team lead. Approves all exports.',                   bio:'Team lead for the NORTH cell.',                       phone:'+34 ••• •• 771', email:'a.reyes@AtlasTalon.es',  blocked:false, role:'Team Lead', org:'AtlasTalon · Madrid'},
-  {id:'u5', name:'Tobias Lang',     handle:'@tlang',      init:'TL', color:'#c9a25c', presence:'offline', lastSeen:'2h ago',     tags:['work'],            note:'',                                                   bio:'Logistics coordination, Berlin hub.',                phone:'+49 ••• •• 502', email:'t.lang@AtlasTalon.de',   blocked:false, role:'Logistics', org:'AtlasTalon · Berlin'},
-  {id:'u6', name:'Priya Nair',      handle:'@pnair',      init:'PN', color:'#8ec9a8', presence:'online',  lastSeen:'now',        tags:['work'],            note:'Runs the anomaly models.',                           bio:'Data science. Runs the anomaly detection models.',    phone:'+91 ••• •• 330', email:'p.nair@AtlasTalon.in',   blocked:false, role:'Data Science', org:'AtlasTalon · Bengaluru'},
-  {id:'u7', name:'Jonas Meyer',     handle:'@jmeyer',     init:'JM', color:'#b8b0d8', presence:'offline', lastSeen:'yesterday',  tags:['personal'],        note:'',                                                   bio:'',                                                    phone:'+49 ••• •• 118', email:'j.meyer@mail.com',     blocked:false, role:'', org:''},
-  {id:'u8', name:'Lena Fischer',    handle:'@lfischer',   init:'LF', color:'#d89ab0', presence:'online',  lastSeen:'now',        tags:['personal','family'],note:'Sister. Do not discuss work.',                       bio:'',                                                    phone:'+49 ••• •• 903', email:'lena.f@mail.com',      blocked:false, role:'', org:''},
-  {id:'u9', name:'Omar Haddad',     handle:'@ohaddad',    init:'OH', color:'#7fc4b8', presence:'away',    lastSeen:'35m ago',    tags:['work'],            note:'',                                                   bio:'Field liaison based in Amman.',                       phone:'+962 ••• •• 660', email:'o.haddad@AtlasTalon.jo', blocked:false, role:'Field Liaison', org:'AtlasTalon · Amman'},
-  {id:'u10',name:'Sofia Marchetti', handle:'@smarchetti', init:'SM', color:'#d8a878', presence:'offline', lastSeen:'3d ago',     tags:['work'],            note:'Contractor — access expires Q3.',                    bio:'Contractor. Access expires Q3.',                      phone:'+39 ••• •• 214', email:'s.marchetti@ext.it',   blocked:false, role:'Contractor', org:'External · Milan'},
-  {id:'u11',name:'Unknown +47 92 ••',handle:'@unknown47',init:'?',  color:'#6b7280', presence:'offline', lastSeen:'unknown',    tags:['flagged'],         note:'Reported twice for spam.',                           bio:'Unverified.',                                         phone:'+47 ••• •• 92',  email:'',                    blocked:true, role:'', org:''},
-  {id:'u12',name:'Ravi Chandra',    handle:'@rchandra',   init:'RC', color:'#8ec4d8', presence:'online',  lastSeen:'now',        tags:['work'],            note:'',                                                   bio:'Infrastructure team, Singapore.',                    phone:'+65 ••• •• 415', email:'r.chandra@AtlasTalon.sg',blocked:false, role:'Infrastructure', org:'AtlasTalon · Singapore'}
+  {id:'u2', name:'Mira Solberg',    handle:'@msolberg',   init:'MS', color:'#e8b64c', presence:'online',  lastSeen:'now',        tags:['work','priority'], note:'Nordic desk lead. Prefers voice notes after 18:00.', bio:'Signals analyst based in Oslo. Focused on the northern corridor. Available for voice coordination after 18:00.', phone:'+47 ••• •• 218', email:'m.solberg@AtlasTalon.no', blocked:false, role:'Nordic Desk Lead', org:'AtlasTalon · Oslo', loc:{x:36, y:18, city:'Oslo', country:'NO', lat:59.91, lon:10.75}},
+  {id:'u3', name:'Dmitri Volkov',   handle:'@dvolkov',    init:'DV', color:'#7fb8d8', presence:'away',    lastSeen:'12m ago',    tags:['work'],            note:'Handles intercept queue.',                           bio:'Intercept operations from Riga. Manages the queue.',  phone:'+371 ••• •• 044', email:'d.volkov@AtlasTalon.lv', blocked:false, role:'Intercept Ops', org:'AtlasTalon · Riga', loc:{x:54, y:26, city:'Riga', country:'LV', lat:56.95, lon:24.11}},
+  {id:'u4', name:'Ana Reyes',       handle:'@areyes',     init:'AR', color:'#6dbf8a', presence:'online',  lastSeen:'now',        tags:['work','priority'], note:'Team lead. Approves all exports.',                   bio:'Team lead for the NORTH cell.',                       phone:'+34 ••• •• 771', email:'a.reyes@AtlasTalon.es',  blocked:false, role:'Team Lead', org:'AtlasTalon · Madrid', loc:{x:24, y:50, city:'Madrid', country:'ES', lat:40.42, lon:-3.70}},
+  {id:'u5', name:'Tobias Lang',     handle:'@tlang',      init:'TL', color:'#c9a25c', presence:'offline', lastSeen:'2h ago',     tags:['work'],            note:'',                                                   bio:'Logistics coordination, Berlin hub.',                phone:'+49 ••• •• 502', email:'t.lang@AtlasTalon.de',   blocked:false, role:'Logistics', org:'AtlasTalon · Berlin', loc:{x:46, y:32, city:'Berlin', country:'DE', lat:52.52, lon:13.40}},
+  {id:'u6', name:'Priya Nair',      handle:'@pnair',      init:'PN', color:'#8ec9a8', presence:'online',  lastSeen:'now',        tags:['work'],            note:'Runs the anomaly models.',                           bio:'Data science. Runs the anomaly detection models.',    phone:'+91 ••• •• 330', email:'p.nair@AtlasTalon.in',   blocked:false, role:'Data Science', org:'AtlasTalon · Bengaluru', loc:{x:68, y:58, city:'Bengaluru', country:'IN', lat:12.97, lon:77.59}},
+  {id:'u7', name:'Jonas Meyer',     handle:'@jmeyer',     init:'JM', color:'#b8b0d8', presence:'offline', lastSeen:'yesterday',  tags:['personal'],        note:'',                                                   bio:'',                                                    phone:'+49 ••• •• 118', email:'j.meyer@mail.com',     blocked:false, role:'', org:'', loc:{x:42, y:36, city:'Munich', country:'DE', lat:48.14, lon:11.58}},
+  {id:'u8', name:'Lena Fischer',    handle:'@lfischer',   init:'LF', color:'#d89ab0', presence:'online',  lastSeen:'now',        tags:['personal','family'],note:'Sister. Do not discuss work.',                       bio:'',                                                    phone:'+49 ••• •• 903', email:'lena.f@mail.com',      blocked:false, role:'', org:'', loc:{x:40, y:34, city:'Hamburg', country:'DE', lat:53.55, lon:9.99}},
+  {id:'u9', name:'Omar Haddad',     handle:'@ohaddad',    init:'OH', color:'#7fc4b8', presence:'away',    lastSeen:'35m ago',    tags:['work'],            note:'',                                                   bio:'Field liaison based in Amman.',                       phone:'+962 ••• •• 660', email:'o.haddad@AtlasTalon.jo', blocked:false, role:'Field Liaison', org:'AtlasTalon · Amman', loc:{x:58, y:48, city:'Amman', country:'JO', lat:31.95, lon:35.93}},
+  {id:'u10',name:'Sofia Marchetti', handle:'@smarchetti', init:'SM', color:'#d8a878', presence:'offline', lastSeen:'3d ago',     tags:['work'],            note:'Contractor — access expires Q3.',                    bio:'Contractor. Access expires Q3.',                      phone:'+39 ••• •• 214', email:'s.marchetti@ext.it',   blocked:false, role:'Contractor', org:'External · Milan', loc:{x:44, y:46, city:'Milan', country:'IT', lat:45.46, lon:9.19}},
+  {id:'u11',name:'Unknown +47 92 ••',handle:'@unknown47',init:'?',  color:'#6b7280', presence:'offline', lastSeen:'unknown',    tags:['flagged'],         note:'Reported twice for spam.',                           bio:'Unverified.',                                         phone:'+47 ••• •• 92',  email:'',                    blocked:true, role:'', org:'', loc:null},
+  {id:'u12',name:'Ravi Chandra',    handle:'@rchandra',   init:'RC', color:'#8ec4d8', presence:'online',  lastSeen:'now',        tags:['work'],            note:'',                                                   bio:'Infrastructure team, Singapore.',                    phone:'+65 ••• •• 415', email:'r.chandra@AtlasTalon.sg',blocked:false, role:'Infrastructure', org:'AtlasTalon · Singapore', loc:{x:78, y:66, city:'Singapore', country:'SG', lat:1.35, lon:103.82}}
 ];
 const FOLDERS = [
   {id:'all',      label:'ALL'},
@@ -968,6 +1238,9 @@ const CALLS = [
   {id:'k7', dir:'out', type:'voice', who:'u12', at: 4300, dur:'6:48'}
 ];
 
+/* SELF LOCATION */
+const SELF_LOC = {x:32, y:30, city:'London', country:'GB', lat:51.51, lon:-0.13};
+
 /* ============================================================
    STATE
    ============================================================ */
@@ -988,7 +1261,11 @@ const state = {
   highContrast:false, colorblind:false, rtl:false, captions:true,
   typing:{}, messages:{},
   deletedConvos:[], deletedMsgs:[],
-  bulkMode:false, bulkSelected:new Set()
+  bulkMode:false, bulkSelected:new Set(),
+  /* MAP */
+  mapFilter:'all',
+  mapSelected:null,
+  shareLocation:true
 };
 
 CONVOS.forEach(c=>{ state.messages[c.id] = buildMessages(c); });
@@ -1043,6 +1320,14 @@ function fmtRel(ts){
 }
 function fmtDur(sec){
   return String(Math.floor(sec/60)).padStart(2,'0') + ':' + String(sec%60).padStart(2,'0');
+}
+function fmtDist(c){
+  if(!c.loc) return '—';
+  const dx = c.loc.x - SELF_LOC.x;
+  const dy = c.loc.y - SELF_LOC.y;
+  const units = Math.sqrt(dx*dx + dy*dy);
+  const km = Math.round(units * 118);
+  return km.toLocaleString() + ' KM';
 }
 
 function lastMsg(cid){ const arr = state.messages[cid]||[]; return arr.length ? arr[arr.length-1] : null; }
@@ -1210,7 +1495,8 @@ function renderSidebar(){
   const navItems = [
     {id:'chats', label:'CHATS'},
     {id:'groups', label:'GROUPS'},
-    {id:'contacts', label:'CONTACTS'}
+    {id:'contacts', label:'CONTACTS'},
+    {id:'map', label:'MAP'}
   ];
   let listHTML = '';
   if(state.view === 'contacts'){
@@ -1221,6 +1507,22 @@ function renderSidebar(){
     }
     listHTML = contacts.length ? contacts.map(c=>contactRowHTML(c)).join('')
       : `<div class="empty" style="height:200px">${ic('search')}<div class="lbl">NO MATCH</div></div>`;
+  } else if(state.view === 'map'){
+    const withLoc = CONTACTS.filter(c => !c.blocked && c.loc).sort((a,b)=>a.name.localeCompare(b.name));
+    listHTML = withLoc.length ? withLoc.map(c=>{
+      const sel = state.mapSelected === c.id ? ' on' : '';
+      return `
+      <div class="crow${sel}" data-act="map-pin" data-id="${c.id}">
+        <div class="av" style="background:${c.color}18;border-color:${c.color}50;color:${c.color}">
+          ${av(c.name,c.color)}
+          <span class="dot ${c.presence||'offline'}"></span>
+        </div>
+        <div class="cmain">
+          <div class="crow1"><span class="cname">${esc(c.name)}</span></div>
+          <div class="crow2"><span class="cprev">${esc(c.loc.city)} · ${esc(c.loc.country)} · ${fmtDist(c)}</span></div>
+        </div>
+      </div>`;
+    }).join('') : `<div class="empty" style="height:200px">${ic('map')}<div class="lbl">NO TRACKED CONTACTS</div></div>`;
   } else {
     listHTML = list.length ? list.map(c=>convoRowHTML(c)).join('')
       : `<div class="empty" style="height:200px">${ic('search')}<div class="lbl">NO MATCH</div></div>`;
@@ -1256,6 +1558,13 @@ function renderSidebar(){
         <span style="margin-left:auto">${list.length} ITEMS</span>
         <button class="iconbtn" data-act="mark-all-read" title="Mark all read">${ic('checks')}</button>
       </div>` : ''}
+    ${state.view === 'map' ? `
+      <div class="sortrow" style="border-bottom:1px solid var(--line)">
+        <span style="color:var(--amber);font-weight:700">● ${CONTACTS.filter(c=>!c.blocked && c.loc).length} TRACKED</span>
+        <span style="margin-left:auto;color:${state.shareLocation?'var(--ok)':'var(--ink-4)'}">
+          ${state.shareLocation?'● YOU SHARING':'● YOU HIDDEN'}
+        </span>
+      </div>` : ''}
     <div class="convolist">${listHTML}</div>
     <div class="sb-foot">
       <button class="sb-foot-btn ${state.view==='deleted'?'on':''}" data-act="view" data-view="deleted">
@@ -1276,6 +1585,7 @@ function renderMain(){
     return renderChat();
   }
   if(state.view === 'contacts')  return renderContactsEmpty();
+  if(state.view === 'map')       return renderMap();
   if(state.view === 'deleted')   return renderDeleted();
   if(state.view === 'settings')  return renderSettings();
   return renderPlaceholder(state.view);
@@ -1295,6 +1605,170 @@ function renderPlaceholder(view){
     </div>`;
 }
 
+/* ============================================================
+   MAP VIEW
+   ============================================================ */
+function renderMap(){
+  const allTracked = CONTACTS.filter(c => !c.blocked && c.loc);
+  const filtered = allTracked.filter(c => {
+    if(state.mapFilter === 'all') return true;
+    return (c.tags || []).includes(state.mapFilter);
+  });
+  const online = filtered.filter(c=>c.presence==='online').length;
+  const away = filtered.filter(c=>c.presence==='away').length;
+
+  /* Self pin coordinates */
+  const selfOn = state.shareLocation;
+
+  /* Link lines from self to each contact */
+  let linksHTML = '';
+  if(selfOn){
+    linksHTML = filtered.map(c=>{
+      return `<line x1="${SELF_LOC.x}" y1="${SELF_LOC.y}" x2="${c.loc.x}" y2="${c.loc.y}" />`;
+    }).join('');
+  }
+
+  /* Contact pins */
+  let pinsHTML = filtered.map(c=>{
+    const sel = state.mapSelected === c.id ? ' selected' : '';
+    return `
+      <div class="mappin${sel}" style="left:${c.loc.x}%;top:${c.loc.y}%" data-act="map-pin" data-id="${c.id}">
+        <div class="mappin-avatar" style="background:${c.color}22;border-color:${c.color};color:${c.color}">
+          ${av(c.name,c.color)}
+          <span class="dot ${c.presence||'offline'}"></span>
+        </div>
+        <div class="mappin-label">
+          <div class="mappin-name">${esc(c.name.split(' ')[0])}</div>
+          <div class="mappin-city">${esc(c.loc.city)} · ${esc(c.loc.country)}</div>
+        </div>
+      </div>`;
+  }).join('');
+
+  /* Self pin */
+  let selfPin = '';
+  if(selfOn){
+    selfPin = `
+      <div class="mapself" style="left:${SELF_LOC.x}%;top:${SELF_LOC.y}%">
+        <div class="mapself-pulse"></div>
+        <div class="mapself-pulse"></div>
+        <div class="mapself-avatar">${me().init}</div>
+        <div class="mappin-label">
+          <div class="mappin-name">YOU</div>
+          <div class="mappin-city">${esc(SELF_LOC.city)} · ${esc(SELF_LOC.country)}</div>
+        </div>
+      </div>`;
+  }
+
+  /* Selected card */
+  let selCard = '';
+  if(state.mapSelected){
+    const c = CONTACTS.find(x => x.id === state.mapSelected);
+    if(c && c.loc){
+      /* Position card next to the pin */
+      const cardX = c.loc.x > 55 ? 'right:calc(' + (100 - c.loc.x) + '% + 40px)' : 'left:calc(' + c.loc.x + '% + 40px)';
+      const cardY = c.loc.y > 60 ? 'bottom:calc(' + (100 - c.loc.y) + '% + 20px)' : 'top:calc(' + c.loc.y + '% + 20px)';
+      selCard = `
+        <div class="mapcard" style="${cardX};${cardY}">
+          <div class="mapcard-head">
+            <div class="mapcard-av" style="background:${c.color}22;border-color:${c.color};color:${c.color}">
+              ${av(c.name,c.color)}
+              <span class="dot ${c.presence||'offline'}"></span>
+            </div>
+            <div class="mapcard-info">
+              <div class="mapcard-name">${esc(c.name)}</div>
+              <div class="mapcard-sub">${esc(c.handle)}</div>
+            </div>
+            <button class="mapcard-close" data-act="map-close">${ic('x','sm')}</button>
+          </div>
+          <div class="mapcard-rows">
+            <div class="mapcard-row">
+              <span class="k">LOCATION</span>
+              <span class="v">${esc(c.loc.city)}, ${esc(c.loc.country)}</span>
+            </div>
+            <div class="mapcard-row">
+              <span class="k">COORDINATES</span>
+              <span class="v">${c.loc.lat.toFixed(2)}°, ${c.loc.lon.toFixed(2)}°</span>
+            </div>
+            <div class="mapcard-row">
+              <span class="k">DISTANCE</span>
+              <span class="v amber">${fmtDist(c)}</span>
+            </div>
+            <div class="mapcard-row">
+              <span class="k">PRESENCE</span>
+              <span class="v ${c.presence==='online'?'ok':''}">${esc((c.presence||'offline').toUpperCase())}</span>
+            </div>
+            <div class="mapcard-row">
+              <span class="k">LAST SEEN</span>
+              <span class="v">${esc(c.lastSeen||'unknown')}</span>
+            </div>
+          </div>
+          <div class="mapcard-actions">
+            <button class="btn" data-act="map-dm" data-id="${c.id}">${ic('chat','sm')} CHAT</button>
+            <button class="btn" data-act="map-call" data-mode="voice" data-id="${c.id}">${ic('phone','sm')} CALL</button>
+            <button class="btn" data-act="map-profile" data-id="${c.id}">${ic('user','sm')} PROFILE</button>
+          </div>
+        </div>`;
+    }
+  }
+
+  const filters = [
+    {id:'all', label:'ALL'},
+    {id:'work', label:'WORK'},
+    {id:'personal', label:'PERSONAL'},
+    {id:'priority', label:'PRIORITY'}
+  ];
+
+  $('#main').innerHTML = `
+    <div class="view">
+      <div class="vhead">
+        <h2>Field Map</h2>
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          ${filters.map(f=>`<button class="chip ${state.mapFilter===f.id?'on':''}" data-act="map-filter" data-f="${f.id}">${f.label}</button>`).join('')}
+        </div>
+        <span class="chip on" style="pointer-events:none">${filtered.length} TRACKED</span>
+      </div>
+      <div class="mapwrap">
+        <div class="mapcanvas">
+          <div class="mapgrid"></div>
+          <div class="mapradar"></div>
+        </div>
+        <svg class="maplinks" viewBox="0 0 100 100" preserveAspectRatio="none">${linksHTML}</svg>
+        ${pinsHTML}
+        ${selfPin}
+
+        <div class="mapcorner-tl">
+          <div class="compass"><span>N</span></div>
+          <div class="mapcoord">GRID <b>${SELF_LOC.lat.toFixed(2)}°N</b> / <b>${Math.abs(SELF_LOC.lon).toFixed(2)}°W</b></div>
+        </div>
+
+        <div class="maplegend">
+          <div class="lg-title">Legend</div>
+          <div class="lg-row"><span class="lg-dot online"></span>Online</div>
+          <div class="lg-row"><span class="lg-dot away"></span>Away</div>
+          <div class="lg-row"><span class="lg-dot offline"></span>Offline</div>
+          ${selfOn?`<div class="lg-row"><span class="lg-self"></span>You</div>`:''}
+        </div>
+
+        <div class="mapstats">
+          <div class="ms-row"><span class="ms-k">TRACKED</span><span class="ms-v amber">${filtered.length}</span></div>
+          <div class="ms-row"><span class="ms-k">ONLINE</span><span class="ms-v ok">${online}</span></div>
+          <div class="ms-row"><span class="ms-k">AWAY</span><span class="ms-v amber">${away}</span></div>
+          <div class="ms-row"><span class="ms-k">YOUR STATUS</span><span class="ms-v ${selfOn?'ok':''}">${selfOn?'VISIBLE':'HIDDEN'}</span></div>
+        </div>
+
+        ${!selfOn ? `
+          <div class="mapbanner">
+            ${ic('eyeoff','sm')} LOCATION SHARING DISABLED — YOU ARE HIDDEN
+          </div>` : ''}
+
+        ${selCard}
+      </div>
+    </div>`;
+}
+
+/* ============================================================
+   CHAT
+   ============================================================ */
 function renderChat(){
   const c = convo(state.activeConvo);
   if(!c){ return renderPlaceholder(state.view); }
@@ -1710,6 +2184,7 @@ function renderProfile(){
               <button class="btn primary" data-act="profile-dm" data-id="${c.id}">${ic('chat','sm')} MESSAGE</button>
               <button class="btn" data-act="profile-call" data-mode="voice" data-id="${c.id}">${ic('phone','sm')} CALL</button>
               <button class="btn" data-act="profile-call" data-mode="video" data-id="${c.id}">${ic('video','sm')} VIDEO</button>
+              ${c.loc?`<button class="btn" data-act="map-profile" data-id="${c.id}">${ic('map','sm')} LOCATE</button>`:''}
               <button class="btn" data-act="contact-menu" data-id="${c.id}">${ic('more','sm')} MORE</button>
             </div>
           </div>
@@ -1816,6 +2291,11 @@ function renderProfileBody(c, shared){
         <div class="info-item"><div class="k">EMAIL</div><div class="v">${esc(c.email||'—')}</div></div>
         <div class="info-item"><div class="k">PRESENCE</div><div class="v">${esc((c.presence||'offline').toUpperCase())}</div></div>
         <div class="info-item"><div class="k">LAST SEEN</div><div class="v">${esc(c.lastSeen||'unknown')}</div></div>
+        ${c.loc?`
+        <div class="info-item"><div class="k">LOCATION</div><div class="v">${esc(c.loc.city)}, ${esc(c.loc.country)}</div></div>
+        <div class="info-item"><div class="k">COORDINATES</div><div class="v">${c.loc.lat.toFixed(2)}°, ${c.loc.lon.toFixed(2)}°</div></div>
+        <div class="info-item"><div class="k">DISTANCE FROM YOU</div><div class="v" style="color:var(--amber)">${fmtDist(c)}</div></div>
+        `:''}
         <div class="info-item" style="grid-column:span 2">
           <div class="k">SHARED CONVERSATIONS (${convosWith.length})</div>
           <div class="v">${esc(convosWith.map(x=>x.name).join(', ')||'—')}</div>
@@ -1832,6 +2312,7 @@ function renderProfileBody(c, shared){
       <div style="margin-top:20px;display:flex;gap:10px;flex-wrap:wrap">
         <button class="btn" data-act="edit-note" data-id="${c.id}">${ic('edit','sm')} EDIT NOTE</button>
         <button class="btn" data-act="edit-tags" data-id="${c.id}">${ic('flag','sm')} EDIT TAGS</button>
+        ${c.loc?`<button class="btn" data-act="map-profile" data-id="${c.id}">${ic('map','sm')} VIEW ON MAP</button>`:''}
         <button class="btn" data-act="toggle-block" data-id="${c.id}">${ic('lock','sm')} ${c.blocked?'UNBLOCK':'BLOCK'}</button>
         <button class="btn danger" data-act="report" data-id="${c.id}">REPORT</button>
       </div>`;
@@ -2098,6 +2579,7 @@ function renderDeleted(){
    SETTINGS
    ============================================================ */
 function renderSettings(){
+  const visibleCount = CONTACTS.filter(c=>!c.blocked && c.loc).length;
   $('#main').innerHTML = `
     <div class="view">
       <div class="vhead"><h2>Configuration</h2></div>
@@ -2118,6 +2600,47 @@ function renderSettings(){
             <div class="prow"><span class="k">AWAY STATUS</span><button class="switch ${state.awayStatus?'on':''}" data-act="toggle-away"><i></i></button></div>
             <div class="prow"><span class="k">MULTI-ACCOUNT</span><button class="btn" data-act="account">MANAGE</button></div>
           </div>
+
+          <div class="card" style="padding-top:0">
+            <h4>${ic('map')} LOCATION & PRIVACY</h4>
+            <div class="prow" style="padding:14px 0">
+              <span class="k" style="font-size:9px">SHARE MY LOCATION</span>
+              <button class="switch ${state.shareLocation?'on':''}" data-act="toggle-location"><i></i></button>
+            </div>
+            <div class="prow">
+              <span class="k">VISIBILITY</span>
+              <span class="v" style="color:${state.shareLocation?'var(--ok)':'var(--ink-4)'};font-family:'Orbitron';font-size:9px;letter-spacing:.12em">
+                ${state.shareLocation?'VISIBLE TO CONTACTS':'HIDDEN'}
+              </span>
+            </div>
+            <div class="prow">
+              <span class="k">YOUR POSITION</span>
+              <span class="v">${esc(SELF_LOC.city)}, ${esc(SELF_LOC.country)}</span>
+            </div>
+            <div class="prow">
+              <span class="k">COORDINATES</span>
+              <span class="v" style="font-family:'JetBrains Mono',monospace;font-size:11px">${SELF_LOC.lat.toFixed(2)}°N ${Math.abs(SELF_LOC.lon).toFixed(2)}°W</span>
+            </div>
+            <div class="prow">
+              <span class="k">TRACKED CONTACTS</span>
+              <span class="v">${visibleCount}</span>
+            </div>
+            <div style="margin-top:12px;padding:10px;background:rgba(232,182,76,.05);border-left:2px solid var(--amber-line);border-radius:2px">
+              <div style="font-family:'Orbitron';font-size:8.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--amber);margin-bottom:5px">
+                ${state.shareLocation?'● ACTIVE':'○ DISABLED'}
+              </div>
+              <div style="font-size:11px;color:var(--ink-3);line-height:1.5">
+                ${state.shareLocation
+                  ? 'Your location is visible to contacts on the Field Map. Disable to hide yourself.'
+                  : 'You are hidden from the Field Map. Contacts cannot see your location.'}
+              </div>
+            </div>
+            <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap">
+              <button class="btn" data-act="view" data-view="map">${ic('map','sm')} OPEN FIELD MAP</button>
+              <button class="btn" data-act="reset-location">${ic('refresh','sm')} UPDATE POSITION</button>
+            </div>
+          </div>
+
           <div class="card" style="padding-top:0">
             <h4>${ic('palette')} APPEARANCE</h4>
             <div class="field"><label>LAYOUT DENSITY</label>
@@ -2132,23 +2655,27 @@ function renderSettings(){
             </div>
             <div class="prow"><span class="k">RTL SUPPORT</span><button class="switch ${state.rtl?'on':''}" data-act="toggle-rtl"><i></i></button></div>
           </div>
+
           <div class="card" style="padding-top:0">
             <h4>${ic('belloff')} NOTIFICATIONS</h4>
             <div class="prow"><span class="k">PUSH</span><button class="switch ${state.notifications?'on':''}" data-act="toggle-notif"><i></i></button></div>
             <div class="prow"><span class="k">DO NOT DISTURB</span><button class="switch ${state.dnd?'on':''}" data-act="toggle-dnd"><i></i></button></div>
             <div class="prow"><span class="k">MENTION-ONLY</span><button class="switch ${state.mentionOnly?'on':''}" data-act="toggle-mention-only"><i></i></button></div>
           </div>
+
           <div class="card" style="padding-top:0">
             <h4>${ic('lock')} PRIVACY</h4>
             <div class="prow"><span class="k">READ RECEIPTS</span><button class="switch ${state.readReceipts?'on':''}" data-act="toggle-receipts"><i></i></button></div>
             <div class="prow"><span class="k">TYPING INDICATOR</span><button class="switch ${state.typingIndicator?'on':''}" data-act="toggle-typing"><i></i></button></div>
             <div class="prow"><span class="k">LINK PREVIEWS</span><button class="switch ${state.linkPreviews?'on':''}" data-act="toggle-links"><i></i></button></div>
           </div>
+
           <div class="card" style="padding-top:0">
             <h4>${ic('phone')} CALLS</h4>
             <div class="prow"><span class="k">INCOMING CALLS</span><button class="btn" data-act="demo-incoming-voice">SIMULATE VOICE</button></div>
             <div class="prow"><span class="k">INCOMING VIDEO</span><button class="btn" data-act="demo-incoming-video">SIMULATE VIDEO</button></div>
           </div>
+
           <div class="card" style="padding-top:0">
             <h4>${ic('contrast')} ACCESSIBILITY</h4>
             <div class="prow"><span class="k">HIGH CONTRAST</span><button class="switch ${state.highContrast?'on':''}" data-act="toggle-contrast"><i></i></button></div>
@@ -2172,7 +2699,7 @@ function renderContactsEmpty(){
    INTERACTIONS
    ============================================================ */
 document.addEventListener('click', e=>{
-  // ============ BULK SELECT: clicking a message toggles selection ============
+  // ============ BULK SELECT ============
   const msgEl = e.target.closest('.mrow');
   if(msgEl && state.bulkMode && !e.target.closest('.mtools')){
     const mid = msgEl.dataset.mid;
@@ -2190,7 +2717,7 @@ document.addEventListener('click', e=>{
   const act = t.dataset.act;
 
   switch(act){
-    case 'view': state.view = t.dataset.view; state.activeConvo = null; state.profileId = null; state.bulkMode = false; state.bulkSelected.clear(); closeCtx(); renderAll(); break;
+    case 'view': state.view = t.dataset.view; state.activeConvo = null; state.profileId = null; state.bulkMode = false; state.bulkSelected.clear(); if(act!=='map-pin') state.mapSelected = null; closeCtx(); renderAll(); break;
     case 'folder': state.folder = t.dataset.folder; renderSidebar(); break;
     case 'open': {
       const id = t.dataset.id;
@@ -2222,7 +2749,7 @@ document.addEventListener('click', e=>{
     case 'profile-call': startCallWith(t.dataset.id, t.dataset.mode || 'voice'); break;
     case 'close-chat': state.activeConvo = null; state.replyTo = null; state.editing = null; state.bulkMode = false; state.bulkSelected.clear(); renderAll(); break;
 
-    /* 3-dot menu — simple click */
+    /* 3-dot menu */
     case 'convo-menu': {
       e.stopPropagation();
       const rect = t.getBoundingClientRect();
@@ -2243,6 +2770,39 @@ document.addEventListener('click', e=>{
     case 'bulk-forward': bulkForward(); break;
     case 'bulk-star': bulkStar(); break;
     case 'bulk-delete': bulkDelete(); break;
+
+    /* MAP actions */
+    case 'map-filter': state.mapFilter = t.dataset.f; state.mapSelected = null; renderMap(); break;
+    case 'map-pin': {
+      e.stopPropagation();
+      const id = t.dataset.id;
+      if(state.mapSelected === id) state.mapSelected = null;
+      else state.mapSelected = id;
+      renderMap();
+      break;
+    }
+    case 'map-close': state.mapSelected = null; renderMap(); break;
+    case 'map-dm': {
+      const id = t.dataset.id;
+      const cv = CONVOS.find(x=>x.type==='dm' && x.members.includes(id));
+      if(cv){ state.activeConvo = cv.id; state.view='chats'; cv.unread=0; state.mapSelected=null; renderAll(); }
+      break;
+    }
+    case 'map-call': {
+      e.stopPropagation();
+      startCallWith(t.dataset.id, t.dataset.mode || 'voice');
+      break;
+    }
+    case 'map-profile': {
+      e.stopPropagation();
+      const id = t.dataset.id;
+      state.profileId = id;
+      state.profileTab = 'info';
+      state.mapSelected = null;
+      renderAll();
+      break;
+    }
+    case 'reset-location': toast('POSITION UPDATED', `${SELF_LOC.city}, ${SELF_LOC.country}`, {icon:'navigation'}); break;
 
     case 'send': doSend(); break;
     case 'emoji': popEmoji(); break;
@@ -2436,7 +2996,14 @@ const TOGGLES = {
   'toggle-enter': ()=> state.enterToSend = !state.enterToSend,
   'toggle-autoreply': ()=> state.autoReply = !state.autoReply,
   'toggle-away': ()=> state.awayStatus = !state.awayStatus,
-  'toggle-rtl': ()=> state.rtl = !state.rtl
+  'toggle-rtl': ()=> state.rtl = !state.rtl,
+  'toggle-location': ()=>{
+    state.shareLocation = !state.shareLocation;
+    toast(state.shareLocation ? 'LOCATION SHARING ON' : 'LOCATION SHARING OFF',
+          state.shareLocation ? 'You are now visible on the Field Map' : 'You are hidden from contacts',
+          {icon: state.shareLocation ? 'eye' : 'eyeoff'});
+    if(state.view === 'map') renderMap();
+  }
 };
 Object.entries(TOGGLES).forEach(([act, fn])=>{
   document.addEventListener('click', e=>{
@@ -2471,9 +3038,7 @@ document.addEventListener('input', e=>{
 
 function closeCtx(){ const c = $('.ctx'); if(c) c.remove(); }
 
-/* ============ RIGHT CLICK ============ */
 document.addEventListener('contextmenu', e=>{
-  // Message right-click — anchor to the message bubble
   const msgEl = e.target.closest('.mrow');
   if(msgEl && msgEl.dataset.mid){
     e.preventDefault();
@@ -2513,9 +3078,12 @@ function ctxMenu(x, y, items){
 
 function openConvoCtx(id, x, y){
   const c = convo(id);
+  const contactId = c.type==='dm' ? c.members.find(m=>m!=='u0') : null;
+  const other = contactId ? contact(contactId) : null;
   ctxMenu(x, y, [
     {id:'open', icon:'chat', label:'OPEN', run:()=>{ state.activeConvo=id; state.profileId=null; state.bulkMode=false; state.bulkSelected.clear(); c.unread=0; renderAll(); }},
-    ...(c.type==='dm' ? [{id:'profile', icon:'user', label:'VIEW PROFILE', run:()=>{ state.profileId = c.members.find(m=>m!=='u0'); state.profileTab='media'; renderAll(); }}] : []),
+    ...(c.type==='dm' ? [{id:'profile', icon:'user', label:'VIEW PROFILE', run:()=>{ state.profileId = contactId; state.profileTab='media'; renderAll(); }}] : []),
+    ...(other && other.loc ? [{id:'map', icon:'map', label:'VIEW ON MAP', run:()=>{ state.view='map'; state.mapSelected = contactId; state.activeConvo=null; renderAll(); }}] : []),
     '---',
     {id:'pin', icon:'pin', label: c.pinned?'UNPIN':'PIN', run:()=>{ c.pinned=!c.pinned; renderSidebar(); }},
     {id:'mute', icon:'belloff', label: c.muted?'UNMUTE':'MUTE', run:()=>{ c.muted=!c.muted; renderSidebar(); }},
@@ -2602,13 +3170,14 @@ function openContactCtx(id, x, y){
     }},
     {id:'call', icon:'phone', label:'VOICE CALL', run:()=>startCallWith(id, 'voice')},
     {id:'video', icon:'video', label:'VIDEO CALL', run:()=>startCallWith(id, 'video')},
+    ...(c.loc ? [{id:'locate', icon:'map', label:'VIEW ON MAP', run:()=>{ state.view='map'; state.mapSelected=id; state.profileId=null; state.activeConvo=null; renderAll(); }}] : []),
     '---',
     {id:'note', icon:'edit', label:'EDIT NOTE', run:()=>openNoteModal(id)},
     {id:'tag', icon:'flag', label:'EDIT TAGS', run:()=>openTagsModal(id)},
     '---',
     {id:'block', icon:'lock', label: c.blocked?'UNBLOCK':'BLOCK', danger:!c.blocked, run:()=>{
       c.blocked=!c.blocked;
-      if(c.blocked) state.blocked.push(id); else state.blocked=state.blocked.filter(x=>x!==id);
+      if(c.blocked) state.blocked.push(id); else state.blocked = state.blocked.filter(x=>x!==id);
       renderAll();
     }},
     {id:'report', icon:'alert', label:'REPORT', danger:true, run:()=>openReportModal(id)}
@@ -3013,11 +3582,13 @@ function openAccountSwitcher(){
 document.addEventListener('keydown', e=>{
   const mod = e.ctrlKey || e.metaKey;
   if(mod && e.key.toLowerCase() === 'f'){ e.preventDefault(); const s = $('#globalSearch'); if(s){ s.focus(); s.select(); } return; }
+  if(mod && e.key.toLowerCase() === 'm'){ e.preventDefault(); state.view = 'map'; state.activeConvo=null; state.profileId=null; renderAll(); return; }
   if(e.key === 'Escape'){
     closePop(); closeCtx(); closeModal();
     if(callSystem.active){ endCall(); return; }
     const s = $('.scrim'); if(s) s.remove();
     if(state.bulkMode){ exitBulk(); return; }
+    if(state.mapSelected){ state.mapSelected = null; renderMap(); return; }
     if(state.profileId){ state.profileId = null; renderAll(); return; }
     if(state.activeConvo && document.activeElement && document.activeElement.tagName !== 'TEXTAREA' && document.activeElement === document.body){
       state.activeConvo = null; renderAll();
@@ -3049,6 +3620,7 @@ function renderAll(){
 renderAll();
 
 console.log('%c[AtlasTalon · TALON] ACTIVE', 'color:#e8b64c;font-weight:700;letter-spacing:.1em;');
+console.log('⌘M → Field Map');
 </script>
 </body>
 </html>
