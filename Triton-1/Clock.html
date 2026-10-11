@@ -1,0 +1,2169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>CHRONOS · Temporal Intelligence</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+    /* ===== TOKENS ===== */
+    :root {
+        --bg: #050505;
+        --panel: #0a0a0a;
+        --panel2: #070707;
+        --line: #1a1a1a;
+        --line2: #2a2a2a;
+        --txt: #e0e0e0;
+        --txt2: #c0c0c0;
+        --dim: #666;
+        --dim2: #444;
+        --dim3: #333;
+        --white: #ffffff;
+        --green: #34C759;
+        --blue: #007AFF;
+        --yellow: #FFD60A;
+        --red: #FF3D00;
+        color-scheme: dark;
+    }
+
+    /* ===== RESET ===== */
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body {
+        margin: 0; padding: 0;
+        height: 100%;
+        background: var(--bg);
+        overflow: hidden;
+    }
+    button, input, select, textarea { font-family: inherit; }
+    input, select, textarea { color-scheme: dark; }
+
+    body {
+        font-family: 'IBM Plex Mono', monospace;
+        color: var(--txt);
+    }
+
+    /* ===== BACKGROUND FX ===== */
+    body::before {
+        content: '';
+        position: fixed;
+        inset: 0;
+        background-image:
+            linear-gradient(rgba(255,255,255,.025) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255,255,255,.025) 1px, transparent 1px);
+        background-size: 48px 48px;
+        pointer-events: none;
+        z-index: 0;
+        mask-image: radial-gradient(ellipse at center, black 30%, transparent 90%);
+        -webkit-mask-image: radial-gradient(ellipse at center, black 30%, transparent 90%);
+    }
+    body::after {
+        content: '';
+        position: fixed;
+        inset: 0;
+        background: repeating-linear-gradient(0deg, rgba(0,0,0,0) 0px, rgba(0,0,0,0) 2px, rgba(0,0,0,.08) 2px, rgba(0,0,0,.08) 3px);
+        pointer-events: none;
+        z-index: 1;
+        opacity: .5;
+    }
+
+    /* ===== LAYOUT ===== */
+    .app {
+        position: relative;
+        z-index: 2;
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+    }
+    .scroll {
+        flex: 1;
+        overflow-y: auto;
+        position: relative;
+        z-index: 2;
+    }
+    .scroll::-webkit-scrollbar { width: 6px; }
+    .scroll::-webkit-scrollbar-track { background: var(--bg); }
+    .scroll::-webkit-scrollbar-thumb { background: #1a1a1a; }
+    .scroll::-webkit-scrollbar-thumb:hover { background: #2a2a2a; }
+
+    /* ===== TOPBAR ===== */
+    .topbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 12px 24px;
+        border-bottom: 1px solid var(--line);
+        background: var(--bg);
+        position: relative;
+        z-index: 10;
+        flex-shrink: 0;
+        gap: 16px;
+    }
+    .brand { display: flex; align-items: center; gap: 14px; min-width: 0; }
+    .logo {
+        width: 38px; height: 38px;
+        border: 1px solid rgba(255,255,255,.3);
+        display: flex; align-items: center; justify-content: center;
+        position: relative;
+        background: rgba(255,255,255,.04);
+        flex-shrink: 0;
+    }
+    .logo::before {
+        content: '';
+        position: absolute;
+        inset: 3px;
+        border: 1px solid rgba(255,255,255,.15);
+    }
+    .logo::after {
+        content: '';
+        position: absolute;
+        top: -3px; right: -3px;
+        width: 6px; height: 6px;
+        background: #fff;
+        box-shadow: 0 0 8px rgba(255,255,255,.3);
+        animation: pulse 2s ease-in-out infinite;
+    }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+    .logo-text { font-size: 18px; color: #fff; font-weight: 700; letter-spacing: 1px; position: relative; z-index: 1; }
+    .brand-text { display: flex; flex-direction: column; min-width: 0; }
+    .brand-title { font-size: 14px; font-weight: 600; letter-spacing: 4px; color: var(--txt); }
+    .brand-sub { font-size: 9px; color: #555; letter-spacing: 2px; margin-top: 2px; }
+
+    .topbar-center {
+        display: flex; align-items: center; gap: 12px;
+        font-size: 10px; letter-spacing: 2px; color: #555;
+        text-transform: uppercase;
+        flex-wrap: wrap;
+    }
+    .pill {
+        display: flex; align-items: center; gap: 6px;
+        padding: 4px 10px;
+        border: 1px solid var(--line);
+        background: var(--panel);
+        white-space: nowrap;
+    }
+    .dot { width: 6px; height: 6px; border-radius: 50%; background: #fff; box-shadow: 0 0 6px rgba(255,255,255,.3); }
+    .dot.green { background: var(--green); box-shadow: 0 0 6px var(--green); }
+    .dot.yellow { background: var(--yellow); box-shadow: 0 0 6px var(--yellow); }
+    .dot.red { background: var(--red); box-shadow: 0 0 6px var(--red); }
+
+    .topbar-right { display: flex; align-items: center; gap: 10px; }
+    .icon-btn {
+        background: transparent;
+        border: 1px solid var(--line);
+        color: var(--dim);
+        padding: 9px 14px;
+        font-size: 10px;
+        letter-spacing: 2px;
+        cursor: pointer;
+        transition: all .2s;
+        text-transform: uppercase;
+        white-space: nowrap;
+    }
+    .icon-btn:hover { border-color: #fff; color: #fff; }
+    .new-btn {
+        background: #fff;
+        border: 1px solid #fff;
+        color: #000;
+        padding: 10px 22px;
+        font-size: 11px;
+        letter-spacing: 3px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all .2s;
+        text-transform: uppercase;
+        white-space: nowrap;
+    }
+    .new-btn:hover { background: #e6e6e6; box-shadow: 0 0 0 1px #fff, 0 0 24px rgba(255,255,255,.15); }
+
+    /* ===== SUBBAR / TABS ===== */
+    .subbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 24px;
+        border-bottom: 1px solid var(--line);
+        background: var(--bg);
+        position: relative;
+        z-index: 5;
+        flex-shrink: 0;
+        gap: 16px;
+    }
+    .tabs { display: flex; overflow-x: auto; scrollbar-width: none; }
+    .tabs::-webkit-scrollbar { display: none; }
+    .tab {
+        background: transparent;
+        border: none;
+        border-bottom: 1px solid transparent;
+        padding: 14px 20px;
+        font-size: 10px;
+        letter-spacing: 2px;
+        color: var(--dim2);
+        cursor: pointer;
+        transition: all .2s;
+        position: relative;
+        text-transform: uppercase;
+        white-space: nowrap;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .tab:hover { color: #888; }
+    .tab.active { color: var(--txt); }
+    .tab.active::after {
+        content: '';
+        position: absolute;
+        bottom: -1px; left: 0;
+        width: 100%; height: 1px;
+        background: #fff;
+        box-shadow: 0 0 6px rgba(255,255,255,.3);
+    }
+    .tab-count {
+        font-size: 9px;
+        color: #555;
+        padding: 1px 6px;
+        border: 1px solid var(--line);
+        background: var(--panel);
+    }
+    .tab.active .tab-count { color: #fff; border-color: rgba(255,255,255,.3); background: rgba(255,255,255,.05); }
+    .subbar-hint { font-size: 9px; color: #333; letter-spacing: 2px; text-transform: uppercase; white-space: nowrap; }
+    .subbar-hint b { color: #666; font-weight: 400; }
+
+    /* ===== VIEWS ===== */
+    .view { display: none; padding: 22px 24px 70px; }
+    .view.active { display: block; animation: fadeUp .3s ease; }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+    .view-head {
+        display: flex; align-items: center; justify-content: space-between;
+        gap: 14px; flex-wrap: wrap; margin-bottom: 18px;
+    }
+    .view-title {
+        font-size: 11px; color: #555; letter-spacing: 3px;
+        text-transform: uppercase; display: flex; align-items: center; gap: 10px;
+    }
+    .view-title::before { content: ''; width: 4px; height: 12px; background: #fff; }
+
+    /* ===== CARD BASE ===== */
+    .card {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        position: relative;
+    }
+
+    /* ===== CLOCK HERO ===== */
+    .hero {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 320px;
+        gap: 18px;
+        margin-bottom: 18px;
+    }
+    .hero-main {
+        padding: 28px 30px 26px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        min-width: 0;
+    }
+    .hero-label {
+        font-size: 10px; color: #555; letter-spacing: 3px;
+        text-transform: uppercase; margin-bottom: 14px;
+        display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+    }
+    .hero-label span { color: #fff; }
+    .big-time {
+        font-size: clamp(46px, 10.5vw, 128px);
+        font-weight: 300;
+        letter-spacing: .04em;
+        line-height: .95;
+        color: #fff;
+        font-variant-numeric: tabular-nums;
+        text-shadow: 0 0 50px rgba(255,255,255,.09);
+        white-space: nowrap;
+    }
+    .big-date {
+        font-size: 12px;
+        color: #888;
+        letter-spacing: 3px;
+        text-transform: uppercase;
+        margin-top: 16px;
+    }
+    .daybar-wrap { margin-top: 26px; max-width: 640px; }
+    .daybar {
+        height: 4px;
+        background: #111;
+        border: 1px solid var(--line);
+        position: relative;
+        overflow: hidden;
+    }
+    .daybar-fill {
+        position: absolute; left: 0; top: 0; bottom: 0;
+        background: #fff;
+        box-shadow: 0 0 12px rgba(255,255,255,.4);
+        transition: width .4s linear;
+        width: 0;
+    }
+    .daybar-meta {
+        display: flex; justify-content: space-between; gap: 10px;
+        font-size: 9px; color: #444; letter-spacing: 2px;
+        text-transform: uppercase; margin-top: 8px;
+    }
+    .daybar-meta b { color: #888; font-weight: 400; }
+
+    .quick-row { display: flex; gap: 8px; margin-top: 24px; flex-wrap: wrap; }
+    .chip {
+        background: transparent;
+        border: 1px solid var(--line);
+        color: var(--dim);
+        padding: 7px 14px;
+        font-size: 9px;
+        letter-spacing: 2px;
+        cursor: pointer;
+        transition: all .2s;
+        text-transform: uppercase;
+    }
+    .chip:hover { border-color: #fff; color: #fff; }
+
+    /* Analog */
+    .hero-side {
+        padding: 22px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 14px;
+    }
+    .analog { width: 100%; max-width: 230px; height: auto; display: block; }
+    .analog-meta {
+        font-size: 9px; color: #444; letter-spacing: 2px;
+        text-transform: uppercase; text-align: center;
+    }
+
+    /* ===== STAT GRID ===== */
+    .stat-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 12px;
+    }
+    .stat {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        padding: 14px 16px;
+        position: relative;
+        overflow: hidden;
+        transition: border-color .2s;
+    }
+    .stat::before {
+        content: '';
+        position: absolute; left: 0; top: 0; bottom: 0;
+        width: 2px; background: var(--line2);
+        transition: background .2s;
+    }
+    .stat:hover { border-color: var(--line2); }
+    .stat:hover::before { background: #fff; }
+    .stat-label {
+        font-size: 8px; color: #444; letter-spacing: 2px;
+        text-transform: uppercase; margin-bottom: 6px;
+    }
+    .stat-value {
+        font-size: 15px; color: var(--txt2); font-weight: 500;
+        font-variant-numeric: tabular-nums;
+        overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+
+    /* ===== WORLD ===== */
+    .add-row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+    .field {
+        background: var(--bg);
+        border: 1px solid var(--line);
+        padding: 8px 12px;
+        font-size: 11px;
+        color: var(--txt2);
+        outline: none;
+        transition: border-color .2s;
+        letter-spacing: 1px;
+    }
+    .field:focus { border-color: #fff; }
+    .field::placeholder { color: #444; text-transform: uppercase; }
+    select.field {
+        cursor: pointer;
+        appearance: none;
+        background-image: linear-gradient(45deg, transparent 50%, #555 50%), linear-gradient(135deg, #555 50%, transparent 50%);
+        background-position: calc(100% - 14px) 50%, calc(100% - 10px) 50%;
+        background-size: 4px 4px;
+        background-repeat: no-repeat;
+        padding-right: 30px;
+        max-width: 240px;
+    }
+
+    .btn-sm {
+        background: transparent;
+        border: 1px solid var(--line);
+        color: var(--dim);
+        padding: 8px 16px;
+        font-size: 9px;
+        letter-spacing: 2px;
+        cursor: pointer;
+        transition: all .2s;
+        text-transform: uppercase;
+        white-space: nowrap;
+    }
+    .btn-sm:hover { border-color: #fff; color: #fff; }
+    .btn-sm.primary { background: #fff; border-color: #fff; color: #000; font-weight: 700; }
+    .btn-sm.primary:hover { background: #e6e6e6; }
+
+    .city-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(268px, 1fr));
+        gap: 14px;
+    }
+    .city-card {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        padding: 16px 18px;
+        position: relative;
+        overflow: hidden;
+        transition: border-color .2s, transform .2s;
+    }
+    .city-card::before {
+        content: '';
+        position: absolute; left: 0; top: 0; bottom: 0;
+        width: 2px;
+        background: var(--accent, #1a1a1a);
+    }
+    .city-card:hover { border-color: var(--line2); transform: translateY(-1px); }
+    .city-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+    .city-name { font-size: 13px; font-weight: 600; color: var(--txt); letter-spacing: 2px; }
+    .city-country {
+        font-size: 8px; color: #444; letter-spacing: 1.5px;
+        text-transform: uppercase; margin-top: 3px;
+        overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+        max-width: 190px;
+    }
+    .icon-mini {
+        background: transparent;
+        border: 1px solid var(--line);
+        color: #555;
+        width: 22px; height: 22px;
+        display: flex; align-items: center; justify-content: center;
+        cursor: pointer; font-size: 12px; line-height: 1;
+        transition: all .15s;
+        flex-shrink: 0;
+    }
+    .icon-mini:hover { border-color: var(--red); color: var(--red); }
+    .city-time {
+        font-size: 34px;
+        font-weight: 300;
+        letter-spacing: .04em;
+        color: #fff;
+        font-variant-numeric: tabular-nums;
+        margin: 14px 0 4px;
+        line-height: 1;
+    }
+    .city-date {
+        font-size: 9px; color: #555; letter-spacing: 2px;
+        text-transform: uppercase;
+    }
+    .city-foot {
+        display: flex; align-items: center; justify-content: space-between;
+        gap: 10px; margin-top: 10px;
+        padding-top: 10px; border-top: 1px solid var(--line);
+    }
+    .city-off { font-size: 9px; color: #444; letter-spacing: 1.5px; text-transform: uppercase; }
+    .badge {
+        font-size: 8px; letter-spacing: 2px; text-transform: uppercase;
+        padding: 3px 8px; border: 1px solid;
+    }
+    .badge.day { color: var(--yellow); border-color: rgba(255,214,10,.3); background: rgba(255,214,10,.06); }
+    .badge.night { color: var(--blue); border-color: rgba(0,122,255,.3); background: rgba(0,122,255,.06); }
+
+    .empty {
+        padding: 60px 20px;
+        text-align: center;
+        font-size: 10px;
+        color: #333;
+        letter-spacing: 3px;
+        text-transform: uppercase;
+        border: 1px dashed var(--line);
+        grid-column: 1 / -1;
+    }
+
+    /* ===== BIG DISPLAY (stopwatch / timer) ===== */
+    .stage {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 40px 24px 32px;
+        margin-bottom: 18px;
+    }
+    .stage-time {
+        font-size: clamp(46px, 11vw, 132px);
+        font-weight: 300;
+        letter-spacing: .05em;
+        line-height: 1;
+        color: #fff;
+        font-variant-numeric: tabular-nums;
+        text-shadow: 0 0 50px rgba(255,255,255,.09);
+        transition: color .2s;
+        white-space: nowrap;
+    }
+    .stage-time.paused { color: var(--yellow); }
+    .stage-time.done { color: var(--red); }
+    .stage-sub {
+        font-size: 10px; color: #444; letter-spacing: 3px;
+        text-transform: uppercase; margin-top: 16px;
+        display: flex; gap: 14px; align-items: center; flex-wrap: wrap;
+        justify-content: center;
+    }
+    .stage-sub b { color: #888; font-weight: 400; }
+    .stage-controls { display: flex; gap: 12px; margin-top: 28px; flex-wrap: wrap; justify-content: center; }
+
+    .btn-lg {
+        background: transparent;
+        border: 1px solid var(--line2);
+        color: var(--txt2);
+        padding: 14px 30px;
+        font-size: 10px;
+        letter-spacing: 3px;
+        cursor: pointer;
+        transition: all .2s;
+        text-transform: uppercase;
+        min-width: 130px;
+    }
+    .btn-lg:hover { border-color: #fff; color: #fff; }
+    .btn-lg.primary { background: #fff; border-color: #fff; color: #000; font-weight: 700; }
+    .btn-lg.primary:hover { background: #e6e6e6; box-shadow: 0 0 20px rgba(255,255,255,.15); }
+    .btn-lg.danger { border-color: rgba(255,61,0,.5); color: var(--red); }
+    .btn-lg.danger:hover { background: var(--red); color: #000; border-color: var(--red); }
+    .btn-lg:disabled { opacity: .3; cursor: not-allowed; }
+    .btn-lg:disabled:hover { border-color: var(--line2); color: var(--txt2); background: transparent; }
+
+    /* progress bar */
+    .progress {
+        width: 100%;
+        max-width: 760px;
+        height: 6px;
+        background: #0d0d0d;
+        border: 1px solid var(--line);
+        margin-top: 26px;
+        position: relative;
+        overflow: hidden;
+    }
+    .progress-fill {
+        position: absolute; inset: 0 auto 0 0;
+        width: 0%;
+        background: #fff;
+        box-shadow: 0 0 14px rgba(255,255,255,.45);
+        transition: width .12s linear;
+    }
+    .progress-fill.warn { background: var(--yellow); box-shadow: 0 0 14px rgba(255,214,10,.45); }
+    .progress-fill.crit { background: var(--red); box-shadow: 0 0 14px rgba(255,61,0,.5); }
+
+    /* ===== LAPS ===== */
+    .lap-list { display: flex; flex-direction: column; gap: 6px; }
+    .lap-row {
+        display: grid;
+        grid-template-columns: 70px 1fr 1fr 1fr;
+        gap: 10px;
+        align-items: center;
+        padding: 11px 16px;
+        background: var(--panel);
+        border: 1px solid var(--line);
+        font-size: 11px;
+        font-variant-numeric: tabular-nums;
+        transition: border-color .2s;
+    }
+    .lap-row:hover { border-color: var(--line2); }
+    .lap-row.best { border-left: 2px solid var(--green); }
+    .lap-row.worst { border-left: 2px solid var(--red); }
+    .lap-idx { font-size: 9px; color: #444; letter-spacing: 2px; text-transform: uppercase; }
+    .lap-col { color: var(--txt2); }
+    .lap-col.label { font-size: 8px; color: #444; letter-spacing: 2px; text-transform: uppercase; display: block; margin-bottom: 3px; }
+    .lap-row.best .lap-split { color: var(--green); }
+    .lap-row.worst .lap-split { color: var(--red); }
+
+    /* ===== TIMER SETUP ===== */
+    .setup {
+        display: flex; align-items: flex-end; gap: 12px;
+        flex-wrap: wrap; justify-content: center;
+        margin-top: 6px;
+    }
+    .setup-field { display: flex; flex-direction: column; gap: 6px; }
+    .setup-field label {
+        font-size: 8px; color: #444; letter-spacing: 2px; text-transform: uppercase;
+    }
+    .setup-field input {
+        width: 88px;
+        background: var(--bg);
+        border: 1px solid var(--line);
+        padding: 10px 12px;
+        font-size: 18px;
+        font-weight: 300;
+        color: #fff;
+        text-align: center;
+        outline: none;
+        font-variant-numeric: tabular-nums;
+        transition: border-color .2s;
+        -moz-appearance: textfield;
+    }
+    .setup-field input::-webkit-outer-spin-button,
+    .setup-field input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+    .setup-field input:focus { border-color: #fff; }
+
+    .preset-row {
+        display: flex; gap: 6px; flex-wrap: wrap; justify-content: center;
+        margin-top: 22px;
+    }
+
+    /* ===== ALARMS ===== */
+    .alarm-form {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        padding: 20px;
+        margin-bottom: 18px;
+    }
+    .form-row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+    .form-row .field { flex: 1 1 180px; }
+    .field.time-field {
+        flex: 0 0 150px;
+        font-size: 24px;
+        font-weight: 300;
+        letter-spacing: 2px;
+        padding: 10px 14px;
+        font-variant-numeric: tabular-nums;
+    }
+    .day-row { display: flex; gap: 6px; margin-top: 14px; flex-wrap: wrap; }
+    .day-btn {
+        background: transparent;
+        border: 1px solid var(--line);
+        color: #555;
+        width: 40px; height: 34px;
+        font-size: 10px;
+        letter-spacing: 1px;
+        cursor: pointer;
+        transition: all .2s;
+        text-transform: uppercase;
+    }
+    .day-btn:hover { border-color: #fff; color: #fff; }
+    .day-btn.on { background: #fff; border-color: #fff; color: #000; font-weight: 700; }
+
+    .alarm-list { display: flex; flex-direction: column; gap: 10px; }
+    .alarm-row {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        padding: 16px 20px;
+        background: var(--panel);
+        border: 1px solid var(--line);
+        position: relative;
+        overflow: hidden;
+        transition: border-color .2s, opacity .2s;
+        flex-wrap: wrap;
+    }
+    .alarm-row::before {
+        content: '';
+        position: absolute; left: 0; top: 0; bottom: 0;
+        width: 2px; background: var(--line2);
+        transition: background .2s;
+    }
+    .alarm-row.on::before { background: #fff; box-shadow: 0 0 10px rgba(255,255,255,.35); }
+    .alarm-row.off { opacity: .45; }
+    .alarm-row:hover { border-color: var(--line2); }
+    .alarm-time {
+        font-size: 30px; font-weight: 300; color: #fff;
+        letter-spacing: 2px; font-variant-numeric: tabular-nums;
+        line-height: 1; min-width: 110px;
+    }
+    .alarm-info { flex: 1; min-width: 140px; }
+    .alarm-label { font-size: 11px; color: var(--txt2); letter-spacing: 1.5px; text-transform: uppercase; }
+    .alarm-days { font-size: 9px; color: #444; letter-spacing: 2px; text-transform: uppercase; margin-top: 5px; }
+    .alarm-actions { display: flex; gap: 8px; align-items: center; }
+
+    .switch {
+        width: 44px; height: 24px;
+        border: 1px solid var(--line2);
+        background: var(--bg);
+        position: relative;
+        cursor: pointer;
+        transition: all .2s;
+        flex-shrink: 0;
+        padding: 0;
+    }
+    .switch::after {
+        content: '';
+        position: absolute;
+        top: 3px; left: 3px;
+        width: 16px; height: 16px;
+        background: #444;
+        transition: all .2s;
+    }
+    .switch.on { border-color: #fff; background: rgba(255,255,255,.08); }
+    .switch.on::after { left: 23px; background: #fff; box-shadow: 0 0 10px rgba(255,255,255,.5); }
+
+    /* ===== RING OVERLAY ===== */
+    .ring-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,.94);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        z-index: 4000;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 24px;
+    }
+    .ring-overlay.open { display: flex; }
+    .ring-box {
+        background: var(--panel);
+        border: 1px solid var(--line2);
+        padding: 48px 40px;
+        text-align: center;
+        max-width: 520px;
+        width: 100%;
+        position: relative;
+        animation: ringIn .35s cubic-bezier(.2,.9,.3,1.2);
+    }
+    @keyframes ringIn { from { opacity: 0; transform: scale(.94); } to { opacity: 1; transform: scale(1); } }
+    .ring-corner { position: absolute; width: 18px; height: 18px; }
+    .ring-corner.tl { top: -1px; left: -1px; border-top: 2px solid var(--red); border-left: 2px solid var(--red); }
+    .ring-corner.tr { top: -1px; right: -1px; border-top: 2px solid var(--red); border-right: 2px solid var(--red); }
+    .ring-corner.bl { bottom: -1px; left: -1px; border-bottom: 2px solid var(--red); border-left: 2px solid var(--red); }
+    .ring-corner.br { bottom: -1px; right: -1px; border-bottom: 2px solid var(--red); border-right: 2px solid var(--red); }
+    .ring-title {
+        font-size: 10px; color: var(--red); letter-spacing: 4px;
+        text-transform: uppercase; margin-bottom: 18px;
+    }
+    .ring-title::before { content: '● '; animation: pulse 1s ease-in-out infinite; }
+    .ring-time {
+        font-size: clamp(48px, 12vw, 84px);
+        font-weight: 300;
+        color: #fff;
+        letter-spacing: 4px;
+        line-height: 1;
+        font-variant-numeric: tabular-nums;
+        text-shadow: 0 0 40px rgba(255,255,255,.15);
+    }
+    .ring-label {
+        font-size: 11px; color: #888; letter-spacing: 3px;
+        text-transform: uppercase; margin-top: 16px;
+        min-height: 16px;
+    }
+    .ring-actions { display: flex; gap: 12px; margin-top: 32px; justify-content: center; flex-wrap: wrap; }
+
+    /* ===== TOASTS ===== */
+    .toast-wrap {
+        position: fixed;
+        top: 80px; right: 24px;
+        z-index: 5000;
+        display: flex; flex-direction: column; gap: 10px;
+        pointer-events: none;
+    }
+    .toast {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-left: 3px solid #fff;
+        padding: 12px 18px;
+        min-width: 240px;
+        max-width: 360px;
+        animation: toastIn .25s ease;
+        pointer-events: auto;
+    }
+    .toast.success { border-left-color: var(--green); }
+    .toast.warn { border-left-color: var(--yellow); }
+    .toast.error { border-left-color: var(--red); }
+    .toast-title { font-size: 9px; color: #fff; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 4px; }
+    .toast.success .toast-title { color: var(--green); }
+    .toast.warn .toast-title { color: var(--yellow); }
+    .toast.error .toast-title { color: var(--red); }
+    .toast-msg { font-size: 11px; color: var(--txt2); line-height: 1.5; }
+    @keyframes toastIn { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: none; } }
+    .toast.out { animation: toastOut .25s ease forwards; }
+    @keyframes toastOut { to { opacity: 0; transform: translateX(20px); } }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 1000px) {
+        .hero { grid-template-columns: 1fr; }
+        .hero-side { flex-direction: row; gap: 24px; }
+        .analog { max-width: 160px; }
+    }
+    @media (max-width: 860px) {
+        .topbar-center { display: none; }
+        .subbar-hint { display: none; }
+        .view { padding: 16px 14px 60px; }
+        .topbar { padding: 10px 14px; }
+        .subbar { padding: 0 8px; }
+        .tab { padding: 12px 12px; font-size: 9px; }
+        .hero-main { padding: 22px 18px; }
+        .hero-side { padding: 16px; }
+        .city-grid { grid-template-columns: 1fr; }
+        .lap-row { grid-template-columns: 50px 1fr 1fr; }
+        .lap-row .lap-total { display: none; }
+        .alarm-time { min-width: 90px; font-size: 24px; }
+        .ring-box { padding: 36px 22px; }
+    }
+</style>
+</head>
+<body>
+
+<div class="app">
+
+    <!-- ================= TOPBAR ================= -->
+    <header class="topbar">
+        <div class="brand">
+            <div class="logo"><span class="logo-text">C</span></div>
+            <div class="brand-text">
+                <span class="brand-title">CHRONOS</span>
+                <span class="brand-sub">TEMPORAL INTELLIGENCE</span>
+            </div>
+        </div>
+
+        <div class="topbar-center">
+            <div class="pill"><span class="dot green"></span><span>SYSTEM ONLINE</span></div>
+            <div class="pill"><span class="dot"></span><span id="pillTz">LOCAL</span></div>
+            <div class="pill"><span id="pillUtc">UTC --:--:--</span></div>
+            <div class="pill"><span id="pillAlarms">ALARMS 0</span></div>
+        </div>
+
+        <div class="topbar-right">
+            <button class="icon-btn" id="fmtBtn" title="Toggle 12/24 hour format (H)">24H</button>
+            <button class="icon-btn" id="secBtn" title="Toggle seconds display">SEC</button>
+            <button class="icon-btn" id="fsBtn" title="Fullscreen (F)">FULL</button>
+            <button class="new-btn" id="newAlarmBtn">+ ALARM</button>
+        </div>
+    </header>
+
+    <!-- ================= SUBBAR ================= -->
+    <nav class="subbar">
+        <div class="tabs" id="tabs">
+            <button class="tab active" data-view="clock">CLOCK</button>
+            <button class="tab" data-view="world">WORLD <span class="tab-count" id="cntWorld">0</span></button>
+            <button class="tab" data-view="stopwatch">STOPWATCH <span class="tab-count" id="cntLaps">0</span></button>
+            <button class="tab" data-view="timer">TIMER</button>
+            <button class="tab" data-view="alarms">ALARMS <span class="tab-count" id="cntAlarms">0</span></button>
+        </div>
+        <div class="subbar-hint">
+            <b>1-5</b> TABS · <b>SPACE</b> ACTION · <b>H</b> FORMAT · <b>F</b> FULLSCREEN
+        </div>
+    </nav>
+
+    <!-- ================= SCROLL AREA ================= -->
+    <main class="scroll">
+
+        <!-- ---------- CLOCK ---------- -->
+        <section class="view active" id="view-clock">
+            <div class="hero">
+                <div class="card hero-main">
+                    <div class="hero-label">LOCAL TIME · <span id="clockTzName">—</span> · <span id="clockOffset">—</span></div>
+                    <div class="big-time" id="bigTime">--:--:--</div>
+                    <div class="big-date" id="bigDate">—</div>
+
+                    <div class="daybar-wrap">
+                        <div class="daybar"><div class="daybar-fill" id="dayFill"></div></div>
+                        <div class="daybar-meta">
+                            <span><b id="dayPct">0%</b> ELAPSED</span>
+                            <span id="dayLeft">— REMAINING</span>
+                        </div>
+                    </div>
+
+                    <div class="quick-row">
+                        <button class="chip" data-timer="300">+ 5 MIN TIMER</button>
+                        <button class="chip" data-timer="1500">+ 25 MIN FOCUS</button>
+                        <button class="chip" data-timer="600">+ 10 MIN BREAK</button>
+                        <button class="chip" id="goStopwatchChip">STOPWATCH →</button>
+                    </div>
+                </div>
+
+                <div class="card hero-side">
+                    <svg class="analog" viewBox="0 0 200 200" aria-hidden="true">
+                        <circle cx="100" cy="100" r="93" fill="none" stroke="#1a1a1a" stroke-width="1"/>
+                        <circle cx="100" cy="100" r="84" fill="none" stroke="#101010" stroke-width="1"/>
+                        <g id="ticks"></g>
+                        <line id="handHour" x1="100" y1="100" x2="100" y2="54" stroke="#e0e0e0" stroke-width="4" stroke-linecap="square"/>
+                        <line id="handMin"  x1="100" y1="100" x2="100" y2="30" stroke="#e0e0e0" stroke-width="2.5" stroke-linecap="square"/>
+                        <line id="handSec"  x1="100" y1="100" x2="100" y2="22" stroke="#FF3D00" stroke-width="1.5" stroke-linecap="square"/>
+                        <circle cx="100" cy="100" r="3.5" fill="#ffffff"/>
+                    </svg>
+                    <div class="analog-meta" id="analogMeta">—</div>
+                </div>
+            </div>
+
+            <div class="stat-grid">
+                <div class="stat">
+                    <div class="stat-label">UTC TIME</div>
+                    <div class="stat-value" id="statUtc">--:--:--</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-label">UNIX TIMESTAMP</div>
+                    <div class="stat-value" id="statUnix">—</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-label">ISO WEEK</div>
+                    <div class="stat-value" id="statWeek">—</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-label">DAY OF YEAR</div>
+                    <div class="stat-value" id="statDoy">—</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-label">UTC OFFSET</div>
+                    <div class="stat-value" id="statOffset">—</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-label">TIMEZONE</div>
+                    <div class="stat-value" id="statTz">—</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-label">NEXT ALARM</div>
+                    <div class="stat-value" id="statNextAlarm">NONE SET</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-label">SESSION UPTIME</div>
+                    <div class="stat-value" id="statUptime">00:00</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ---------- WORLD ---------- -->
+        <section class="view" id="view-world">
+            <div class="view-head">
+                <div class="view-title">WORLD CLOCK · <span id="worldCount">0</span> ZONES</div>
+                <div class="add-row">
+                    <select class="field" id="citySelect"></select>
+                    <button class="btn-sm primary" id="addCityBtn">+ ADD ZONE</button>
+                    <input class="field" id="customTz" placeholder="OR TYPE IANA TZ…" style="flex:0 1 220px" />
+                    <button class="btn-sm" id="addCustomBtn">ADD CUSTOM</button>
+                </div>
+            </div>
+            <div class="city-grid" id="cityGrid"></div>
+        </section>
+
+        <!-- ---------- STOPWATCH ---------- -->
+        <section class="view" id="view-stopwatch">
+            <div class="card stage">
+                <div class="stage-time" id="swTime">00:00.00</div>
+                <div class="stage-sub">
+                    <span>STATUS <b id="swStatus">STANDBY</b></span>
+                    <span>·</span>
+                    <span>LAPS <b id="swLapCount">0</b></span>
+                </div>
+                <div class="stage-controls">
+                    <button class="btn-lg primary" id="swStart">START</button>
+                    <button class="btn-lg" id="swLap" disabled>LAP</button>
+                    <button class="btn-lg danger" id="swReset">RESET</button>
+                </div>
+            </div>
+            <div class="view-head" style="margin-top:26px">
+                <div class="view-title">LAP LOG</div>
+                <div class="subbar-hint"><b>SPACE</b> START/STOP · <b>L</b> LAP · <b>R</b> RESET</div>
+            </div>
+            <div class="lap-list" id="lapList"><div class="empty">NO LAPS RECORDED</div></div>
+        </section>
+
+        <!-- ---------- TIMER ---------- -->
+        <section class="view" id="view-timer">
+            <div class="card stage">
+                <div class="stage-time" id="timerTime">00:05:00</div>
+                <div class="stage-sub">
+                    <span>STATUS <b id="timerStatus">STANDBY</b></span>
+                    <span>·</span>
+                    <span>DURATION <b id="timerTotal">00:05:00</b></span>
+                </div>
+                <div class="progress"><div class="progress-fill" id="timerFill"></div></div>
+                <div class="stage-controls">
+                    <button class="btn-lg primary" id="timerToggle">START</button>
+                    <button class="btn-lg" id="timerPlus">+1 MIN</button>
+                    <button class="btn-lg danger" id="timerReset">RESET</button>
+                </div>
+            </div>
+
+            <div class="card" style="padding:24px">
+                <div class="view-title" style="margin-bottom:18px">SET DURATION</div>
+                <div class="setup">
+                    <div class="setup-field">
+                        <label>Hours</label>
+                        <input type="number" id="tH" min="0" max="99" value="0" />
+                    </div>
+                    <div class="setup-field">
+                        <label>Minutes</label>
+                        <input type="number" id="tM" min="0" max="59" value="5" />
+                    </div>
+                    <div class="setup-field">
+                        <label>Seconds</label>
+                        <input type="number" id="tS" min="0" max="59" value="0" />
+                    </div>
+                    <button class="btn-lg" id="timerSet" style="min-width:110px;padding:12px 20px">SET</button>
+                </div>
+                <div class="preset-row" id="presetRow"></div>
+            </div>
+        </section>
+
+        <!-- ---------- ALARMS ---------- -->
+        <section class="view" id="view-alarms">
+            <div class="alarm-form">
+                <div class="view-title" style="margin-bottom:16px">NEW ALARM</div>
+                <div class="form-row">
+                    <input type="time" class="field time-field" id="alarmTime" value="07:00" />
+                    <input type="text" class="field" id="alarmLabel" placeholder="LABEL · WAKE UP / STANDUP / MEDS" maxlength="40" />
+                    <button class="btn-sm primary" id="addAlarmBtn" style="padding:13px 22px">+ SET ALARM</button>
+                </div>
+                <div class="day-row" id="dayRow"></div>
+                <div class="subbar-hint" style="margin-top:12px">NO DAYS SELECTED = ONE-TIME ALARM · WITH DAYS = WEEKLY REPEAT</div>
+            </div>
+
+            <div class="view-head">
+                <div class="view-title">SCHEDULED · <span id="alarmCount">0</span></div>
+                <div class="subbar-hint" id="nextAlarmHint">—</div>
+            </div>
+            <div class="alarm-list" id="alarmList"></div>
+        </section>
+
+    </main>
+</div>
+
+<!-- ================= RING OVERLAY ================= -->
+<div class="ring-overlay" id="ringOverlay">
+    <div class="ring-box">
+        <div class="ring-corner tl"></div>
+        <div class="ring-corner tr"></div>
+        <div class="ring-corner bl"></div>
+        <div class="ring-corner br"></div>
+        <div class="ring-title" id="ringTitle">ALARM</div>
+        <div class="ring-time" id="ringTime">00:00</div>
+        <div class="ring-label" id="ringLabel">—</div>
+        <div class="ring-actions">
+            <button class="btn-lg" id="snoozeBtn">SNOOZE 5 MIN</button>
+            <button class="btn-lg primary" id="dismissBtn">DISMISS</button>
+        </div>
+    </div>
+</div>
+
+<!-- ================= TOASTS ================= -->
+<div class="toast-wrap" id="toastWrap"></div>
+
+<script>
+/* ==========================================================
+   CHRONOS · Temporal Intelligence
+   ========================================================== */
+(function () {
+    'use strict';
+
+    /* ---------------- helpers ---------------- */
+    const $ = (s, r = document) => r.querySelector(s);
+    const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
+    const pad = (n, l = 2) => String(Math.floor(Math.abs(n))).padStart(l, '0');
+    const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+    const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    const DAYS_SHORT = ['SUN','MON','TUE','WED','THU','FRI','SAT'];
+    const DAYS_MINI = ['S','M','T','W','T','F','S'];
+
+    /* ---------------- state ---------------- */
+    const LS_KEY = 'chronos_state_v1';
+
+    const DEFAULT_STATE = {
+        h24: true,
+        showSeconds: true,
+        cities: [
+            { city: 'NEW YORK', country: 'USA', tz: 'America/New_York' },
+            { city: 'LONDON', country: 'UK', tz: 'Europe/London' },
+            { city: 'TOKYO', country: 'JAPAN', tz: 'Asia/Tokyo' }
+        ],
+        alarms: []
+    };
+
+    let state = loadState();
+
+    function loadState() {
+        try {
+            const raw = localStorage.getItem(LS_KEY);
+            if (!raw) return JSON.parse(JSON.stringify(DEFAULT_STATE));
+            const parsed = JSON.parse(raw);
+            return Object.assign(JSON.parse(JSON.stringify(DEFAULT_STATE)), parsed);
+        } catch (e) {
+            return JSON.parse(JSON.stringify(DEFAULT_STATE));
+        }
+    }
+    function saveState() {
+        try { localStorage.setItem(LS_KEY, JSON.stringify(state)); } catch (e) {}
+    }
+
+    /* ---------------- timezone engine ---------------- */
+    const fmtCache = new Map();
+    function getFmt(tz, opts) {
+        const key = tz + '|' + JSON.stringify(opts);
+        if (!fmtCache.has(key)) {
+            fmtCache.set(key, new Intl.DateTimeFormat('en-GB', Object.assign({ timeZone: tz }, opts)));
+        }
+        return fmtCache.get(key);
+    }
+
+    function getParts(date, tz) {
+        const f = getFmt(tz, {
+            hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false,
+            weekday: 'short', day: '2-digit', month: 'short', year: 'numeric'
+        });
+        const out = {};
+        for (const p of f.formatToParts(date)) out[p.type] = p.value;
+        let hour = parseInt(out.hour, 10);
+        if (hour === 24) hour = 0;
+        return {
+            hour,
+            minute: parseInt(out.minute, 10),
+            second: parseInt(out.second, 10),
+            weekday: out.weekday,
+            day: out.day,
+            month: out.month,
+            monthIdx: MONTHS.indexOf(out.month),
+            year: parseInt(out.year, 10)
+        };
+    }
+
+    function offsetMinutes(date, tz) {
+        const p = getParts(date, tz);
+        const asUTC = Date.UTC(p.year, p.monthIdx, parseInt(p.day, 10), p.hour, p.minute, p.second);
+        const floored = Math.floor(date.getTime() / 1000) * 1000;
+        return Math.round((asUTC - floored) / 60000);
+    }
+
+    function offsetLabel(mins) {
+        const sign = mins < 0 ? '-' : '+';
+        const a = Math.abs(mins);
+        return 'UTC' + sign + pad(a / 60) + ':' + pad(a % 60);
+    }
+
+    function relOffsetLabel(mins, localMins) {
+        const d = mins - localMins;
+        if (d === 0) return 'SAME AS LOCAL';
+        const sign = d < 0 ? '-' : '+';
+        const a = Math.abs(d);
+        const h = Math.floor(a / 60), m = a % 60;
+        return sign + (h ? h + 'H' : '') + (m ? (h ? ' ' : '') + m + 'M' : '') + ' VS LOCAL';
+    }
+
+    function localTz() {
+        try { return Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC'; }
+        catch (e) { return 'UTC'; }
+    }
+
+    function fmtClock(h, m, s, h24, showSec) {
+        if (!h24) {
+            const ampm = h < 12 ? 'AM' : 'PM';
+            let hh = h % 12; if (hh === 0) hh = 12;
+            return pad(hh) + ':' + pad(m) + (showSec ? ':' + pad(s) : '') + ' ' + ampm;
+        }
+        return pad(h) + ':' + pad(m) + (showSec ? ':' + pad(s) : '');
+    }
+
+    function isoWeek(d) {
+        const date = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+        const dayNum = date.getUTCDay() || 7;
+        date.setUTCDate(date.getUTCDate() + 4 - dayNum);
+        const yearStart = new Date(Date.UTC(date.getUTCFullYear(), 0, 1));
+        return Math.ceil((((date - yearStart) / 86400000) + 1) / 7);
+    }
+
+    function fmtDurationMs(ms) {
+        const total = Math.max(0, Math.floor(ms / 1000));
+        const h = Math.floor(total / 3600);
+        const m = Math.floor((total % 3600) / 60);
+        const s = total % 60;
+        return pad(h) + ':' + pad(m) + ':' + pad(s);
+    }
+    function fmtDurationShort(ms) {
+        const total = Math.max(0, Math.floor(ms / 1000));
+        const h = Math.floor(total / 3600);
+        const m = Math.floor((total % 3600) / 60);
+        const s = total % 60;
+        if (h > 0) return h + 'H ' + pad(m) + 'M';
+        if (m > 0) return m + 'M ' + pad(s) + 'S';
+        return s + 'S';
+    }
+
+    /* ---------------- toasts ---------------- */
+    function toast(type, title, msg, duration) {
+        const wrap = $('#toastWrap');
+        const el = document.createElement('div');
+        el.className = 'toast ' + type;
+        el.innerHTML = '<div class="toast-title">' + esc(title) + '</div><div class="toast-msg">' + esc(msg) + '</div>';
+        wrap.appendChild(el);
+        setTimeout(() => {
+            el.classList.add('out');
+            setTimeout(() => el.remove(), 260);
+        }, duration || 3200);
+    }
+
+    /* ---------------- audio engine ---------------- */
+    let actx = null;
+    function ensureAudio() {
+        if (!actx) {
+            try { actx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { actx = null; }
+        }
+        if (actx && actx.state === 'suspended') { actx.resume().catch(() => {}); }
+        return actx;
+    }
+    ['click', 'keydown', 'touchstart'].forEach(ev =>
+        document.addEventListener(ev, ensureAudio, { passive: true })
+    );
+
+    function beep(ctx, at, freq, dur, vol) {
+        const o = ctx.createOscillator();
+        const g = ctx.createGain();
+        o.type = 'square';
+        o.frequency.value = freq;
+        g.gain.setValueAtTime(0.0001, at);
+        g.gain.linearRampToValueAtTime(vol, at + 0.012);
+        g.gain.exponentialRampToValueAtTime(0.0001, at + dur);
+        o.connect(g); g.connect(ctx.destination);
+        o.start(at); o.stop(at + dur + 0.03);
+    }
+
+    let alarmLoopId = null;
+    function startAlarmSound() {
+        const ctx = ensureAudio();
+        if (!ctx) return;
+        stopAlarmSound();
+        const pattern = () => {
+            const t = ctx.currentTime;
+            beep(ctx, t, 880, 0.12, 0.16);
+            beep(ctx, t + 0.18, 880, 0.12, 0.16);
+            beep(ctx, t + 0.36, 1245, 0.16, 0.16);
+        };
+        try { pattern(); } catch (e) {}
+        alarmLoopId = setInterval(() => { try { pattern(); } catch (e) {} }, 1250);
+    }
+    function stopAlarmSound() {
+        if (alarmLoopId) { clearInterval(alarmLoopId); alarmLoopId = null; }
+    }
+
+    /* ---------------- view switching ---------------- */
+    function switchView(name) {
+        $$('.tab').forEach(t => t.classList.toggle('active', t.dataset.view === name));
+        $$('.view').forEach(v => v.classList.toggle('active', v.id === 'view-' + name));
+        $('.scroll').scrollTop = 0;
+    }
+    $('#tabs').addEventListener('click', e => {
+        const btn = e.target.closest('.tab');
+        if (btn) switchView(btn.dataset.view);
+    });
+
+    /* ==========================================================
+       ANALOG CLOCK
+       ========================================================== */
+    (function buildTicks() {
+        const g = $('#ticks');
+        const NS = 'http://www.w3.org/2000/svg';
+        for (let i = 0; i < 60; i++) {
+            const a = i * 6 * Math.PI / 180;
+            const major = i % 5 === 0;
+            const r1 = major ? 76 : 82, r2 = 87;
+            const line = document.createElementNS(NS, 'line');
+            line.setAttribute('x1', (100 + r1 * Math.sin(a)).toFixed(2));
+            line.setAttribute('y1', (100 - r1 * Math.cos(a)).toFixed(2));
+            line.setAttribute('x2', (100 + r2 * Math.sin(a)).toFixed(2));
+            line.setAttribute('y2', (100 - r2 * Math.cos(a)).toFixed(2));
+            line.setAttribute('stroke', major ? '#555' : '#222');
+            line.setAttribute('stroke-width', major ? '2' : '1');
+            g.appendChild(line);
+        }
+    })();
+
+    function updateAnalog(now) {
+        const ms = now.getMilliseconds();
+        const s = now.getSeconds() + ms / 1000;
+        const m = now.getMinutes() + s / 60;
+        const h = (now.getHours() % 12) + m / 60;
+        $('#handSec').setAttribute('transform', 'rotate(' + (s * 6).toFixed(2) + ' 100 100)');
+        $('#handMin').setAttribute('transform', 'rotate(' + (m * 6).toFixed(2) + ' 100 100)');
+        $('#handHour').setAttribute('transform', 'rotate(' + (h * 30).toFixed(2) + ' 100 100)');
+    }
+
+    /* ==========================================================
+       CLOCK VIEW
+       ========================================================== */
+    const TZ = localTz();
+    const SESSION_START = Date.now();
+
+    function updateClockView(now) {
+        const p = getParts(now, TZ);
+        $('#bigTime').textContent = fmtClock(p.hour, p.minute, p.second, state.h24, state.showSeconds);
+        $('#bigDate').textContent =
+            p.weekday.toUpperCase() + ' · ' + p.day + ' ' + p.month.toUpperCase() + ' ' + p.year;
+
+        // day progress
+        const secsIntoDay = p.hour * 3600 + p.minute * 60 + p.second;
+        const pct = secsIntoDay / 86400;
+        $('#dayFill').style.width = (pct * 100).toFixed(2) + '%';
+        $('#dayPct').textContent = (pct * 100).toFixed(1) + '%';
+        $('#dayLeft').textContent = fmtDurationShort((86400 - secsIntoDay) * 1000) + ' REMAINING';
+
+        $('#analogMeta').textContent = fmtClock(p.hour, p.minute, p.second, state.h24, true) + ' · ' + TZ;
+    }
+
+    function updateStatGrid(now) {
+        const p = getParts(now, TZ);
+        const utc = getParts(now, 'UTC');
+        const off = offsetMinutes(now, TZ);
+
+        $('#statUtc').textContent = fmtClock(utc.hour, utc.minute, utc.second, true, true) + ' UTC';
+        $('#statUnix').textContent = String(Math.floor(now.getTime() / 1000));
+        $('#statWeek').textContent = 'W' + pad(isoWeek(now)) + ' / ' + now.getFullYear();
+        const start = new Date(now.getFullYear(), 0, 0);
+        const doy = Math.floor((now - start) / 86400000);
+        $('#statDoy').textContent = pad(doy, 3) + ' / ' + (now.getFullYear() % 4 === 0 ? 366 : 365);
+        $('#statOffset').textContent = offsetLabel(off);
+        $('#statTz').textContent = TZ;
+
+        const elapsed = Date.now() - SESSION_START;
+        $('#statUptime').textContent = fmtDurationMs(elapsed);
+
+        const next = nextAlarmOccurrence(now);
+        $('#statNextAlarm').textContent = next ? next.label + ' · ' + next.inText : 'NONE SET';
+    }
+
+    function updateTopbar(now) {
+        const utc = getParts(now, 'UTC');
+        $('#pillUtc').textContent = 'UTC ' + pad(utc.hour) + ':' + pad(utc.minute) + ':' + pad(utc.second);
+        const off = offsetMinutes(now, TZ);
+        $('#pillTz').textContent = offsetLabel(off);
+        const active = state.alarms.filter(a => a.enabled).length;
+        $('#pillAlarms').textContent = 'ALARMS ' + active;
+        $('#cntAlarms').textContent = active;
+        $('#cntWorld').textContent = state.cities.length;
+    }
+
+    /* ==========================================================
+       WORLD CLOCK
+       ========================================================== */
+    const CITY_PRESETS = [
+        ['NEW YORK','USA','America/New_York'],
+        ['LOS ANGELES','USA','America/Los_Angeles'],
+        ['CHICAGO','USA','America/Chicago'],
+        ['DENVER','USA','America/Denver'],
+        ['ANCHORAGE','USA','America/Anchorage'],
+        ['HONOLULU','USA','Pacific/Honolulu'],
+        ['TORONTO','CANADA','America/Toronto'],
+        ['VANCOUVER','CANADA','America/Vancouver'],
+        ['MEXICO CITY','MEXICO','America/Mexico_City'],
+        ['BOGOTA','COLOMBIA','America/Bogota'],
+        ['LIMA','PERU','America/Lima'],
+        ['SANTIAGO','CHILE','America/Santiago'],
+        ['SAO PAULO','BRAZIL','America/Sao_Paulo'],
+        ['BUENOS AIRES','ARGENTINA','America/Argentina/Buenos_Aires'],
+        ['REYKJAVIK','ICELAND','Atlantic/Reykjavik'],
+        ['LONDON','UK','Europe/London'],
+        ['DUBLIN','IRELAND','Europe/Dublin'],
+        ['LISBON','PORTUGAL','Europe/Lisbon'],
+        ['PARIS','FRANCE','Europe/Paris'],
+        ['BERLIN','GERMANY','Europe/Berlin'],
+        ['MADRID','SPAIN','Europe/Madrid'],
+        ['ROME','ITALY','Europe/Rome'],
+        ['AMSTERDAM','NETHERLANDS','Europe/Amsterdam'],
+        ['BRUSSELS','BELGIUM','Europe/Brussels'],
+        ['ZURICH','SWITZERLAND','Europe/Zurich'],
+        ['VIENNA','AUSTRIA','Europe/Vienna'],
+        ['PRAGUE','CZECHIA','Europe/Prague'],
+        ['STOCKHOLM','SWEDEN','Europe/Stockholm'],
+        ['OSLO','NORWAY','Europe/Oslo'],
+        ['HELSINKI','FINLAND','Europe/Helsinki'],
+        ['WARSAW','POLAND','Europe/Warsaw'],
+        ['ATHENS','GREECE','Europe/Athens'],
+        ['KYIV','UKRAINE','Europe/Kiev'],
+        ['MOSCOW','RUSSIA','Europe/Moscow'],
+        ['ISTANBUL','TURKEY','Europe/Istanbul'],
+        ['CAIRO','EGYPT','Africa/Cairo'],
+        ['LAGOS','NIGERIA','Africa/Lagos'],
+        ['NAIROBI','KENYA','Africa/Nairobi'],
+        ['JOHANNESBURG','SOUTH AFRICA','Africa/Johannesburg'],
+        ['CASABLANCA','MOROCCO','Africa/Casablanca'],
+        ['DUBAI','UAE','Asia/Dubai'],
+        ['RIYADH','SAUDI ARABIA','Asia/Riyadh'],
+        ['TEL AVIV','ISRAEL','Asia/Jerusalem'],
+        ['TEHRAN','IRAN','Asia/Tehran'],
+        ['KARACHI','PAKISTAN','Asia/Karachi'],
+        ['MUMBAI','INDIA','Asia/Kolkata'],
+        ['DELHI','INDIA','Asia/Kolkata'],
+        ['DHAKA','BANGLADESH','Asia/Dhaka'],
+        ['BANGKOK','THAILAND','Asia/Bangkok'],
+        ['HANOI','VIETNAM','Asia/Ho_Chi_Minh'],
+        ['JAKARTA','INDONESIA','Asia/Jakarta'],
+        ['SINGAPORE','SINGAPORE','Asia/Singapore'],
+        ['KUALA LUMPUR','MALAYSIA','Asia/Kuala_Lumpur'],
+        ['HONG KONG','CHINA','Asia/Hong_Kong'],
+        ['SHANGHAI','CHINA','Asia/Shanghai'],
+        ['BEIJING','CHINA','Asia/Shanghai'],
+        ['TAIPEI','TAIWAN','Asia/Taipei'],
+        ['SEOUL','SOUTH KOREA','Asia/Seoul'],
+        ['TOKYO','JAPAN','Asia/Tokyo'],
+        ['SYDNEY','AUSTRALIA','Australia/Sydney'],
+        ['MELBOURNE','AUSTRALIA','Australia/Melbourne'],
+        ['BRISBANE','AUSTRALIA','Australia/Brisbane'],
+        ['PERTH','AUSTRALIA','Australia/Perth'],
+        ['AUCKLAND','NEW ZEALAND','Pacific/Auckland'],
+        ['UTC','COORDINATED','UTC']
+    ];
+
+    const ACCENTS = ['#34C759', '#007AFF', '#FFD60A', '#FF3D00', '#ffffff', '#8E8E93'];
+
+    let cityNodes = [];
+
+    function cityAccent(tz) {
+        let h = 0;
+        for (let i = 0; i < tz.length; i++) h = (h * 31 + tz.charCodeAt(i)) >>> 0;
+        return ACCENTS[h % ACCENTS.length];
+    }
+
+    function renderCities() {
+        const grid = $('#cityGrid');
+        grid.innerHTML = '';
+        cityNodes = [];
+        $('#worldCount').textContent = state.cities.length;
+
+        if (!state.cities.length) {
+            grid.innerHTML = '<div class="empty">NO ZONES PINNED · ADD ONE ABOVE</div>';
+            return;
+        }
+
+        state.cities.forEach((c, idx) => {
+            const el = document.createElement('div');
+            el.className = 'city-card';
+            el.style.setProperty('--accent', cityAccent(c.tz));
+            el.innerHTML =
+                '<div class="city-top">' +
+                    '<div style="min-width:0">' +
+                        '<div class="city-name">' + esc(c.city) + '</div>' +
+                        '<div class="city-country">' + esc(c.country || '') + ' · ' + esc(c.tz) + '</div>' +
+                    '</div>' +
+                    '<button class="icon-mini" data-idx="' + idx + '" title="Remove zone">×</button>' +
+                '</div>' +
+                '<div class="city-time">--:--:--</div>' +
+                '<div class="city-foot">' +
+                    '<span class="city-date">—</span>' +
+                    '<span class="badge day">DAY</span>' +
+                '</div>' +
+                '<div class="city-off" style="margin-top:8px">—</div>';
+
+            grid.appendChild(el);
+            cityNodes.push({
+                time: el.querySelector('.city-time'),
+                date: el.querySelector('.city-date'),
+                badge: el.querySelector('.badge'),
+                off: el.querySelector('.city-off')
+            });
+        });
+    }
+
+    function updateCities(now) {
+        if (!cityNodes.length) return;
+        const localOff = offsetMinutes(now, TZ);
+
+        state.cities.forEach((c, i) => {
+            const n = cityNodes[i];
+            if (!n) return;
+            let p;
+            try { p = getParts(now, c.tz); } catch (e) { return; }
+            n.time.textContent = fmtClock(p.hour, p.minute, p.second, state.h24, state.showSeconds);
+            n.date.textContent = p.weekday.toUpperCase() + ' ' + p.day + ' ' + p.month.toUpperCase();
+
+            const isDay = p.hour >= 6 && p.hour < 18;
+            n.badge.textContent = isDay ? 'DAY' : 'NIGHT';
+            n.badge.className = 'badge ' + (isDay ? 'day' : 'night');
+
+            const off = offsetMinutes(now, c.tz);
+            n.off.textContent = offsetLabel(off) + ' · ' + relOffsetLabel(off, localOff);
+        });
+    }
+
+    function initCitySelect() {
+        const sel = $('#citySelect');
+        sel.innerHTML = '';
+        const groups = {};
+        CITY_PRESETS.forEach(([city, country, tz]) => {
+            (groups[country] = groups[country] || []).push({ city, country, tz });
+        });
+        Object.keys(groups).sort().forEach(g => {
+            const og = document.createElement('optgroup');
+            og.label = g;
+            groups[g].forEach(c => {
+                const o = document.createElement('option');
+                o.value = c.tz;
+                o.textContent = c.city;
+                o.dataset.city = c.city;
+                o.dataset.country = c.country;
+                og.appendChild(o);
+            });
+            sel.appendChild(og);
+        });
+
+        // Add all supported IANA zones as a second group (if available)
+        try {
+            if (typeof Intl.supportedValuesOf === 'function') {
+                const all = Intl.supportedValuesOf('timeZone');
+                const known = new Set(CITY_PRESETS.map(p => p[2]));
+                const og = document.createElement('optgroup');
+                og.label = 'ALL IANA ZONES';
+                all.filter(z => !known.has(z)).forEach(z => {
+                    const o = document.createElement('option');
+                    o.value = z;
+                    o.textContent = z.split('/').pop().replace(/_/g, ' ').toUpperCase();
+                    o.dataset.city = z.split('/').pop().replace(/_/g, ' ').toUpperCase();
+                    o.dataset.country = z.split('/')[0].replace(/_/g, ' ').toUpperCase();
+                    og.appendChild(o);
+                });
+                sel.appendChild(og);
+            }
+        } catch (e) {}
+    }
+
+    function addCity(tz, city, country) {
+        if (!tz) return;
+        if (state.cities.some(c => c.tz === tz && c.city === city)) {
+            toast('warn', 'ALREADY PINNED', city + ' is already on the board');
+            return;
+        }
+        state.cities.push({ city, country: country || '', tz });
+        saveState();
+        renderCities();
+        updateCities(new Date());
+        toast('success', 'ZONE ADDED', city + ' · ' + tz);
+    }
+
+    $('#addCityBtn').addEventListener('click', () => {
+        const sel = $('#citySelect');
+        const opt = sel.options[sel.selectedIndex];
+        if (!opt) return;
+        addCity(opt.value, opt.dataset.city || opt.value, opt.dataset.country || '');
+    });
+
+    $('#addCustomBtn').addEventListener('click', () => {
+        const raw = $('#customTz').value.trim();
+        if (!raw) return;
+        try {
+            new Intl.DateTimeFormat('en-GB', { timeZone: raw });
+        } catch (e) {
+            toast('error', 'INVALID ZONE', 'Unknown IANA timezone: ' + raw);
+            return;
+        }
+        const name = raw.split('/').pop().replace(/_/g, ' ').toUpperCase();
+        addCity(raw, name, raw.split('/')[0].replace(/_/g, ' ').toUpperCase());
+        $('#customTz').value = '';
+    });
+
+    $('#customTz').addEventListener('keydown', e => {
+        if (e.key === 'Enter') $('#addCustomBtn').click();
+    });
+
+    $('#cityGrid').addEventListener('click', e => {
+        const btn = e.target.closest('.icon-mini');
+        if (!btn) return;
+        const idx = parseInt(btn.dataset.idx, 10);
+        const removed = state.cities[idx];
+        state.cities.splice(idx, 1);
+        saveState();
+        renderCities();
+        updateCities(new Date());
+        if (removed) toast('warn', 'ZONE REMOVED', removed.city + ' unpinned');
+    });
+
+    /* ==========================================================
+       STOPWATCH
+       ========================================================== */
+    const sw = { running: false, start: 0, elapsed: 0, laps: [] };
+
+    function swElapsedMs() {
+        return sw.running ? sw.elapsed + (performance.now() - sw.start) : sw.elapsed;
+    }
+
+    function fmtStopwatch(ms) {
+        const totalCs = Math.floor(ms / 10);
+        const cs = totalCs % 100;
+        const totalS = Math.floor(totalCs / 100);
+        const s = totalS % 60;
+        const m = Math.floor(totalS / 60) % 60;
+        const h = Math.floor(totalS / 3600);
+        if (h > 0) return pad(h) + ':' + pad(m) + ':' + pad(s) + '.' + pad(cs);
+        return pad(m) + ':' + pad(s) + '.' + pad(cs);
+    }
+
+    function updateStopwatch() {
+        const t = swElapsedMs();
+        const str = fmtStopwatch(t);
+        const el = $('#swTime');
+        if (el.textContent !== str) el.textContent = str;
+    }
+
+    function swRenderLaps() {
+        const list = $('#lapList');
+        $('#cntLaps').textContent = sw.laps.length;
+        $('#swLapCount').textContent = sw.laps.length;
+
+        if (!sw.laps.length) {
+            list.innerHTML = '<div class="empty">NO LAPS RECORDED</div>';
+            return;
+        }
+
+        let bestIdx = -1, worstIdx = -1;
+        if (sw.laps.length > 1) {
+            let best = Infinity, worst = -Infinity;
+            sw.laps.forEach((l, i) => {
+                if (l.split < best) { best = l.split; bestIdx = i; }
+                if (l.split > worst) { worst = l.split; worstIdx = i; }
+            });
+        }
+
+        list.innerHTML = sw.laps.map((l, i) => {
+            const cls = i === bestIdx ? 'best' : (i === worstIdx ? 'worst' : '');
+            return '<div class="lap-row ' + cls + '">' +
+                '<span class="lap-idx">LAP ' + pad(i + 1) + '</span>' +
+                '<span class="lap-col"><span class="label">Split</span><span class="lap-split">' + fmtStopwatch(l.split) + '</span></span>' +
+                '<span class="lap-col"><span class="label">Total</span>' + fmtStopwatch(l.total) + '</span>' +
+                '<span class="lap-col lap-total"><span class="label">Avg</span>' + fmtStopwatch(l.total / (i + 1)) + '</span>' +
+            '</div>';
+        }).join('');
+    }
+
+    function swToggle() {
+        if (sw.running) {
+            sw.elapsed = swElapsedMs();
+            sw.running = false;
+            $('#swStart').textContent = 'RESUME';
+            $('#swStatus').textContent = 'PAUSED';
+            $('#swTime').classList.add('paused');
+            $('#swLap').disabled = true;
+        } else {
+            sw.start = performance.now();
+            sw.running = true;
+            $('#swStart').textContent = 'PAUSE';
+            $('#swStatus').textContent = 'RUNNING';
+            $('#swTime').classList.remove('paused');
+            $('#swLap').disabled = false;
+        }
+    }
+
+    function swLap() {
+        if (!sw.running) return;
+        const total = swElapsedMs();
+        const prev = sw.laps.length ? sw.laps[sw.laps.length - 1].total : 0;
+        sw.laps.push({ total, split: total - prev });
+        swRenderLaps();
+    }
+
+    function swReset() {
+        sw.running = false;
+        sw.start = 0;
+        sw.elapsed = 0;
+        sw.laps = [];
+        $('#swStart').textContent = 'START';
+        $('#swStatus').textContent = 'STANDBY';
+        $('#swTime').classList.remove('paused');
+        $('#swLap').disabled = true;
+        $('#swTime').textContent = '00:00.00';
+        swRenderLaps();
+        toast('warn', 'STOPWATCH RESET', 'Timer cleared, lap log purged');
+    }
+
+    $('#swStart').addEventListener('click', swToggle);
+    $('#swLap').addEventListener('click', swLap);
+    $('#swReset').addEventListener('click', swReset);
+
+    /* ==========================================================
+       TIMER
+       ========================================================== */
+    const timer = { total: 300000, remaining: 300000, running: false, endAt: 0, done: false };
+
+    function timerSet(ms) {
+        timer.total = Math.max(1000, ms);
+        timer.remaining = timer.total;
+        timer.running = false;
+        timer.done = false;
+        $('#timerToggle').textContent = 'START';
+        $('#timerStatus').textContent = 'STANDBY';
+        $('#timerTime').classList.remove('paused', 'done');
+        $('#timerTotal').textContent = fmtDurationMs(timer.total);
+        updateTimerUI(true);
+    }
+
+    function timerStart() {
+        if (timer.remaining <= 0) return;
+        timer.running = true;
+        timer.done = false;
+        timer.endAt = Date.now() + timer.remaining;
+        $('#timerToggle').textContent = 'PAUSE';
+        $('#timerStatus').textContent = 'RUNNING';
+        $('#timerTime').classList.remove('paused', 'done');
+    }
+
+    function timerPause() {
+        timer.remaining = Math.max(0, timer.endAt - Date.now());
+        timer.running = false;
+        $('#timerToggle').textContent = 'RESUME';
+        $('#timerStatus').textContent = 'PAUSED';
+        $('#timerTime').classList.add('paused');
+    }
+
+    function timerToggle() {
+        if (timer.running) timerPause();
+        else {
+            if (timer.remaining <= 0) timer.remaining = timer.total;
+            timerStart();
+        }
+    }
+
+    function timerReset() {
+        timer.running = false;
+        timer.done = false;
+        timer.remaining = timer.total;
+        $('#timerToggle').textContent = 'START';
+        $('#timerStatus').textContent = 'STANDBY';
+        $('#timerTime').classList.remove('paused', 'done');
+        updateTimerUI(true);
+    }
+
+    let lastTimerStr = '';
+    function updateTimerUI(force) {
+        const str = fmtDurationMs(timer.remaining);
+        if (force || str !== lastTimerStr) {
+            $('#timerTime').textContent = str;
+            lastTimerStr = str;
+        }
+        const pct = timer.total > 0 ? (1 - timer.remaining / timer.total) * 100 : 0;
+        const fill = $('#timerFill');
+        fill.style.width = Math.min(100, Math.max(0, pct)).toFixed(2) + '%';
+        fill.className = 'progress-fill' +
+            (timer.remaining <= 10000 && timer.remaining > 0 ? ' crit' :
+             timer.remaining <= 60000 && timer.remaining > 0 ? ' warn' : '');
+    }
+
+    function updateTimer() {
+        if (timer.running) {
+            const rem = timer.endAt - Date.now();
+            if (rem <= 0) {
+                timer.remaining = 0;
+                timer.running = false;
+                timer.done = true;
+                $('#timerToggle').textContent = 'START';
+                $('#timerStatus').textContent = 'COMPLETE';
+                $('#timerTime').classList.add('done');
+                updateTimerUI(true);
+                ring('TIMER COMPLETE', 'Focus block finished', '00:00', true);
+            } else {
+                timer.remaining = rem;
+                updateTimerUI(false);
+            }
+        }
+    }
+
+    $('#timerToggle').addEventListener('click', timerToggle);
+    $('#timerReset').addEventListener('click', timerReset);
+    $('#timerPlus').addEventListener('click', () => {
+        const add = 60000;
+        if (timer.running) {
+            timer.endAt += add;
+            timer.total += add;
+        } else {
+            timer.remaining += add;
+            timer.total = Math.max(timer.total, timer.remaining);
+        }
+        $('#timerTotal').textContent = fmtDurationMs(timer.total);
+        updateTimerUI(true);
+        toast('success', '+1 MINUTE', 'Duration extended');
+    });
+
+    $('#timerSet').addEventListener('click', () => {
+        const h = Math.max(0, Math.min(99, parseInt($('#tH').value, 10) || 0));
+        const m = Math.max(0, Math.min(59, parseInt($('#tM').value, 10) || 0));
+        const s = Math.max(0, Math.min(59, parseInt($('#tS').value, 10) || 0));
+        const ms = ((h * 3600) + (m * 60) + s) * 1000;
+        if (ms <= 0) { toast('error', 'INVALID DURATION', 'Set at least 1 second'); return; }
+        timerSet(ms);
+        toast('success', 'TIMER SET', fmtDurationMs(ms));
+    });
+
+    const PRESETS = [
+        [60, '1 MIN'], [180, '3 MIN'], [300, '5 MIN'], [600, '10 MIN'],
+        [900, '15 MIN'], [1500, '25 MIN'], [2700, '45 MIN'], [3600, '60 MIN']
+    ];
+    (function buildPresets() {
+        const row = $('#presetRow');
+        PRESETS.forEach(([secs, label]) => {
+            const b = document.createElement('button');
+            b.className = 'chip';
+            b.textContent = label;
+            b.addEventListener('click', () => {
+                timerSet(secs * 1000);
+                $('#tH').value = Math.floor(secs / 3600);
+                $('#tM').value = Math.floor((secs % 3600) / 60);
+                $('#tS').value = secs % 60;
+            });
+            row.appendChild(b);
+        });
+    })();
+
+    $$('[data-timer]').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const secs = parseInt(btn.dataset.timer, 10);
+            timerSet(secs * 1000);
+            $('#tH').value = Math.floor(secs / 3600);
+            $('#tM').value = Math.floor((secs % 3600) / 60);
+            $('#tS').value = secs % 60;
+            switchView('timer');
+            timerStart();
+            toast('success', 'TIMER STARTED', fmtDurationMs(secs * 1000) + ' countdown');
+        });
+    });
+
+    $('#goStopwatchChip').addEventListener('click', () => switchView('stopwatch'));
+
+    /* ==========================================================
+       ALARMS
+       ========================================================== */
+    let selectedDays = [];
+
+    (function buildDayButtons() {
+        const row = $('#dayRow');
+        DAYS_MINI.forEach((d, i) => {
+            const b = document.createElement('button');
+            b.className = 'day-btn';
+            b.textContent = d;
+            b.dataset.day = i;
+            b.title = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'][i];
+            b.addEventListener('click', () => {
+                const day = parseInt(b.dataset.day, 10);
+                if (selectedDays.includes(day)) selectedDays = selectedDays.filter(x => x !== day);
+                else selectedDays.push(day);
+                b.classList.toggle('on', selectedDays.includes(day));
+            });
+            row.appendChild(b);
+        });
+    })();
+
+    function addAlarm() {
+        const time = $('#alarmTime').value;
+        if (!/^\d{2}:\d{2}$/.test(time)) {
+            toast('error', 'INVALID TIME', 'Pick a valid time');
+            return;
+        }
+        const label = $('#alarmLabel').value.trim().toUpperCase() || 'ALARM';
+        const alarm = {
+            id: 'ALM-' + Date.now().toString(36).toUpperCase(),
+            time,
+            label,
+            days: selectedDays.slice().sort(),
+            enabled: true,
+            lastFired: ''
+        };
+        state.alarms.push(alarm);
+        state.alarms.sort((a, b) => a.time.localeCompare(b.time));
+        saveState();
+        renderAlarms();
+
+        $('#alarmLabel').value = '';
+        selectedDays = [];
+        $$('.day-btn').forEach(b => b.classList.remove('on'));
+
+        toast('success', 'ALARM SET', time + ' · ' + label);
+    }
+
+    $('#addAlarmBtn').addEventListener('click', addAlarm);
+    $('#newAlarmBtn').addEventListener('click', () => {
+        switchView('alarms');
+        setTimeout(() => $('#alarmTime').focus(), 80);
+    });
+
+    function daysLabel(days) {
+        if (!days || !days.length) return 'ONE TIME';
+        if (days.length === 7) return 'EVERY DAY';
+        if (days.length === 5 && [1,2,3,4,5].every(d => days.includes(d))) return 'WEEKDAYS';
+        if (days.length === 2 && days.includes(0) && days.includes(6)) return 'WEEKENDS';
+        return days.map(d => DAYS_SHORT[d]).join(' ');
+    }
+
+    function renderAlarms() {
+        const list = $('#alarmList');
+        const active = state.alarms.filter(a => a.enabled).length;
+        $('#alarmCount').textContent = state.alarms.length;
+        $('#cntAlarms').textContent = active;
+
+        if (!state.alarms.length) {
+            list.innerHTML = '<div class="empty">NO ALARMS SCHEDULED</div>';
+            $('#nextAlarmHint').textContent = '—';
+            return;
+        }
+
+        list.innerHTML = state.alarms.map(a =>
+            '<div class="alarm-row ' + (a.enabled ? 'on' : 'off') + '">' +
+                '<div class="alarm-time">' + esc(a.time) + '</div>' +
+                '<div class="alarm-info">' +
+                    '<div class="alarm-label">' + esc(a.label) + '</div>' +
+                    '<div class="alarm-days">' + daysLabel(a.days) + '</div>' +
+                '</div>' +
+                '<div class="alarm-actions">' +
+                    '<button class="switch ' + (a.enabled ? 'on' : '') + '" data-toggle="' + a.id + '" title="Enable / disable"></button>' +
+                    '<button class="icon-mini" data-del="' + a.id + '" title="Delete alarm">×</button>' +
+                '</div>' +
+            '</div>'
+        ).join('');
+
+        const next = nextAlarmOccurrence(new Date());
+        $('#nextAlarmHint').textContent = next ? 'NEXT · ' + next.label + ' IN ' + next.inText : '—';
+    }
+
+    $('#alarmList').addEventListener('click', e => {
+        const t = e.target.closest('[data-toggle]');
+        const d = e.target.closest('[data-del]');
+        if (t) {
+            const a = state.alarms.find(x => x.id === t.dataset.toggle);
+            if (a) {
+                a.enabled = !a.enabled;
+                a.lastFired = '';
+                saveState();
+                renderAlarms();
+                toast(a.enabled ? 'success' : 'warn', a.enabled ? 'ALARM ARMED' : 'ALARM DISARMED', a.time + ' · ' + a.label);
+            }
+        }
+        if (d) {
+            const idx = state.alarms.findIndex(x => x.id === d.dataset.del);
+            if (idx > -1) {
+                const removed = state.alarms.splice(idx, 1)[0];
+                saveState();
+                renderAlarms();
+                toast('warn', 'ALARM DELETED', removed.time + ' · ' + removed.label);
+            }
+        }
+    });
+
+    function nextAlarmOccurrence(now) {
+        let best = null;
+        state.alarms.forEach(a => {
+            if (!a.enabled) return;
+            for (let add = 0; add < 8; add++) {
+                const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() + add);
+                if (a.days && a.days.length && !a.days.includes(d.getDay())) continue;
+                const [hh, mm] = a.time.split(':').map(Number);
+                d.setHours(hh, mm, 0, 0);
+                if (d.getTime() <= now.getTime() + 1000) continue;
+                const diff = d.getTime() - now.getTime();
+                if (!best || diff < best.diff) {
+                    best = { diff, label: a.time + ' ' + a.label, inText: fmtDurationShort(diff) };
+                }
+                break;
+            }
+        });
+        return best;
+    }
+
+    /* ---- alarm checking ---- */
+    let lastAlarmKey = '';
+    let snoozes = [];
+
+    function checkAlarms(now) {
+        // snooze queue
+        if (snoozes.length) {
+            const due = snoozes.filter(s => Date.now() >= s.at);
+            if (due.length) {
+                snoozes = snoozes.filter(s => Date.now() < s.at);
+                ring('SNOOZED ALARM', due[0].label, due[0].time, true);
+            }
+        }
+
+        const key = now.getFullYear() + '-' + now.getMonth() + '-' + now.getDate() + ' ' + pad(now.getHours()) + ':' + pad(now.getMinutes());
+        if (key === lastAlarmKey) return;
+        lastAlarmKey = key;
+
+        const hhmm = pad(now.getHours()) + ':' + pad(now.getMinutes());
+        const dow = now.getDay();
+
+        state.alarms.forEach(a => {
+            if (!a.enabled) return;
+            if (a.time !== hhmm) return;
+            if (a.days && a.days.length && !a.days.includes(dow)) return;
+            if (a.lastFired === key) return;
+            a.lastFired = key;
+            saveState();
+            ring('ALARM', a.label, a.time, true, a.id);
+        });
+    }
+
+    /* ==========================================================
+       RING OVERLAY
+       ========================================================== */
+    let ringState = null;
+    const BASE_TITLE = 'CHRONOS · Temporal Intelligence';
+
+    function ring(title, label, timeStr, allowSnooze, alarmId) {
+        if (ringState) return;
+        ringState = { alarmId: alarmId || null };
+        $('#ringTitle').textContent = title;
+        $('#ringTime').textContent = timeStr || fmtClock(new Date().getHours(), new Date().getMinutes(), 0, true, false);
+        $('#ringLabel').textContent = label || '—';
+        $('#snoozeBtn').style.display = allowSnooze ? '' : 'none';
+        $('#ringOverlay').classList.add('open');
+        startAlarmSound();
+        document.title = '⏰ ' + (timeStr || '') + ' · CHRONOS';
+    }
+
+    function dismissRing() {
+        if (!ringState) return;
+        stopAlarmSound();
+        $('#ringOverlay').classList.remove('open');
+        document.title = BASE_TITLE;
+        ringState = null;
+        toast('warn', 'ALARM DISMISSED', 'Signal silenced');
+    }
+
+    function snoozeRing() {
+        if (!ringState) return;
+        stopAlarmSound();
+        $('#ringOverlay').classList.remove('open');
+        document.title = BASE_TITLE;
+        const now = new Date();
+        snoozes.push({
+            at: Date.now() + 5 * 60000,
+            label: $('#ringLabel').textContent,
+            time: pad(now.getHours()) + ':' + pad(now.getMinutes())
+        });
+        ringState = null;
+        toast('success', 'SNOOZED', 'Alarm will ring again in 5 minutes');
+    }
+
+    $('#dismissBtn').addEventListener('click', dismissRing);
+    $('#snoozeBtn').addEventListener('click', snoozeRing);
+
+    /* ==========================================================
+       TOPBAR CONTROLS
+       ========================================================== */
+    function syncFormatButton() {
+        $('#fmtBtn').textContent = state.h24 ? '24H' : '12H';
+        $('#secBtn').textContent = state.showSeconds ? 'SEC' : 'NOSEC';
+        $('#secBtn').style.opacity = state.showSeconds ? '1' : '.5';
+    }
+
+    $('#fmtBtn').addEventListener('click', () => {
+        state.h24 = !state.h24;
+        saveState();
+        syncFormatButton();
+        toast('success', 'FORMAT', state.h24 ? '24-hour clock' : '12-hour clock');
+    });
+
+    $('#secBtn').addEventListener('click', () => {
+        state.showSeconds = !state.showSeconds;
+        saveState();
+        syncFormatButton();
+        toast('success', 'DISPLAY', state.showSeconds ? 'Seconds shown' : 'Seconds hidden');
+    });
+
+    $('#fsBtn').addEventListener('click', () => {
+        if (!document.fullscreenElement) {
+            document.documentElement.requestFullscreen().catch(() => {
+                toast('error', 'FULLSCREEN BLOCKED', 'Browser denied the request');
+            });
+        } else {
+            document.exitFullscreen().catch(() => {});
+        }
+    });
+
+    /* ==========================================================
+       KEYBOARD SHORTCUTS
+       ========================================================== */
+    document.addEventListener('keydown', e => {
+        const tag = (e.target.tagName || '').toLowerCase();
+        if (tag === 'input' || tag === 'select' || tag === 'textarea') return;
+
+        if (e.key === 'Escape') {
+            if (ringState) dismissRing();
+            return;
+        }
+
+        const key = e.key.toLowerCase();
+        const views = ['clock', 'world', 'stopwatch', 'timer', 'alarms'];
+
+        if (key >= '1' && key <= '5') {
+            switchView(views[parseInt(key, 10) - 1]);
+            return;
+        }
+        if (key === 'h') { $('#fmtBtn').click(); return; }
+        if (key === 'f') { $('#fsBtn').click(); return; }
+
+        const active = $('.view.active');
+        const activeId = active ? active.id : '';
+
+        if (key === ' ') {
+            e.preventDefault();
+            if (activeId === 'view-stopwatch') swToggle();
+            else if (activeId === 'view-timer') timerToggle();
+            return;
+        }
+        if (key === 'l' && activeId === 'view-stopwatch') { swLap(); return; }
+        if (key === 'r') {
+            if (activeId === 'view-stopwatch') swReset();
+            else if (activeId === 'view-timer') timerReset();
+            return;
+        }
+    });
+
+    /* ==========================================================
+       MAIN LOOP
+       ========================================================== */
+    let lastSec = -1;
+    let lastMinuteRendered = '';
+
+    function loop() {
+        const now = new Date();
+
+        updateClockView(now);
+        updateAnalog(now);
+        updateStopwatch();
+        updateTimer();
+
+        const sec = now.getSeconds();
+        if (sec !== lastSec) {
+            lastSec = sec;
+            updateStatGrid(now);
+            updateCities(now);
+            updateTopbar(now);
+            checkAlarms(now);
+
+            // refresh "next alarm" hint once a minute
+            const mk = pad(now.getHours()) + ':' + pad(now.getMinutes());
+            if (mk !== lastMinuteRendered) {
+                lastMinuteRendered = mk;
+                const next = nextAlarmOccurrence(now);
+                $('#nextAlarmHint').textContent = next ? 'NEXT · ' + next.label + ' IN ' + next.inText : '—';
+            }
+        }
+
+        requestAnimationFrame(loop);
+    }
+
+    /* ==========================================================
+       BOOT
+       ========================================================== */
+    function boot() {
+        syncFormatButton();
+        initCitySelect();
+        renderCities();
+        renderAlarms();
+        swRenderLaps();
+        timerSet(300000);
+        updateCities(new Date());
+        updateStatGrid(new Date());
+        updateTopbar(new Date());
+
+        // reflect saved format on the setup inputs
+        $('#tM').value = 5;
+
+        requestAnimationFrame(loop);
+
+        setTimeout(() => {
+            toast('success', 'CHRONOS ONLINE', 'All temporal modules initialized');
+        }, 400);
+    }
+
+    boot();
+
+})();
+</script>
+</body>
+</html>
