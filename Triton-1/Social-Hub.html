@@ -1,0 +1,2215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>SOCIAL HUB · Sovereign OS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+/* ============================================================
+   TOKENS — AIDA IDENTITY DESIGN SYSTEM
+   ============================================================ */
+:root{
+    --bg:#050505;
+    --panel:#0a0a0a;
+    --panel2:#111;
+    --line:#1a1a1a;
+    --line2:#222;
+    --line3:#333;
+    --txt:#e0e0e0;
+    --txt2:#c0c0c0;
+    --dim:#888;
+    --dim2:#666;
+    --dim3:#444;
+    --dim4:#333;
+
+    --accent:#00ffcc;
+    --accent-hover:#00d4aa;
+    --accent-soft:rgba(0,255,204,.06);
+    --accent-border:rgba(0,255,204,.3);
+
+    --white:#ffffff;
+    --green:#34C759;
+    --blue:#007AFF;
+    --yellow:#FFD60A;
+    --red:#FF3B30;
+    --red2:#FF3D00;
+    --purple:#BF5AF2;
+    --gray:#8E8E93;
+    color-scheme:dark;
+}
+
+*,*::before,*::after{box-sizing:border-box}
+html,body{
+    margin:0;padding:0;height:100%;
+    background:var(--bg);
+    overflow:hidden;
+}
+body{
+    font-family:'IBM Plex Mono',monospace;
+    color:var(--txt);
+    font-size:12px;
+    -webkit-font-smoothing:antialiased;
+}
+button,input,select,textarea{font-family:inherit;color-scheme:dark}
+button{cursor:pointer}
+
+/* ============================================================
+   APP SHELL
+   ============================================================ */
+.app{height:100vh;display:flex;flex-direction:column;overflow:hidden}
+
+/* ============================================================
+   TOP STATUS BAR (OS chrome)
+   ============================================================ */
+.os-bar{
+    flex-shrink:0;height:28px;
+    background:#000;
+    border-bottom:1px solid var(--line);
+    display:flex;align-items:center;
+    padding:0 14px;
+    font-size:10px;letter-spacing:1.6px;text-transform:uppercase;
+    color:var(--dim3);
+    gap:16px;
+}
+.os-bar .os-brand{
+    color:var(--accent);
+    font-weight:600;
+    letter-spacing:2.4px;
+    font-size:10px;
+}
+.os-bar .os-sep{color:var(--line3)}
+.os-bar .os-spacer{flex:1}
+.os-bar .os-clock{color:var(--dim);font-variant-numeric:tabular-nums}
+.os-bar .os-stat{display:flex;align-items:center;gap:6px}
+.os-bar .os-dot{width:5px;height:5px;border-radius:50%;background:var(--accent)}
+
+/* ============================================================
+   MAIN LAYOUT
+   ============================================================ */
+.workspace{
+    flex:1;
+    display:flex;
+    overflow:hidden;
+    position:relative;
+}
+
+/* ============================================================
+   SIDEBAR
+   ============================================================ */
+.sidebar{
+    width:230px;flex-shrink:0;
+    background:var(--bg);
+    border-right:1px solid var(--line);
+    display:flex;flex-direction:column;
+    overflow:hidden;
+    transition:margin-left .22s ease;
+    z-index:50;
+}
+.side-brand{
+    display:flex;align-items:center;gap:12px;
+    padding:14px 16px;
+    border-bottom:1px solid var(--line);
+    flex-shrink:0;
+}
+.logo{
+    width:34px;height:34px;flex-shrink:0;
+    border:1px solid var(--line2);
+    display:flex;align-items:center;justify-content:center;
+    background:#0a0a0a;
+}
+.logo-text{font-size:16px;font-weight:700;color:var(--accent);letter-spacing:1px}
+.brand-text{display:flex;flex-direction:column;line-height:1.15}
+.brand-title{font-size:12px;font-weight:700;letter-spacing:3px;color:var(--txt)}
+.brand-sub{font-size:7.5px;color:#555;letter-spacing:1.8px;margin-top:2px}
+
+.side-new{padding:12px 12px 8px;flex-shrink:0}
+.new-btn{
+    width:100%;
+    display:flex;align-items:center;justify-content:center;gap:8px;
+    background:var(--accent);border:1px solid var(--accent);color:#000;
+    padding:10px 14px;
+    font-size:10px;letter-spacing:2px;font-weight:600;
+    text-transform:uppercase;
+    transition:all .2s;
+}
+.new-btn:hover{background:var(--accent-hover);border-color:var(--accent-hover)}
+.new-btn .plus{font-size:14px;line-height:1;font-weight:400}
+
+.side-scroll{flex:1;overflow-y:auto;padding-bottom:12px}
+.side-scroll::-webkit-scrollbar{width:5px}
+.side-scroll::-webkit-scrollbar-track{background:var(--bg)}
+.side-scroll::-webkit-scrollbar-thumb{background:var(--line2)}
+.side-scroll::-webkit-scrollbar-thumb:hover{background:var(--line3)}
+
+.nav-group{padding:6px 0}
+.nav-title{
+    font-size:8px;color:#3a3a3a;letter-spacing:2.5px;text-transform:uppercase;
+    padding:8px 16px 6px;
+}
+.nav-item{
+    width:100%;
+    display:flex;align-items:center;gap:11px;
+    padding:8px 16px;
+    background:transparent;border:none;border-left:2px solid transparent;
+    color:var(--dim2);
+    font-size:10.5px;letter-spacing:1.4px;text-transform:uppercase;
+    transition:all .16s;
+    text-align:left;
+}
+.nav-item:hover{color:var(--txt2);background:rgba(255,255,255,.022)}
+.nav-item.active{
+    color:var(--accent);background:var(--accent-soft);
+    border-left-color:var(--accent);
+}
+.nav-item .ico{width:15px;text-align:center;font-size:12px;flex-shrink:0;opacity:.85}
+.nav-item .lbl{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.nav-item .cnt{
+    font-size:8.5px;color:#555;
+    padding:1px 6px;border:1px solid var(--line);background:#0a0a0a;
+    letter-spacing:1px;
+}
+.nav-item.active .cnt{color:var(--accent);border-color:var(--accent-border);background:transparent}
+
+/* Platform list in sidebar */
+.plat-list{display:flex;flex-direction:column;gap:1px;padding:2px 0}
+.plat-item{
+    display:flex;align-items:center;gap:10px;
+    padding:7px 16px;
+    cursor:pointer;transition:background .14s;
+    font-size:10.5px;color:var(--dim2);letter-spacing:1.2px;text-transform:uppercase;
+}
+.plat-item:hover{background:rgba(255,255,255,.022);color:var(--txt2)}
+.plat-item.active{background:var(--accent-soft);color:var(--accent)}
+.plat-item .pi-dot{
+    width:10px;height:10px;flex-shrink:0;border-radius:50%;
+    border:1px solid rgba(255,255,255,.15);
+}
+.plat-item .pi-name{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.plat-item .pi-cnt{font-size:8.5px;color:#4a4a4a}
+.plat-item.active .pi-cnt{color:var(--accent)}
+
+/* ============================================================
+   MAIN WORKSPACE
+   ============================================================ */
+.main{
+    flex:1;min-width:0;
+    display:flex;flex-direction:column;
+    overflow:hidden;
+    position:relative;
+}
+
+/* TOPBAR */
+.topbar{
+    flex-shrink:0;height:52px;
+    display:flex;align-items:center;gap:12px;
+    padding:0 18px;
+    border-bottom:1px solid var(--line);
+    background:var(--bg);
+    z-index:5;
+}
+.hamburger{
+    display:none;
+    background:transparent;border:1px solid var(--line);color:var(--dim);
+    width:34px;height:34px;font-size:14px;line-height:1;
+    align-items:center;justify-content:center;
+}
+.hamburger:hover{border-color:var(--accent);color:var(--accent)}
+
+.search-wrap{
+    flex:1;max-width:420px;
+    display:flex;align-items:center;
+    border:1px solid var(--line);background:#0a0a0a;
+    height:34px;
+    transition:border-color .2s;
+}
+.search-wrap:focus-within{border-color:var(--accent)}
+.search-ico{padding:0 11px;color:#3a3a3a;font-size:11px}
+.search-input{
+    flex:1;min-width:0;
+    background:transparent;border:none;outline:none;
+    padding:0 8px 0 0;height:100%;
+    font-size:10.5px;letter-spacing:1px;color:var(--txt2);
+}
+.search-input::placeholder{color:#3f3f3f;text-transform:uppercase;letter-spacing:1.6px;font-size:9.5px}
+
+.topbar-spacer{flex:1}
+
+.icon-btn{
+    background:#0a0a0a;border:1px solid var(--line);color:var(--dim2);
+    height:34px;padding:0 13px;
+    font-size:9.5px;letter-spacing:1.8px;text-transform:uppercase;
+    transition:all .2s;white-space:nowrap;
+    display:flex;align-items:center;gap:6px;
+}
+.icon-btn:hover{border-color:var(--accent);color:var(--accent)}
+.icon-btn.on{border-color:var(--accent);color:var(--accent);background:var(--accent-soft)}
+
+.view-toggle{display:flex;border:1px solid var(--line);height:34px}
+.view-toggle button{
+    background:transparent;border:none;border-right:1px solid var(--line);
+    color:#666;padding:0 12px;height:100%;
+    font-size:12px;line-height:1;transition:all .15s;
+    display:flex;align-items:center;justify-content:center;
+}
+.view-toggle button:last-child{border-right:none}
+.view-toggle button:hover{color:var(--txt2)}
+.view-toggle button.on{color:var(--accent);background:var(--accent-soft)}
+
+/* CONTENT SCROLL */
+.content{
+    flex:1;overflow-y:auto;
+    padding:22px 22px 90px;
+    position:relative;
+}
+.content::-webkit-scrollbar{width:7px}
+.content::-webkit-scrollbar-track{background:var(--bg)}
+.content::-webkit-scrollbar-thumb{background:var(--line2)}
+.content::-webkit-scrollbar-thumb:hover{background:var(--line3)}
+
+.sec-head{
+    display:flex;align-items:center;justify-content:space-between;
+    gap:12px;flex-wrap:wrap;margin-bottom:18px;
+}
+.sec-title{
+    font-size:10.5px;color:var(--dim2);letter-spacing:3px;text-transform:uppercase;
+    display:flex;align-items:center;gap:10px;
+}
+.sec-title::before{content:'';width:3px;height:10px;background:var(--accent)}
+.sec-meta{font-size:9px;color:var(--dim4);letter-spacing:2px;text-transform:uppercase}
+.sec-meta b{color:var(--dim);font-weight:400}
+
+/* ============================================================
+   APP GRID
+   ============================================================ */
+.app-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(240px,1fr));
+    gap:14px;
+    max-width:1600px;
+}
+.app-card{
+    background:#0a0a0a;
+    border:1px solid var(--line);
+    padding:16px;
+    cursor:pointer;
+    transition:all .18s;
+    position:relative;
+    overflow:hidden;
+    user-select:none;
+}
+.app-card:hover{border-color:var(--line3);background:#111;transform:translateY(-1px)}
+.app-card.sel{border-color:var(--accent);background:var(--accent-soft)}
+.app-card.running{border-color:var(--accent-border)}
+.app-card.running::before{
+    content:'';position:absolute;top:8px;right:8px;
+    width:6px;height:6px;border-radius:50%;
+    background:var(--accent);
+    box-shadow:0 0 8px var(--accent);
+    animation:pulse 1.6s ease-in-out infinite;
+}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+
+.app-card-head{display:flex;align-items:center;gap:13px;margin-bottom:14px}
+.app-icon{
+    width:44px;height:44px;flex-shrink:0;
+    border:1px solid var(--line2);
+    background:#050505;
+    display:flex;align-items:center;justify-content:center;
+    font-size:15px;font-weight:700;
+    letter-spacing:1px;
+    color:var(--pc,#00ffcc);
+    position:relative;
+}
+.app-icon::after{
+    content:'';position:absolute;inset:-1px;
+    border:1px solid var(--pc,#00ffcc);
+    opacity:.25;
+}
+.app-info{min-width:0;flex:1}
+.app-label{
+    font-size:13px;color:var(--txt);letter-spacing:.8px;
+    margin-bottom:3px;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.app-platform{
+    font-size:9px;color:var(--dim2);letter-spacing:1.6px;text-transform:uppercase;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.app-url{
+    font-size:9.5px;color:var(--dim4);letter-spacing:.6px;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+    margin-top:6px;padding-top:6px;
+    border-top:1px solid var(--line);
+}
+.app-footer{
+    display:flex;align-items:center;justify-content:space-between;
+    gap:10px;margin-top:12px;padding-top:10px;
+    border-top:1px solid var(--line);
+    font-size:8.5px;color:#4a4a4a;letter-spacing:1.4px;text-transform:uppercase;
+}
+.app-star{
+    background:transparent;border:none;color:#3a3a3a;
+    font-size:11px;line-height:1;padding:2px;
+    transition:color .15s;
+}
+.app-star:hover{color:var(--yellow)}
+.app-star.on{color:var(--yellow)}
+.app-actions{
+    position:absolute;top:8px;right:8px;
+    display:flex;gap:4px;
+    opacity:0;transition:opacity .15s;
+}
+.app-card:hover .app-actions{opacity:1}
+.app-card.running .app-actions{right:24px}
+.app-act{
+    background:rgba(0,0,0,.6);border:1px solid var(--line);color:#555;
+    width:24px;height:24px;
+    display:flex;align-items:center;justify-content:center;
+    font-size:11px;line-height:1;
+    transition:all .15s;
+}
+.app-act:hover{border-color:var(--accent);color:var(--accent)}
+.app-act.del:hover{border-color:var(--red);color:var(--red)}
+
+/* ============================================================
+   FLOATING WINDOWS LAYER
+   ============================================================ */
+.windows-layer{
+    position:absolute;inset:0;
+    pointer-events:none;
+    z-index:100;
+    overflow:hidden;
+}
+.windows-layer > *{pointer-events:auto}
+
+.fwin{
+    position:absolute;
+    background:#0a0a0a;
+    border:1px solid var(--line2);
+    display:flex;flex-direction:column;
+    min-width:400px;min-height:300px;
+    box-shadow:0 20px 60px rgba(0,0,0,.6);
+    animation:winIn .18s cubic-bezier(.2,.9,.3,1.1);
+    overflow:hidden;
+}
+@keyframes winIn{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:none}}
+
+.fwin-titlebar{
+    flex-shrink:0;height:32px;
+    background:#111;
+    border-bottom:1px solid var(--line2);
+    display:flex;align-items:center;
+    padding:0 4px 0 10px;
+    cursor:grab;
+    user-select:none;
+    gap:8px;
+}
+.fwin-titlebar:active{cursor:grabbing}
+.fwin-icon{
+    width:18px;height:18px;flex-shrink:0;
+    display:flex;align-items:center;justify-content:center;
+    font-size:9px;font-weight:700;
+    color:var(--pc,#00ffcc);
+    border:1px solid var(--pc,rgba(0,255,204,.3));
+    background:rgba(0,0,0,.4);
+    letter-spacing:0;
+}
+.fwin-title{
+    flex:1;min-width:0;
+    font-size:10.5px;color:var(--txt);
+    letter-spacing:1.2px;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.fwin-title .fwin-sub{color:var(--dim2);font-size:9px;margin-left:6px;letter-spacing:1.4px}
+.fwin-controls{display:flex;gap:2px;align-items:center}
+.fwin-btn{
+    background:transparent;border:none;color:#555;
+    width:28px;height:24px;
+    display:flex;align-items:center;justify-content:center;
+    font-size:12px;line-height:1;
+    transition:all .12s;
+}
+.fwin-btn:hover{background:rgba(255,255,255,.05);color:var(--txt2)}
+.fwin-btn.close:hover{background:var(--red);color:#fff}
+.fwin-btn.max:hover{background:rgba(0,255,204,.12);color:var(--accent)}
+
+.fwin-body{
+    flex:1;min-height:0;
+    position:relative;
+    background:#000;
+    overflow:hidden;
+}
+.fwin-body iframe{
+    width:100%;height:100%;border:none;background:#fff;display:block;
+}
+
+.fwin-notice{
+    position:absolute;
+    bottom:0;left:0;right:0;
+    background:rgba(0,0,0,.9);
+    border-top:1px solid var(--line2);
+    padding:8px 12px;
+    display:flex;align-items:center;justify-content:space-between;
+    gap:10px;
+    font-size:9.5px;letter-spacing:1.2px;text-transform:uppercase;
+    color:var(--dim2);
+    z-index:2;
+}
+.fwin-notice .msg{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fwin-notice button{
+    background:transparent;border:1px solid var(--line3);color:var(--dim2);
+    padding:4px 9px;font-size:9px;letter-spacing:1.4px;text-transform:uppercase;
+    transition:all .15s;white-space:nowrap;
+}
+.fwin-notice button:hover{border-color:var(--accent);color:var(--accent)}
+
+.fwin-overlay-fallback{
+    position:absolute;inset:0;
+    background:#050505;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    text-align:center;padding:30px;
+}
+.fwin-fallback-icon{
+    width:64px;height:64px;border:1px solid var(--line2);
+    display:flex;align-items:center;justify-content:center;
+    font-size:22px;font-weight:700;color:var(--pc,#00ffcc);
+    margin-bottom:20px;
+}
+.fwin-fallback-title{
+    font-size:12px;color:var(--txt);letter-spacing:2px;text-transform:uppercase;
+    margin-bottom:8px;
+}
+.fwin-fallback-sub{
+    font-size:10px;color:var(--dim2);letter-spacing:1.4px;text-transform:uppercase;
+    margin-bottom:22px;max-width:400px;line-height:1.7;
+}
+.fwin-fallback-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.fwin-fallback-actions button{
+    background:#0a0a0a;border:1px solid var(--line2);color:var(--dim);
+    padding:9px 16px;font-size:9.5px;letter-spacing:1.8px;text-transform:uppercase;
+    transition:all .18s;
+}
+.fwin-fallback-actions button:hover{background:#fff;color:#000;border-color:#fff}
+.fwin-fallback-actions button.primary{
+    background:var(--accent);border-color:var(--accent);color:#000;font-weight:600;
+}
+.fwin-fallback-actions button.primary:hover{background:var(--accent-hover);border-color:var(--accent-hover)}
+
+/* resize handle */
+.fwin-resize{
+    position:absolute;right:0;bottom:0;
+    width:14px;height:14px;
+    cursor:nwse-resize;
+    z-index:2;
+}
+.fwin-resize::before{
+    content:'';position:absolute;right:2px;bottom:2px;
+    width:8px;height:8px;
+    border-right:1px solid var(--line3);
+    border-bottom:1px solid var(--line3);
+}
+
+/* window minimized state */
+.fwin.minimized{display:none}
+
+/* ============================================================
+   TASKBAR
+   ============================================================ */
+.taskbar{
+    flex-shrink:0;height:44px;
+    background:#000;
+    border-top:1px solid var(--line);
+    display:flex;align-items:center;
+    padding:0 10px;
+    gap:6px;
+    overflow-x:auto;
+    overflow-y:hidden;
+    z-index:200;
+}
+.taskbar::-webkit-scrollbar{height:3px}
+.taskbar::-webkit-scrollbar-thumb{background:var(--line2)}
+
+.task-hint{
+    font-size:9px;color:#2a2a2a;letter-spacing:2px;text-transform:uppercase;
+    padding:0 8px;flex-shrink:0;
+}
+.task-item{
+    display:flex;align-items:center;gap:9px;
+    background:#0a0a0a;
+    border:1px solid var(--line);
+    padding:0 12px;
+    height:32px;
+    font-size:10px;letter-spacing:1.2px;
+    color:var(--dim);
+    cursor:pointer;
+    transition:all .15s;
+    white-space:nowrap;
+    max-width:220px;
+    flex-shrink:0;
+    position:relative;
+}
+.task-item:hover{border-color:var(--line3);color:var(--txt2)}
+.task-item.active{
+    border-color:var(--accent-border);
+    color:var(--accent);
+    background:var(--accent-soft);
+}
+.task-item.active::before{
+    content:'';position:absolute;bottom:-1px;left:0;right:0;
+    height:1px;background:var(--accent);
+}
+.task-icon{
+    width:18px;height:18px;flex-shrink:0;
+    border:1px solid var(--pc,rgba(255,255,255,.15));
+    display:flex;align-items:center;justify-content:center;
+    font-size:8px;font-weight:700;
+    color:var(--pc,#00ffcc);
+    letter-spacing:0;
+    background:#050505;
+}
+.task-label{
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.task-close{
+    background:transparent;border:none;color:#444;
+    font-size:12px;line-height:1;
+    padding:2px 3px;margin-left:2px;
+    transition:color .12s;
+}
+.task-close:hover{color:var(--red)}
+
+/* ============================================================
+   BUTTONS
+   ============================================================ */
+.btn{
+    background:#0a0a0a;
+    border:1px solid var(--line2);
+    color:#bebebe;
+    padding:10px 20px;
+    font-size:10px;letter-spacing:2px;
+    text-transform:uppercase;
+    transition:all .2s;white-space:nowrap;
+}
+.btn:hover{background:#ffffff;color:#000;border-color:#ffffff}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#000;font-weight:600}
+.btn.primary:hover{background:var(--accent-hover);border-color:var(--accent-hover);color:#000}
+.btn.ghost{background:#0a0a0a;border-color:var(--line);color:var(--dim2)}
+.btn.ghost:hover{border-color:#888;color:#e0e0e0;background:#0a0a0a}
+.btn.danger{background:rgba(255,61,0,.08);border-color:var(--red2);color:var(--red2)}
+.btn.danger:hover{background:var(--red2);color:#000;border-color:var(--red2)}
+
+/* ============================================================
+   MODALS
+   ============================================================ */
+.overlay{
+    position:fixed;inset:0;z-index:3000;
+    background:rgba(0,0,0,.92);
+    backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+    display:none;align-items:center;justify-content:center;
+    padding:22px;
+}
+.overlay.open{display:flex}
+.modal{
+    background:#0a0a0a;border:1px solid var(--line2);
+    width:100%;max-width:580px;
+    max-height:92vh;display:flex;flex-direction:column;
+    animation:modalIn .2s cubic-bezier(.2,.9,.3,1.1);
+}
+@keyframes modalIn{from{opacity:0;transform:scale(.97) translateY(6px)}to{opacity:1;transform:none}}
+.modal-head{
+    display:flex;align-items:center;justify-content:space-between;gap:14px;
+    padding:18px 22px;border-bottom:1px solid var(--line);
+    background:repeating-linear-gradient(45deg,#111,#111 10px,#0a0a0a 10px,#0a0a0a 20px);
+    flex-shrink:0;
+}
+.modal-title{
+    font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--accent);
+    display:flex;align-items:center;gap:10px;min-width:0;
+}
+.modal-title::before{content:'';width:5px;height:5px;background:var(--accent);flex-shrink:0}
+.modal-title.danger{color:var(--red)}
+.modal-title.danger::before{background:var(--red)}
+.modal-close{
+    background:transparent;border:none;color:var(--dim3);
+    font-size:20px;line-height:1;flex-shrink:0;
+    transition:color .15s;padding:0;width:24px;height:24px;
+    display:flex;align-items:center;justify-content:center;
+}
+.modal-close:hover{color:var(--txt)}
+.modal-body{padding:22px;overflow-y:auto;flex:1}
+.modal-body::-webkit-scrollbar{width:5px}
+.modal-body::-webkit-scrollbar-thumb{background:var(--line2)}
+.modal-foot{
+    display:flex;gap:10px;padding:18px 22px;
+    border-top:1px solid var(--line);
+    background:#050505;flex-shrink:0;flex-wrap:wrap;
+}
+.modal-foot .btn{flex:1;text-align:center}
+
+/* ============================================================
+   FORMS
+   ============================================================ */
+.field{display:flex;flex-direction:column;gap:8px;margin-bottom:16px}
+.field label{
+    font-size:9px;color:var(--dim3);letter-spacing:2px;text-transform:uppercase;
+    display:flex;align-items:center;gap:6px;
+}
+.field label .req{color:var(--red)}
+.input,.select,.textarea{
+    width:100%;
+    background:#050505;border:1px solid var(--line);
+    padding:10px 12px;
+    font-size:12px;color:var(--txt2);letter-spacing:1px;
+    outline:none;transition:border-color .2s;
+}
+.input:focus,.select:focus,.textarea:focus{border-color:var(--accent)}
+.input::placeholder,.textarea::placeholder{
+    color:#333;text-transform:uppercase;font-size:10px;letter-spacing:1.6px;
+}
+.select{
+    cursor:pointer;appearance:none;padding-right:30px;
+    background-image:linear-gradient(45deg,transparent 50%,#555 50%),linear-gradient(135deg,#555 50%,transparent 50%);
+    background-position:calc(100% - 14px) 50%,calc(100% - 10px) 50%;
+    background-size:4px 4px;background-repeat:no-repeat;
+}
+.hint{font-size:8.5px;color:#3a3a3a;letter-spacing:1.4px;text-transform:uppercase;margin-top:4px}
+
+/* preset grid in add modal */
+.preset-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(120px,1fr));
+    gap:8px;
+    max-height:340px;overflow-y:auto;
+    padding:4px;
+    border:1px solid var(--line);
+    background:#050505;
+}
+.preset-grid::-webkit-scrollbar{width:5px}
+.preset-grid::-webkit-scrollbar-thumb{background:var(--line2)}
+.preset-item{
+    display:flex;flex-direction:column;align-items:center;gap:8px;
+    padding:14px 8px;
+    background:#0a0a0a;
+    border:1px solid var(--line);
+    cursor:pointer;transition:all .15s;
+    text-align:center;
+}
+.preset-item:hover{border-color:var(--line3);background:#111}
+.preset-item.sel{border-color:var(--accent);background:var(--accent-soft)}
+.preset-icon{
+    width:38px;height:38px;
+    border:1px solid var(--pc,rgba(255,255,255,.15));
+    display:flex;align-items:center;justify-content:center;
+    font-size:13px;font-weight:700;
+    color:var(--pc,#00ffcc);
+    background:#050505;
+}
+.preset-name{
+    font-size:9px;color:var(--dim);letter-spacing:1.4px;text-transform:uppercase;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+    width:100%;
+}
+.preset-item.sel .preset-name{color:var(--accent)}
+
+/* color swatch picker */
+.color-grid{
+    display:grid;grid-template-columns:repeat(auto-fill,minmax(34px,1fr));
+    gap:6px;
+}
+.color-swatch{
+    width:100%;aspect-ratio:1;
+    border:1px solid transparent;
+    cursor:pointer;transition:all .15s;
+}
+.color-swatch:hover{transform:scale(1.05)}
+.color-swatch.sel{border-color:#fff;box-shadow:0 0 0 2px #000 inset}
+
+/* ============================================================
+   CONTEXT MENU
+   ============================================================ */
+.ctx{
+    position:fixed;z-index:3500;
+    background:#0a0a0a;
+    border:1px solid var(--line2);
+    min-width:200px;
+    padding:5px;
+    display:none;
+    box-shadow:0 12px 40px rgba(0,0,0,.8);
+}
+.ctx.open{display:block}
+.ctx-item{
+    display:flex;align-items:center;gap:11px;
+    width:100%;padding:8px 11px;
+    background:transparent;border:none;
+    color:#8a8a8a;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;
+    transition:all .12s;text-align:left;
+}
+.ctx-item:hover{background:rgba(255,255,255,.07);color:#fff}
+.ctx-item.danger{color:#a04a3a}
+.ctx-item.danger:hover{background:rgba(255,61,0,.12);color:var(--red)}
+.ctx-item .ci{width:14px;text-align:center;font-size:11px;opacity:.8}
+.ctx-sep{height:1px;background:var(--line);margin:5px 4px}
+.ctx-label{
+    font-size:7.5px;color:#333;letter-spacing:2px;text-transform:uppercase;
+    padding:7px 11px 4px;
+}
+
+/* ============================================================
+   TOASTS
+   ============================================================ */
+.toast-wrap{
+    position:fixed;top:44px;right:22px;z-index:5000;
+    display:flex;flex-direction:column;gap:9px;pointer-events:none;
+}
+.toast{
+    background:#0a0a0a;border:1px solid var(--line);
+    border-left:3px solid var(--accent);
+    padding:11px 16px;
+    min-width:236px;max-width:352px;
+    animation:toastIn .22s ease;pointer-events:auto;
+}
+@keyframes toastIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:none}}
+.toast.success{border-left-color:var(--green)}
+.toast.warn{border-left-color:var(--yellow)}
+.toast.error{border-left-color:var(--red)}
+.toast.info{border-left-color:var(--accent)}
+.toast-title{
+    font-size:9px;color:var(--accent);letter-spacing:2.2px;text-transform:uppercase;
+    margin-bottom:4px;
+}
+.toast.success .toast-title{color:var(--green)}
+.toast.warn .toast-title{color:var(--yellow)}
+.toast.error .toast-title{color:var(--red)}
+.toast-msg{font-size:10.5px;color:var(--txt2);line-height:1.55;letter-spacing:.4px}
+.toast.out{animation:toastOut .22s ease forwards}
+@keyframes toastOut{to{opacity:0;transform:translateX(20px)}}
+
+/* ============================================================
+   EMPTY STATE
+   ============================================================ */
+.empty{
+    padding:80px 30px;text-align:center;
+}
+.empty-icon{
+    width:84px;height:84px;margin:0 auto 22px;
+    border:1px solid var(--line);
+    display:flex;align-items:center;justify-content:center;
+    font-size:32px;color:var(--line3);
+    position:relative;
+}
+.empty-icon::before{content:'';position:absolute;inset:14px;border:1px solid var(--line2)}
+.empty-title{
+    font-size:11px;color:#5a5a5a;letter-spacing:3px;
+    text-transform:uppercase;margin-bottom:8px;
+}
+.empty-sub{
+    font-size:9px;color:#3a3a3a;letter-spacing:2px;
+    text-transform:uppercase;margin-bottom:24px;
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width:900px){
+    .sidebar{
+        position:fixed;left:0;top:28px;bottom:44px;z-index:600;
+        margin-left:-230px;
+        box-shadow:12px 0 40px rgba(0,0,0,.7);
+    }
+    .sidebar.open{margin-left:0}
+    .hamburger{display:flex}
+    .search-wrap{max-width:none}
+    .app-grid{grid-template-columns:repeat(auto-fill,minmax(200px,1fr))}
+    .fwin{min-width:320px}
+}
+@media (max-width:600px){
+    .topbar{padding:0 12px;gap:8px}
+    .content{padding:14px 12px 90px}
+    .app-grid{grid-template-columns:1fr}
+    .fwin{left:0 !important;top:0 !important;width:100% !important;height:100% !important;min-width:0}
+    .fwin-titlebar{border-radius:0}
+    .os-bar{padding:0 8px;font-size:9px;gap:10px}
+    .os-bar .os-stat{display:none}
+}
+</style>
+</head>
+<body>
+
+<div class="app">
+
+    <!-- ==================== OS TOP BAR ==================== -->
+    <div class="os-bar">
+        <span class="os-brand">◈ SOCIAL HUB</span>
+        <span class="os-sep">│</span>
+        <span>WORKSPACE / ALL ACCOUNTS</span>
+        <span class="os-spacer"></span>
+        <span class="os-stat"><span class="os-dot"></span> <span id="osActive">0 ACTIVE WINDOWS</span></span>
+        <span class="os-stat">◈ <span id="osAccounts">0 ACCOUNTS</span></span>
+        <span class="os-clock" id="osClock">--:--:--</span>
+    </div>
+
+    <!-- ==================== WORKSPACE ==================== -->
+    <div class="workspace">
+
+        <!-- ============ SIDEBAR ============ -->
+        <aside class="sidebar" id="sidebar">
+            <div class="side-brand">
+                <div class="logo"><span class="logo-text">S</span></div>
+                <div class="brand-text">
+                    <span class="brand-title">SOCIAL</span>
+                    <span class="brand-sub">HUB · SOVEREIGN OS</span>
+                </div>
+            </div>
+
+            <div class="side-new">
+                <button class="new-btn" id="newAccountBtn">
+                    <span class="plus">+</span> ADD ACCOUNT
+                </button>
+            </div>
+
+            <div class="side-scroll">
+                <div class="nav-group">
+                    <div class="nav-title">Workspace</div>
+                    <button class="nav-item active" data-nav="all">
+                        <span class="ico">▤</span><span class="lbl">All Accounts</span>
+                        <span class="cnt" id="cntAll">0</span>
+                    </button>
+                    <button class="nav-item" data-nav="favorites">
+                        <span class="ico">★</span><span class="lbl">Favorites</span>
+                        <span class="cnt" id="cntFav">0</span>
+                    </button>
+                    <button class="nav-item" data-nav="recent">
+                        <span class="ico">◷</span><span class="lbl">Recent</span>
+                        <span class="cnt" id="cntRecent">0</span>
+                    </button>
+                    <button class="nav-item" data-nav="running">
+                        <span class="ico">◉</span><span class="lbl">Running</span>
+                        <span class="cnt" id="cntRunning">0</span>
+                    </button>
+                </div>
+
+                <div class="nav-group">
+                    <div class="nav-title">Platforms</div>
+                    <div class="plat-list" id="platList"></div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- ============ MAIN ============ -->
+        <div class="main">
+
+            <!-- TOPBAR -->
+            <header class="topbar">
+                <button class="hamburger" id="hamburger">☰</button>
+
+                <div class="search-wrap">
+                    <span class="search-ico">⌕</span>
+                    <input class="search-input" id="searchInput" placeholder="SEARCH ACCOUNTS…" />
+                </div>
+
+                <div class="topbar-spacer"></div>
+
+                <button class="icon-btn" id="minimizeAllBtn">MIN ALL</button>
+                <button class="icon-btn" id="closeAllBtn">CLOSE ALL</button>
+
+                <button class="icon-btn" id="newAccountBtn2">+ ACCOUNT</button>
+            </header>
+
+            <!-- CONTENT -->
+            <div class="content" id="content"></div>
+
+        </div>
+
+        <!-- ============ FLOATING WINDOWS LAYER ============ -->
+        <div class="windows-layer" id="windowsLayer"></div>
+
+    </div>
+
+    <!-- ==================== TASKBAR ==================== -->
+    <div class="taskbar" id="taskbar">
+        <span class="task-hint" id="taskHint">NO WINDOWS OPEN</span>
+    </div>
+
+</div>
+
+<!-- ==================== ADD ACCOUNT MODAL ==================== -->
+<div class="overlay" id="modalOverlay">
+    <div class="modal" id="modalBox">
+        <div class="modal-head">
+            <span class="modal-title" id="modalTitle">ADD ACCOUNT</span>
+            <button class="modal-close" id="modalClose">✕</button>
+        </div>
+        <div class="modal-body" id="modalBody"></div>
+        <div class="modal-foot" id="modalFoot"></div>
+    </div>
+</div>
+
+<!-- ==================== CONTEXT MENU ==================== -->
+<div class="ctx" id="ctxMenu"></div>
+
+<!-- ==================== TOASTS ==================== -->
+<div class="toast-wrap" id="toastWrap"></div>
+
+<script>
+/* ============================================================
+   SOCIAL HUB · Sovereign OS
+   ============================================================ */
+(function(){
+'use strict';
+
+const $  = (s,r=document) => r.querySelector(s);
+const $$ = (s,r=document) => Array.from(r.querySelectorAll(s));
+const pad = (n,l=2) => String(Math.abs(Math.floor(n))).padStart(l,'0');
+const esc = s => String(s==null?'':s).replace(/[&<>"']/g,c =>
+    ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const uid = p => (p||'ID') + '-' + Date.now().toString(36).toUpperCase() +
+    '-' + Math.random().toString(36).slice(2,6).toUpperCase();
+const clamp = (v,a,b) => Math.max(a,Math.min(b,v));
+
+/* ------------------------------------------------------------
+   PLATFORM PRESETS
+   ------------------------------------------------------------ */
+const PRESETS = [
+    { id:'instagram',  name:'Instagram',  url:'https://www.instagram.com/',  color:'#E1306C', icon:'IG' },
+    { id:'snapchat',   name:'Snapchat',   url:'https://web.snapchat.com/',  color:'#FFFC00', icon:'SC' },
+    { id:'tiktok',     name:'TikTok',     url:'https://www.tiktok.com/',     color:'#FE2C55', icon:'TT' },
+    { id:'facebook',   name:'Facebook',   url:'https://www.facebook.com/',   color:'#1877F2', icon:'FB' },
+    { id:'x',          name:'X',          url:'https://x.com/',              color:'#FFFFFF', icon:'X'  },
+    { id:'discord',    name:'Discord',    url:'https://discord.com/app',     color:'#5865F2', icon:'DC' },
+    { id:'telegram',   name:'Telegram',   url:'https://web.telegram.org/',   color:'#0088CC', icon:'TG' },
+    { id:'whatsapp',   name:'WhatsApp',   url:'https://web.whatsapp.com/',   color:'#25D366', icon:'WA' },
+    { id:'reddit',     name:'Reddit',     url:'https://www.reddit.com/',     color:'#FF4500', icon:'RD' },
+    { id:'linkedin',   name:'LinkedIn',   url:'https://www.linkedin.com/',   color:'#0A66C2', icon:'LI' },
+    { id:'youtube',    name:'YouTube',    url:'https://www.youtube.com/',    color:'#FF0000', icon:'YT' },
+    { id:'pinterest',  name:'Pinterest',  url:'https://www.pinterest.com/',  color:'#E60023', icon:'PT' },
+    { id:'threads',    name:'Threads',    url:'https://www.threads.net/',    color:'#A0A0A0', icon:'TH' },
+    { id:'bluesky',    name:'Bluesky',    url:'https://bsky.app/',           color:'#0085FF', icon:'BS' },
+    { id:'mastodon',   name:'Mastodon',   url:'https://mastodon.social/',    color:'#6364FF', icon:'MA' },
+    { id:'twitch',     name:'Twitch',     url:'https://www.twitch.tv/',      color:'#9146FF', icon:'TW' },
+    { id:'tumblr',     name:'Tumblr',     url:'https://www.tumblr.com/',     color:'#A0A0A0', icon:'TM' },
+    { id:'wechat',     name:'WeChat',     url:'https://web.wechat.com/',     color:'#07C160', icon:'WC' },
+    { id:'vk',         name:'VK',         url:'https://vk.com/',             color:'#0077FF', icon:'VK' },
+    { id:'signal',     name:'Signal',     url:'https://signal.org/',         color:'#3A76F0', icon:'SG' },
+    { id:'skype',      name:'Skype',      url:'https://web.skype.com/',      color:'#00AFF0', icon:'SK' },
+    { id:'line',       name:'LINE',       url:'https://access.line.me/',     color:'#00C300', icon:'LN' },
+    { id:'kakao',      name:'KakaoTalk',  url:'https://accounts.kakao.com/', color:'#FEE500', icon:'KT' },
+    { id:'viber',      name:'Viber',      url:'https://web.viber.com/',      color:'#7360F2', icon:'VB' },
+    { id:'custom',     name:'Custom URL', url:'',                            color:'#00ffcc', icon:'··' }
+];
+
+const COLOR_PALETTE = [
+    '#00ffcc', '#007AFF', '#34C759', '#FFD60A', '#FF3B30',
+    '#BF5AF2', '#FF9500', '#FF2D55', '#5AC8FA', '#E1306C',
+    '#FE2C55', '#5865F2', '#FF4500', '#E60023', '#25D366',
+    '#9146FF', '#FFFC00', '#FFFFFF', '#8E8E93', '#00E5FF'
+];
+
+/* ------------------------------------------------------------
+   STATE
+   ------------------------------------------------------------ */
+const LS_KEY = 'social_hub_state_v1';
+
+const DEFAULT_STATE = {
+    accounts: [],
+    nav: 'all',          // all | favorites | recent | running
+    platformFilter: null,
+    view: 'grid',
+    seeded: false
+};
+
+let state = loadState();
+let selection = new Set();
+let searchQuery = '';
+let openWindows = {}; // id -> { accountId, x, y, w, h, z, minimized, mode }
+let winZTop = 100;
+
+function loadState() {
+    try {
+        const raw = localStorage.getItem(LS_KEY);
+        if (!raw) return JSON.parse(JSON.stringify(DEFAULT_STATE));
+        const p = JSON.parse(raw);
+        const s = Object.assign(JSON.parse(JSON.stringify(DEFAULT_STATE)), p);
+        s.accounts = s.accounts || [];
+        return s;
+    } catch(e) {
+        return JSON.parse(JSON.stringify(DEFAULT_STATE));
+    }
+}
+
+let saveTimer = null;
+function saveState(immediate) {
+    if (saveTimer) clearTimeout(saveTimer);
+    const doSave = () => {
+        try { localStorage.setItem(LS_KEY, JSON.stringify(state)); } catch(e){}
+    };
+    if (immediate) doSave();
+    else saveTimer = setTimeout(doSave, 220);
+}
+
+/* ------------------------------------------------------------
+   TOASTS
+   ------------------------------------------------------------ */
+function toast(type, title, msg, dur) {
+    const wrap = $('#toastWrap');
+    const el = document.createElement('div');
+    el.className = 'toast ' + type;
+    el.innerHTML = '<div class="toast-title">' + esc(title) + '</div>' +
+        '<div class="toast-msg">' + esc(msg) + '</div>';
+    wrap.appendChild(el);
+    setTimeout(() => {
+        el.classList.add('out');
+        setTimeout(() => el.remove(), 240);
+    }, dur || 3000);
+}
+
+/* ------------------------------------------------------------
+   PLATFORM HELPERS
+   ------------------------------------------------------------ */
+function presetById(id) {
+    return PRESETS.find(p => p.id === id) || PRESETS[PRESETS.length-1];
+}
+function presetByName(name) {
+    return PRESETS.find(p => p.name.toLowerCase() === String(name).toLowerCase()) || null;
+}
+function accountPlatformLabel(acc) {
+    if (acc.platform === 'custom') {
+        try { return new URL(acc.url).hostname.replace(/^www\./, ''); }
+        catch(e) { return 'CUSTOM'; }
+    }
+    const p = presetById(acc.platform);
+    return p ? p.name : 'UNKNOWN';
+}
+function accountColor(acc) {
+    if (acc.color) return acc.color;
+    const p = presetById(acc.platform);
+    return p ? p.color : '#00ffcc';
+}
+function accountIcon(acc) {
+    if (acc.icon) return acc.icon;
+    const p = presetById(acc.platform);
+    return p ? p.icon : '··';
+}
+
+/* ------------------------------------------------------------
+   ACCOUNT CRUD
+   ------------------------------------------------------------ */
+function addAccount(data) {
+    const acc = {
+        id: uid('ACC'),
+        platform: data.platform,
+        label: data.label || accountPlatformLabel({ platform: data.platform, url: data.url }),
+        url: data.url,
+        color: data.color || null,
+        icon: data.icon || null,
+        starred: false,
+        createdAt: Date.now(),
+        lastOpened: null
+    };
+    state.accounts.push(acc);
+    saveState(true);
+    render();
+    toast('success', 'ACCOUNT ADDED', acc.label);
+}
+
+function updateAccount(id, data) {
+    const acc = state.accounts.find(a => a.id === id);
+    if (!acc) return;
+    Object.assign(acc, data);
+    saveState(true);
+    render();
+}
+
+function removeAccount(id) {
+    state.accounts = state.accounts.filter(a => a.id !== id);
+    // close any open windows for this account
+    Object.keys(openWindows).forEach(wid => {
+        if (openWindows[wid].accountId === id) closeWindow(wid);
+    });
+    saveState(true);
+    render();
+    toast('warn', 'ACCOUNT REMOVED', 'Account deleted from hub');
+}
+
+function toggleStar(id) {
+    const acc = state.accounts.find(a => a.id === id);
+    if (!acc) return;
+    acc.starred = !acc.starred;
+    saveState(true);
+    render();
+}
+
+/* ------------------------------------------------------------
+   VIEW RESOLUTION
+   ------------------------------------------------------------ */
+function resolveView() {
+    let list = state.accounts.slice();
+    const q = searchQuery.trim().toLowerCase();
+
+    if (state.nav === 'favorites') list = list.filter(a => a.starred);
+    else if (state.nav === 'recent') {
+        list = list.filter(a => a.lastOpened).sort((a,b) => b.lastOpened - a.lastOpened);
+    } else if (state.nav === 'running') {
+        const runningIds = new Set(Object.values(openWindows).map(w => w.accountId));
+        list = list.filter(a => runningIds.has(a.id));
+    }
+
+    if (state.platformFilter) {
+        list = list.filter(a => a.platform === state.platformFilter);
+    }
+
+    if (q) {
+        list = list.filter(a =>
+            a.label.toLowerCase().includes(q) ||
+            accountPlatformLabel(a).toLowerCase().includes(q) ||
+            (a.url || '').toLowerCase().includes(q)
+        );
+    }
+
+    return list;
+}
+
+/* ------------------------------------------------------------
+   SIDEBAR RENDER
+   ------------------------------------------------------------ */
+function renderSidebar() {
+    const counts = {
+        all: state.accounts.length,
+        favorites: state.accounts.filter(a => a.starred).length,
+        recent: state.accounts.filter(a => a.lastOpened).length,
+        running: new Set(Object.values(openWindows).map(w => w.accountId)).size
+    };
+    $('#cntAll').textContent = counts.all;
+    $('#cntFav').textContent = counts.favorites;
+    $('#cntRecent').textContent = counts.recent;
+    $('#cntRunning').textContent = counts.running;
+
+    // platform list
+    const platWrap = $('#platList');
+    const counts2 = {};
+    state.accounts.forEach(a => {
+        counts2[a.platform] = (counts2[a.platform] || 0) + 1;
+    });
+
+    // Show used platforms + popular presets that have zero
+    const usedPlatforms = Object.keys(counts2);
+    const platformsToShow = usedPlatforms.length ? usedPlatforms : [];
+
+    if (!platformsToShow.length) {
+        platWrap.innerHTML = '<div style="padding:6px 16px;font-size:9px;color:#333;letter-spacing:1.6px">NO ACCOUNTS YET</div>';
+    } else {
+        platWrap.innerHTML = platformsToShow
+            .sort((a, b) => {
+                const ca = counts2[a] || 0, cb = counts2[b] || 0;
+                if (cb !== ca) return cb - ca;
+                return accountPlatformLabel({platform:a, url:''}).localeCompare(accountPlatformLabel({platform:b, url:''}));
+            })
+            .map(pid => {
+                const acc = state.accounts.find(a => a.platform === pid) || { platform: pid, url:'' };
+                const c = accountColor(acc);
+                const name = accountPlatformLabel(acc).toUpperCase();
+                const cnt = counts2[pid];
+                const active = state.platformFilter === pid;
+                return '<div class="plat-item ' + (active ? 'active' : '') + '" data-plat="' + esc(pid) + '">' +
+                    '<span class="pi-dot" style="background:' + c + ';box-shadow:0 0 6px ' + c + '30"></span>' +
+                    '<span class="pi-name">' + esc(name) + '</span>' +
+                    '<span class="pi-cnt">' + cnt + '</span>' +
+                '</div>';
+            }).join('');
+    }
+
+    // nav active
+    $$('.nav-item').forEach(el => {
+        if (el.dataset.nav) {
+            el.classList.toggle('active', state.nav === el.dataset.nav && !state.platformFilter);
+        }
+    });
+
+    // OS bar counts
+    $('#osAccounts').textContent = state.accounts.length + ' ACCOUNTS';
+    $('#osActive').textContent = Object.keys(openWindows).length + ' ACTIVE WINDOWS';
+}
+
+/* ------------------------------------------------------------
+   CONTENT RENDER
+   ------------------------------------------------------------ */
+function renderContent() {
+    const content = $('#content');
+    const list = resolveView();
+
+    let title = 'ALL ACCOUNTS';
+    if (state.platformFilter) {
+        const sample = state.accounts.find(a => a.platform === state.platformFilter) || { platform: state.platformFilter, url:'' };
+        title = accountPlatformLabel(sample).toUpperCase() + ' · ACCOUNTS';
+    } else if (state.nav === 'favorites') title = 'FAVORITES';
+    else if (state.nav === 'recent') title = 'RECENTLY OPENED';
+    else if (state.nav === 'running') title = 'RUNNING WINDOWS';
+
+    let html = '<div class="sec-head">' +
+        '<div class="sec-title">' + esc(title) + '</div>' +
+        '<div class="sec-meta"><b>' + list.length + '</b> ACCOUNT' + (list.length === 1 ? '' : 'S') + '</div>' +
+    '</div>';
+
+    if (!list.length) {
+        html += renderEmpty();
+    } else {
+        html += '<div class="app-grid">';
+        list.forEach(a => { html += accountCardHTML(a); });
+        html += '</div>';
+    }
+
+    content.innerHTML = html;
+    bindContentEvents();
+}
+
+function renderEmpty() {
+    const isSearch = !!searchQuery.trim();
+    const isPlatform = !!state.platformFilter;
+    let title = 'NO ACCOUNTS YET';
+    let sub = 'ADD YOUR FIRST SOCIAL MEDIA ACCOUNT TO GET STARTED';
+    if (isSearch) { title = 'NO MATCHES'; sub = 'TRY A DIFFERENT QUERY'; }
+    else if (isPlatform) { title = 'NO ACCOUNTS FOR THIS PLATFORM'; sub = 'ADD ONE VIA "+ ACCOUNT"'; }
+    else if (state.nav === 'favorites') { title = 'NOTHING STARRED'; sub = 'STAR ACCOUNTS FOR QUICK ACCESS'; }
+    else if (state.nav === 'recent') { title = 'NO RECENT ACTIVITY'; sub = 'OPEN AN ACCOUNT TO POPULATE'; }
+    else if (state.nav === 'running') { title = 'NO WINDOWS OPEN'; sub = 'LAUNCH AN ACCOUNT TO BEGIN'; }
+
+    return '<div class="empty">' +
+        '<div class="empty-icon">▢</div>' +
+        '<div class="empty-title">' + esc(title) + '</div>' +
+        '<div class="empty-sub">' + esc(sub) + '</div>' +
+        '<button class="btn primary" id="emptyAddBtn">+ ADD ACCOUNT</button>' +
+    '</div>';
+}
+
+function accountCardHTML(acc) {
+    const c = accountColor(acc);
+    const pLabel = accountPlatformLabel(acc).toUpperCase();
+    const icon = accountIcon(acc);
+    const running = Object.values(openWindows).some(w => w.accountId === acc.id);
+    const sel = selection.has(acc.id);
+
+    let urlDisplay = '—';
+    try {
+        const u = new URL(acc.url);
+        urlDisplay = u.hostname + (u.pathname !== '/' ? u.pathname : '');
+    } catch (e) { urlDisplay = acc.url || '—'; }
+
+    return '<div class="app-card ' + (sel ? 'sel ' : '') + (running ? 'running' : '') + '" ' +
+                'data-id="' + acc.id + '">' +
+        '<div class="app-actions">' +
+            '<button class="app-act" data-star="' + acc.id + '" title="Star">★</button>' +
+            '<button class="app-act" data-edit="' + acc.id + '" title="Edit">✎</button>' +
+            '<button class="app-act del" data-del="' + acc.id + '" title="Delete">✕</button>' +
+        '</div>' +
+        '<div class="app-card-head">' +
+            '<div class="app-icon" style="--pc:' + c + '">' + esc(icon) + '</div>' +
+            '<div class="app-info">' +
+                '<div class="app-label">' + esc(acc.label) + '</div>' +
+                '<div class="app-platform">' + esc(pLabel) + '</div>' +
+            '</div>' +
+        '</div>' +
+        '<div class="app-url">' + esc(urlDisplay) + '</div>' +
+        '<div class="app-footer">' +
+            '<button class="app-star ' + (acc.starred ? 'on' : '') + '" data-star="' + acc.id + '">★</button>' +
+            '<span>' + (acc.lastOpened ? 'LAST ' + relTime(acc.lastOpened) : 'NEVER OPENED') + '</span>' +
+        '</div>' +
+    '</div>';
+}
+
+function relTime(ts) {
+    const diff = Date.now() - ts;
+    const m = Math.floor(diff / 60000);
+    if (m < 1) return 'NOW';
+    if (m < 60) return m + 'M AGO';
+    const h = Math.floor(m / 60);
+    if (h < 24) return h + 'H AGO';
+    const d = Math.floor(h / 24);
+    if (d < 7) return d + 'D AGO';
+    return Math.floor(d / 7) + 'W AGO';
+}
+
+/* ------------------------------------------------------------
+   CONTENT EVENTS
+   ------------------------------------------------------------ */
+function bindContentEvents() {
+    const content = $('#content');
+
+    content.querySelectorAll('.app-card').forEach(card => {
+        card.addEventListener('click', e => {
+            if (e.target.closest('[data-star]')) return;
+            if (e.target.closest('[data-edit]')) return;
+            if (e.target.closest('[data-del]')) return;
+            const id = card.dataset.id;
+            launchAccount(id);
+        });
+        card.addEventListener('contextmenu', e => {
+            e.preventDefault();
+            e.stopPropagation();
+            openCtxMenu(e.clientX, e.clientY, card.dataset.id);
+        });
+    });
+
+    content.querySelectorAll('[data-star]').forEach(btn => {
+        btn.addEventListener('click', e => {
+            e.stopPropagation();
+            toggleStar(btn.dataset.star);
+        });
+    });
+
+    content.querySelectorAll('[data-edit]').forEach(btn => {
+        btn.addEventListener('click', e => {
+            e.stopPropagation();
+            openEditModal(btn.dataset.edit);
+        });
+    });
+
+    content.querySelectorAll('[data-del]').forEach(btn => {
+        btn.addEventListener('click', e => {
+            e.stopPropagation();
+            confirmRemove(btn.dataset.del);
+        });
+    });
+
+    const emptyBtn = $('#emptyAddBtn');
+    if (emptyBtn) emptyBtn.addEventListener('click', () => openAddModal());
+}
+
+/* ------------------------------------------------------------
+   WINDOW MANAGER
+   ------------------------------------------------------------ */
+function launchAccount(id) {
+    const acc = state.accounts.find(a => a.id === id);
+    if (!acc) return;
+
+    acc.lastOpened = Date.now();
+    saveState();
+
+    // If already open, focus it
+    const existing = Object.entries(openWindows).find(([wid, w]) => w.accountId === id);
+    if (existing) {
+        focusWindow(existing[0]);
+        if (existing[1].minimized) unminimizeWindow(existing[0]);
+        render();
+        return;
+    }
+
+    const wid = uid('WIN');
+    const layer = $('#windowsLayer');
+    const rect = layer.getBoundingClientRect();
+    const offset = Object.keys(openWindows).length * 28;
+
+    const w = Math.min(1080, rect.width * 0.72);
+    const h = Math.min(720, rect.height * 0.78);
+    const x = Math.max(20, (rect.width - w) / 2 + offset);
+    const y = Math.max(20, (rect.height - h) / 2 + offset);
+
+    openWindows[wid] = {
+        accountId: id,
+        x: x, y: y, w: w, h: h,
+        z: ++winZTop,
+        minimized: false,
+        mode: 'embedded'
+    };
+
+    createWindowDOM(wid, acc);
+    updateTaskbar();
+    render();
+    focusWindow(wid);
+
+    toast('info', 'LAUNCHED', acc.label + ' · isolated window');
+}
+
+function createWindowDOM(wid, acc) {
+    const layer = $('#windowsLayer');
+    const w = openWindows[wid];
+    const c = accountColor(acc);
+    const icon = accountIcon(acc);
+    const pLabel = accountPlatformLabel(acc);
+
+    const el = document.createElement('div');
+    el.className = 'fwin';
+    el.dataset.wid = wid;
+    el.style.left = w.x + 'px';
+    el.style.top = w.y + 'px';
+    el.style.width = w.w + 'px';
+    el.style.height = w.h + 'px';
+    el.style.zIndex = w.z;
+    el.style.setProperty('--pc', c);
+
+    // Try loading the site in an iframe; if the site blocks embedding via
+    // X-Frame-Options or CSP, the iframe will stay blank. We show a fallback
+    // panel with alternative actions.
+    const domain = (() => {
+        try { return new URL(acc.url).hostname.replace(/^www\./, ''); }
+        catch(e) { return 'unknown'; }
+    })();
+
+    el.innerHTML =
+        '<div class="fwin-titlebar" data-drag="1">' +
+            '<div class="fwin-icon" style="--pc:' + c + '">' + esc(icon) + '</div>' +
+            '<div class="fwin-title">' + esc(acc.label) +
+                '<span class="fwin-sub">' + esc(pLabel) + '</span>' +
+            '</div>' +
+            '<div class="fwin-controls">' +
+                '<button class="fwin-btn" data-act="reload" title="Reload">⟳</button>' +
+                '<button class="fwin-btn" data-act="external" title="Detach to external window">⇱</button>' +
+                '<button class="fwin-btn" data-act="min" title="Minimize">—</button>' +
+                '<button class="fwin-btn max" data-act="max" title="Maximize">▢</button>' +
+                '<button class="fwin-btn close" data-act="close" title="Close">✕</button>' +
+            '</div>' +
+        '</div>' +
+        '<div class="fwin-body">' +
+            '<div class="fwin-overlay-fallback" style="--pc:' + c + '">' +
+                '<div class="fwin-fallback-icon">' + esc(icon) + '</div>' +
+                '<div class="fwin-fallback-title">' + esc(acc.label) + '</div>' +
+                '<div class="fwin-fallback-sub">' +
+                    'Loading <b style="color:var(--accent)">' + esc(domain) + '</b> in isolated window.<br>' +
+                    'If the page does not appear, the site may block embedding.' +
+                '</div>' +
+                '<div class="fwin-fallback-actions">' +
+                    '<button class="primary" data-act="external">OPEN IN EXTERNAL WINDOW</button>' +
+                    '<button data-act="newtab">OPEN IN NEW TAB</button>' +
+                    '<button data-act="retry">RETRY EMBED</button>' +
+                '</div>' +
+            '</div>' +
+            '<iframe data-iframe="' + wid + '" src="' + esc(acc.url) + '" ' +
+                'referrerpolicy="no-referrer-when-downgrade" ' +
+                'sandbox="allow-forms allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox allow-modals allow-downloads allow-storage-access-by-user-activation" ' +
+                'allow="clipboard-read; clipboard-write; camera; microphone; geolocation; encrypted-media; fullscreen">' +
+            '</iframe>' +
+            '<div class="fwin-resize"></div>' +
+        '</div>';
+
+    layer.appendChild(el);
+
+    // Try to detect successful load. If after ~2.5s the iframe is still about:blank
+    // or the site failed silently, we leave the fallback overlay visible (user can
+    // dismiss it if the iframe actually loaded). Give them a "hide overlay" hint.
+    const iframe = el.querySelector('iframe');
+    const fallback = el.querySelector('.fwin-overlay-fallback');
+
+    let loaded = false;
+    iframe.addEventListener('load', () => {
+        // Fires even for blocked pages — but if contentDocument is inaccessible
+        // AND src was changed by the browser to about:blank, we know it was blocked.
+        // We can't reliably read cross-origin, so we optimistically hide the
+        // overlay after a short delay if the user has interacted with the iframe.
+        setTimeout(() => {
+            if (!loaded) return;
+            fallback.style.display = 'none';
+        }, 200);
+    });
+
+    // If a load event fires quickly, hide the overlay (some sites do embed OK).
+    // Give user 5s before we declare it failed — actually we keep the overlay as
+    // an option since many sites WILL be blank. Clicking the iframe hides it.
+    iframe.addEventListener('pointerdown', () => {
+        loaded = true;
+        fallback.style.display = 'none';
+    });
+    fallback.addEventListener('click', e => {
+        if (e.target.closest('button')) return;
+    });
+
+    // wire window controls
+    el.querySelectorAll('[data-act]').forEach(btn => {
+        btn.addEventListener('click', e => {
+            e.stopPropagation();
+            const act = btn.dataset.act;
+            if (act === 'close') closeWindow(wid);
+            else if (act === 'min') minimizeWindow(wid);
+            else if (act === 'max') toggleMaximize(wid);
+            else if (act === 'reload') reloadWindow(wid);
+            else if (act === 'external') openExternal(acc);
+            else if (act === 'newtab') window.open(acc.url, '_blank', 'noopener');
+            else if (act === 'retry') {
+                const ifr = el.querySelector('iframe');
+                ifr.src = acc.url;
+                fallback.querySelector('.fwin-fallback-sub').innerHTML =
+                    'Retrying <b style="color:var(--accent)">' + esc(domain) + '</b>…';
+            }
+        });
+    });
+
+    // drag
+    const titlebar = el.querySelector('.fwin-titlebar');
+    titlebar.addEventListener('pointerdown', e => {
+        if (e.target.closest('button')) return;
+        startDrag(wid, e);
+    });
+
+    // resize
+    const resizer = el.querySelector('.fwin-resize');
+    resizer.addEventListener('pointerdown', e => {
+        e.stopPropagation();
+        startResize(wid, e);
+    });
+
+    // click to focus
+    el.addEventListener('pointerdown', () => focusWindow(wid), true);
+
+    // initial focus
+    focusWindow(wid);
+}
+
+function startDrag(wid, e) {
+    const w = openWindows[wid];
+    const el = document.querySelector('.fwin[data-wid="' + wid + '"]');
+    if (!el || !w) return;
+    focusWindow(wid);
+
+    const startX = e.clientX;
+    const startY = e.clientY;
+    const origX = w.x;
+    const origY = w.y;
+    const layer = $('#windowsLayer');
+    const bounds = layer.getBoundingClientRect();
+
+    const move = ev => {
+        let nx = origX + ev.clientX - startX;
+        let ny = origY + ev.clientY - startY;
+        // clamp so titlebar stays visible
+        nx = clamp(nx, -w.w + 120, bounds.width - 60);
+        ny = clamp(ny, 0, bounds.height - 34);
+        w.x = nx; w.y = ny;
+        el.style.left = nx + 'px';
+        el.style.top = ny + 'px';
+    };
+    const up = () => {
+        document.removeEventListener('pointermove', move);
+        document.removeEventListener('pointerup', up);
+    };
+    document.addEventListener('pointermove', move);
+    document.addEventListener('pointerup', up);
+}
+
+function startResize(wid, e) {
+    const w = openWindows[wid];
+    const el = document.querySelector('.fwin[data-wid="' + wid + '"]');
+    if (!el || !w) return;
+    e.preventDefault();
+
+    const startX = e.clientX;
+    const startY = e.clientY;
+    const origW = w.w;
+    const origH = w.h;
+
+    const move = ev => {
+        w.w = Math.max(400, origW + ev.clientX - startX);
+        w.h = Math.max(300, origH + ev.clientY - startY);
+        el.style.width = w.w + 'px';
+        el.style.height = w.h + 'px';
+    };
+    const up = () => {
+        document.removeEventListener('pointermove', move);
+        document.removeEventListener('pointerup', up);
+    };
+    document.addEventListener('pointermove', move);
+    document.addEventListener('pointerup', up);
+}
+
+function closeWindow(wid) {
+    const el = document.querySelector('.fwin[data-wid="' + wid + '"]');
+    if (el) el.remove();
+    delete openWindows[wid];
+    updateTaskbar();
+    render();
+}
+
+function minimizeWindow(wid) {
+    const w = openWindows[wid];
+    const el = document.querySelector('.fwin[data-wid="' + wid + '"]');
+    if (!w || !el) return;
+    w.minimized = true;
+    el.classList.add('minimized');
+    updateTaskbar();
+    render();
+    // focus next top window if any
+    const remaining = Object.entries(openWindows)
+        .filter(([, x]) => !x.minimized)
+        .sort((a,b) => b[1].z - a[1].z);
+    if (remaining.length) focusWindow(remaining[0][0]);
+}
+
+function unminimizeWindow(wid) {
+    const w = openWindows[wid];
+    const el = document.querySelector('.fwin[data-wid="' + wid + '"]');
+    if (!w || !el) return;
+    w.minimized = false;
+    el.classList.remove('minimized');
+    updateTaskbar();
+    focusWindow(wid);
+}
+
+function toggleMinimize(wid) {
+    const w = openWindows[wid];
+    if (!w) return;
+    if (w.minimized) unminimizeWindow(wid);
+    else minimizeWindow(wid);
+}
+
+let maximizeRestore = {};
+function toggleMaximize(wid) {
+    const w = openWindows[wid];
+    const el = document.querySelector('.fwin[data-wid="' + wid + '"]');
+    if (!w || !el) return;
+    const layer = $('#windowsLayer');
+    const bounds = layer.getBoundingClientRect();
+
+    if (!maximizeRestore[wid]) {
+        maximizeRestore[wid] = { x: w.x, y: w.y, w: w.w, h: w.h };
+        w.x = 0; w.y = 0; w.w = bounds.width; w.h = bounds.height;
+    } else {
+        const r = maximizeRestore[wid];
+        w.x = r.x; w.y = r.y; w.w = r.w; w.h = r.h;
+        delete maximizeRestore[wid];
+    }
+    el.style.left = w.x + 'px';
+    el.style.top = w.y + 'px';
+    el.style.width = w.w + 'px';
+    el.style.height = w.h + 'px';
+}
+
+function reloadWindow(wid) {
+    const w = openWindows[wid];
+    const el = document.querySelector('.fwin[data-wid="' + wid + '"]');
+    if (!w || !el) return;
+    const acc = state.accounts.find(a => a.id === w.accountId);
+    if (!acc) return;
+    const ifr = el.querySelector('iframe');
+    const fallback = el.querySelector('.fwin-overlay-fallback');
+    fallback.style.display = '';
+    fallback.querySelector('.fwin-fallback-sub').innerHTML =
+        'Reloading <b style="color:var(--accent)">' + esc((() => {
+            try { return new URL(acc.url).hostname.replace(/^www\./, ''); }
+            catch(e){ return 'site'; }
+        })()) + '</b>…';
+    ifr.src = 'about:blank';
+    setTimeout(() => { ifr.src = acc.url; }, 60);
+}
+
+function focusWindow(wid) {
+    const w = openWindows[wid];
+    const el = document.querySelector('.fwin[data-wid="' + wid + '"]');
+    if (!w || !el) return;
+    w.z = ++winZTop;
+    el.style.zIndex = w.z;
+    // update taskbar active
+    $$('.task-item').forEach(t => t.classList.toggle('active', t.dataset.wid === wid));
+    if (w.minimized) unminimizeWindow(wid);
+}
+
+function openExternal(acc) {
+    const features = [
+        'toolbar=no',
+        'location=no',
+        'status=no',
+        'menubar=no',
+        'scrollbars=yes',
+        'resizable=yes',
+        'width=1200',
+        'height=800',
+        'left=' + Math.max(0, (screen.width - 1200) / 2),
+        'top=' + Math.max(0, (screen.height - 800) / 2)
+    ].join(',');
+    const w = window.open(acc.url, 'sh_' + acc.id, features);
+    if (!w) {
+        toast('error', 'POPUP BLOCKED', 'Allow popups for chromeless experience');
+    } else {
+        toast('info', 'DETACHED', acc.label + ' opened in isolated window');
+    }
+}
+
+/* ------------------------------------------------------------
+   TASKBAR
+   ------------------------------------------------------------ */
+function updateTaskbar() {
+    const bar = $('#taskbar');
+    const ids = Object.keys(openWindows);
+    if (!ids.length) {
+        bar.innerHTML = '<span class="task-hint" id="taskHint">NO WINDOWS OPEN</span>';
+        return;
+    }
+    let html = '<span class="task-hint">' + ids.length + ' OPEN</span>';
+    ids.forEach(wid => {
+        const w = openWindows[wid];
+        const acc = state.accounts.find(a => a.id === w.accountId);
+        if (!acc) return;
+        const c = accountColor(acc);
+        const icon = accountIcon(acc);
+        const active = !w.minimized && w.z === Math.max(...ids.map(id => openWindows[id].z));
+        html += '<div class="task-item ' + (active ? 'active' : '') + '" data-wid="' + wid + '" style="--pc:' + c + '">' +
+            '<span class="task-icon" style="--pc:' + c + '">' + esc(icon) + '</span>' +
+            '<span class="task-label">' + esc(acc.label) + '</span>' +
+            '<button class="task-close" data-taskclose="' + wid + '">✕</button>' +
+        '</div>';
+    });
+    bar.innerHTML = html;
+
+    bar.querySelectorAll('.task-item').forEach(el => {
+        el.addEventListener('click', e => {
+            if (e.target.closest('[data-taskclose]')) return;
+            const wid = el.dataset.wid;
+            if (openWindows[wid].minimized) unminimizeWindow(wid);
+            else focusWindow(wid);
+        });
+    });
+    bar.querySelectorAll('[data-taskclose]').forEach(btn => {
+        btn.addEventListener('click', e => {
+            e.stopPropagation();
+            closeWindow(btn.dataset.taskclose);
+        });
+    });
+}
+
+/* ------------------------------------------------------------
+   CONTEXT MENU
+   ------------------------------------------------------------ */
+function openCtxMenu(x, y, accId) {
+    const acc = state.accounts.find(a => a.id === accId);
+    if (!acc) return;
+    const menu = $('#ctxMenu');
+    const running = Object.values(openWindows).some(w => w.accountId === accId);
+
+    menu.innerHTML =
+        '<div class="ctx-label">' + esc(acc.label).slice(0, 28) + '</div>' +
+        '<button class="ctx-item" data-cmd="open"><span class="ci">◉</span>' + (running ? 'FOCUS WINDOW' : 'LAUNCH') + '</button>' +
+        '<button class="ctx-item" data-cmd="external"><span class="ci">⇱</span>OPEN EXTERNAL</button>' +
+        '<button class="ctx-item" data-cmd="newtab"><span class="ci">↗</span>OPEN IN NEW TAB</button>' +
+        '<div class="ctx-sep"></div>' +
+        '<button class="ctx-item" data-cmd="star"><span class="ci">★</span>' + (acc.starred ? 'UNSTAR' : 'STAR') + '</button>' +
+        '<button class="ctx-item" data-cmd="duplicate"><span class="ci">⎘</span>DUPLICATE ACCOUNT</button>' +
+        '<button class="ctx-item" data-cmd="edit"><span class="ci">✎</span>EDIT</button>' +
+        '<button class="ctx-item" data-cmd="copy"><span class="ci">⌗</span>COPY URL</button>' +
+        '<div class="ctx-sep"></div>' +
+        '<button class="ctx-item danger" data-cmd="delete"><span class="ci">✕</span>DELETE ACCOUNT</button>';
+
+    menu.classList.add('open');
+    const mw = menu.offsetWidth || 220;
+    const mh = menu.offsetHeight || 260;
+    menu.style.left = Math.min(x, window.innerWidth - mw - 10) + 'px';
+    menu.style.top = Math.min(y, window.innerHeight - mh - 10) + 'px';
+
+    menu.querySelectorAll('[data-cmd]').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const cmd = btn.dataset.cmd;
+            menu.classList.remove('open');
+            runCtxCmd(cmd, accId);
+        });
+    });
+}
+
+function closeCtxMenu() { $('#ctxMenu').classList.remove('open'); }
+
+function runCtxCmd(cmd, accId) {
+    const acc = state.accounts.find(a => a.id === accId);
+    if (!acc) return;
+    switch (cmd) {
+        case 'open': launchAccount(accId); break;
+        case 'external': openExternal(acc); break;
+        case 'newtab': window.open(acc.url, '_blank', 'noopener'); break;
+        case 'star': toggleStar(accId); break;
+        case 'duplicate': {
+            const copy = Object.assign({}, acc, {
+                id: uid('ACC'),
+                label: acc.label + ' (2)',
+                starred: false,
+                createdAt: Date.now(),
+                lastOpened: null
+            });
+            state.accounts.push(copy);
+            saveState(true);
+            render();
+            toast('success', 'DUPLICATED', copy.label);
+            break;
+        }
+        case 'edit': openEditModal(accId); break;
+        case 'copy':
+            try { navigator.clipboard.writeText(acc.url); toast('success', 'COPIED', acc.url); }
+            catch(e) { toast('info', 'URL', acc.url); }
+            break;
+        case 'delete': confirmRemove(accId); break;
+    }
+}
+
+/* ------------------------------------------------------------
+   MODAL: ADD / EDIT
+   ------------------------------------------------------------ */
+function openAddModal() {
+    let selectedPlatform = 'instagram';
+    let selectedColor = null;
+
+    function renderBody() {
+        const preset = presetById(selectedPlatform);
+        const isCustom = selectedPlatform === 'custom';
+        const currentUrl = $('#addUrl') ? $('#addUrl').value : (isCustom ? '' : preset.url);
+        const currentLabel = $('#addLabel') ? $('#addLabel').value : '';
+        const currentIcon = $('#addIcon') ? $('#addIcon').value : '';
+
+        return '' +
+        '<div class="field">' +
+            '<label>Platform Preset</label>' +
+            '<div class="preset-grid" id="presetGrid">' +
+                PRESETS.map(p =>
+                    '<div class="preset-item ' + (p.id === selectedPlatform ? 'sel' : '') + '" ' +
+                        'data-pid="' + p.id + '" style="--pc:' + p.color + '">' +
+                        '<div class="preset-icon">' + esc(p.icon) + '</div>' +
+                        '<div class="preset-name">' + esc(p.name) + '</div>' +
+                    '</div>'
+                ).join('') +
+            '</div>' +
+        '</div>' +
+        '<div class="field">' +
+            '<label>' + (isCustom ? 'URL' : 'URL (editable)') + ' <span class="req">*</span></label>' +
+            '<input class="input" id="addUrl" value="' + esc(currentUrl || (isCustom ? '' : preset.url)) + '" ' +
+                'placeholder="https://…" />' +
+        '</div>' +
+        '<div class="field">' +
+            '<label>Account Label <span class="req">*</span></label>' +
+            '<input class="input" id="addLabel" value="' + esc(currentLabel || '') + '" ' +
+                'placeholder="E.G. WORK ACCOUNT, PERSONAL…" />' +
+            '<div class="hint">SHOWN IN THE HUB AND WINDOW TITLE</div>' +
+        '</div>' +
+        '<div class="field">' +
+            '<label>Icon (optional — 1-2 chars)</label>' +
+            '<input class="input" id="addIcon" maxlength="2" value="' + esc(currentIcon) + '" ' +
+                'placeholder="' + esc(preset.icon) + '" />' +
+        '</div>' +
+        '<div class="field">' +
+            '<label>Accent Colour</label>' +
+            '<div class="color-grid" id="colorGrid">' +
+                COLOR_PALETTE.map(c =>
+                    '<div class="color-swatch ' + ((selectedColor === c) || (!selectedColor && preset.color === c) ? 'sel' : '') + '" ' +
+                        'data-color="' + c + '" style="background:' + c + '"></div>'
+                ).join('') +
+            '</div>' +
+            '<div class="hint">LEAVE UNCHANGED TO USE PLATFORM DEFAULT</div>' +
+        '</div>';
+    }
+
+    openModal({
+        title: 'ADD ACCOUNT',
+        body: renderBody(),
+        buttons: [
+            { label: 'CANCEL', cls: 'ghost', action: closeModal },
+            { label: 'ADD ACCOUNT', cls: 'primary', action: () => {
+                const url = ($('#addUrl').value || '').trim();
+                const label = ($('#addLabel').value || '').trim();
+                const icon = ($('#addIcon').value || '').trim();
+                if (!url) { toast('error', 'URL REQUIRED', 'Enter the account URL'); return; }
+                if (!/^https?:\/\//i.test(url)) {
+                    toast('error', 'INVALID URL', 'URL must start with http:// or https://');
+                    return;
+                }
+                if (!label) { toast('error', 'LABEL REQUIRED', 'Give this account a name'); return; }
+                addAccount({
+                    platform: selectedPlatform,
+                    url,
+                    label,
+                    icon: icon || null,
+                    color: selectedColor || null
+                });
+                closeModal();
+            } }
+        ]
+    });
+
+    setTimeout(() => {
+        // wire up interactive elements
+        $('#presetGrid').querySelectorAll('.preset-item').forEach(el => {
+            el.addEventListener('click', () => {
+                selectedPlatform = el.dataset.pid;
+                const preset = presetById(selectedPlatform);
+                // update selection
+                $$('#presetGrid .preset-item').forEach(x => x.classList.toggle('sel', x.dataset.pid === selectedPlatform));
+                // update URL field
+                const urlInput = $('#addUrl');
+                if (urlInput && selectedPlatform !== 'custom') urlInput.value = preset.url;
+                // update icon placeholder
+                const iconInput = $('#addIcon');
+                if (iconInput) iconInput.placeholder = preset.icon;
+                // update color grid selection
+                $$('#colorGrid .color-swatch').forEach(x =>
+                    x.classList.toggle('sel', x.dataset.color === preset.color)
+                );
+                // if custom, clear URL
+                if (selectedPlatform === 'custom' && urlInput) urlInput.value = '';
+            });
+        });
+
+        $('#colorGrid').querySelectorAll('.color-swatch').forEach(el => {
+            el.addEventListener('click', () => {
+                selectedColor = el.dataset.color;
+                $$('#colorGrid .color-swatch').forEach(x => x.classList.toggle('sel', x === el));
+            });
+        });
+
+        // autofocus
+        const labelInput = $('#addLabel');
+        if (labelInput) {
+            labelInput.focus();
+            labelInput.addEventListener('keydown', e => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    $$('#modalFoot .btn').find(b => b.classList.contains('primary')).click();
+                }
+            });
+        }
+    }, 40);
+}
+
+function openEditModal(accId) {
+    const acc = state.accounts.find(a => a.id === accId);
+    if (!acc) return;
+    let selectedColor = acc.color || null;
+    let selectedIcon = acc.icon || '';
+    let selectedPlatform = acc.platform;
+
+    openModal({
+        title: 'EDIT ACCOUNT',
+        body:
+            '<div class="field">' +
+                '<label>Platform</label>' +
+                '<select class="select" id="editPlat">' +
+                    PRESETS.map(p => '<option value="' + p.id + '" ' +
+                        (p.id === acc.platform ? 'selected' : '') + '>' + esc(p.name) + '</option>').join('') +
+                '</select>' +
+            '</div>' +
+            '<div class="field">' +
+                '<label>URL <span class="req">*</span></label>' +
+                '<input class="input" id="editUrl" value="' + esc(acc.url) + '" />' +
+            '</div>' +
+            '<div class="field">' +
+                '<label>Label <span class="req">*</span></label>' +
+                '<input class="input" id="editLabel" value="' + esc(acc.label) + '" />' +
+            '</div>' +
+            '<div class="field">' +
+                '<label>Icon (optional)</label>' +
+                '<input class="input" id="editIcon" maxlength="2" value="' + esc(acc.icon || '') + '" />' +
+            '</div>' +
+            '<div class="field">' +
+                '<label>Accent Colour</label>' +
+                '<div class="color-grid" id="editColorGrid">' +
+                    COLOR_PALETTE.map(c =>
+                        '<div class="color-swatch ' + (selectedColor === c ? 'sel' : '') + '" ' +
+                            'data-color="' + c + '" style="background:' + c + '"></div>'
+                    ).join('') +
+                '</div>' +
+            '</div>',
+        buttons: [
+            { label: 'CANCEL', cls: 'ghost', action: closeModal },
+            { label: 'SAVE', cls: 'primary', action: () => {
+                const url = ($('#editUrl').value || '').trim();
+                const label = ($('#editLabel').value || '').trim();
+                const icon = ($('#editIcon').value || '').trim();
+                const platform = $('#editPlat').value;
+                if (!url || !label) { toast('error', 'REQUIRED FIELDS', 'URL and label are required'); return; }
+                updateAccount(accId, {
+                    url, label, platform,
+                    icon: icon || null,
+                    color: selectedColor || null
+                });
+                closeModal();
+                toast('success', 'SAVED', label);
+            } }
+        ]
+    });
+
+    setTimeout(() => {
+        $('#editColorGrid').querySelectorAll('.color-swatch').forEach(el => {
+            el.addEventListener('click', () => {
+                selectedColor = el.dataset.color;
+                $$('#editColorGrid .color-swatch').forEach(x => x.classList.toggle('sel', x === el));
+            });
+        });
+    }, 40);
+}
+
+function confirmRemove(accId) {
+    const acc = state.accounts.find(a => a.id === accId);
+    if (!acc) return;
+    openModal({
+        title: 'DELETE ACCOUNT', danger: true,
+        body: '<p style="font-size:12px;color:#8a8a8a;line-height:1.7;margin:0">' +
+              'Remove <b style="color:#fff">' + esc(acc.label) + '</b> from the hub? ' +
+              'Any open windows for this account will be closed.</p>',
+        buttons: [
+            { label: 'CANCEL', cls: 'ghost', action: closeModal },
+            { label: 'DELETE', cls: 'danger', action: () => { closeModal(); removeAccount(accId); } }
+        ]
+    });
+}
+
+function openModal({ title, body, buttons, danger, width }) {
+    $('#modalTitle').textContent = title;
+    $('#modalTitle').classList.toggle('danger', !!danger);
+    $('#modalBody').innerHTML = body;
+    $('#modalBox').style.maxWidth = width || '580px';
+    const foot = $('#modalFoot');
+    foot.innerHTML = '';
+    (buttons || []).forEach(b => {
+        const el = document.createElement('button');
+        el.className = 'btn ' + (b.cls || 'ghost');
+        el.textContent = b.label;
+        el.addEventListener('click', b.action);
+        foot.appendChild(el);
+    });
+    $('#modalOverlay').classList.add('open');
+}
+
+function closeModal() {
+    $('#modalOverlay').classList.remove('open');
+    $('#modalBody').innerHTML = '';
+    $('#modalFoot').innerHTML = '';
+}
+
+/* ------------------------------------------------------------
+   SEED
+   ------------------------------------------------------------ */
+function seed() {
+    if (state.seeded) return;
+    state.seeded = true;
+    // no seeded accounts — start clean
+}
+
+/* ------------------------------------------------------------
+   MASTER RENDER
+   ------------------------------------------------------------ */
+function render() {
+    renderSidebar();
+    renderContent();
+    updateTaskbar();
+}
+
+/* ------------------------------------------------------------
+   EVENT WIRING
+   ------------------------------------------------------------ */
+// Sidebar nav
+$('#sidebar').addEventListener('click', e => {
+    const navBtn = e.target.closest('[data-nav]');
+    const platBtn = e.target.closest('[data-plat]');
+
+    if (navBtn) {
+        state.nav = navBtn.dataset.nav;
+        state.platformFilter = null;
+        saveState();
+        render();
+        if (window.innerWidth <= 900) $('#sidebar').classList.remove('open');
+        return;
+    }
+    if (platBtn) {
+        const pid = platBtn.dataset.plat;
+        state.platformFilter = state.platformFilter === pid ? null : pid;
+        state.nav = 'all';
+        saveState();
+        render();
+        if (window.innerWidth <= 900) $('#sidebar').classList.remove('open');
+        return;
+    }
+});
+
+$('#newAccountBtn').addEventListener('click', openAddModal);
+$('#newAccountBtn2').addEventListener('click', openAddModal);
+$('#hamburger').addEventListener('click', () => $('#sidebar').classList.toggle('open'));
+
+$('#minimizeAllBtn').addEventListener('click', () => {
+    Object.keys(openWindows).forEach(wid => minimizeWindow(wid));
+    toast('info', 'ALL MINIMIZED', 'Windows stored in taskbar');
+});
+$('#closeAllBtn').addEventListener('click', () => {
+    Object.keys(openWindows).forEach(wid => closeWindow(wid));
+    toast('warn', 'ALL CLOSED', 'Windows closed · accounts saved');
+});
+
+$('#searchInput').addEventListener('input', e => {
+    searchQuery = e.target.value;
+    renderContent();
+});
+
+// Global close context menu
+document.addEventListener('click', e => {
+    if (!e.target.closest('#ctxMenu')) closeCtxMenu();
+});
+document.addEventListener('contextmenu', e => {
+    if (!e.target.closest('.app-card')) closeCtxMenu();
+});
+window.addEventListener('blur', closeCtxMenu);
+
+// Modal close
+$('#modalClose').addEventListener('click', closeModal);
+$('#modalOverlay').addEventListener('click', e => {
+    if (e.target === e.currentTarget) closeModal();
+});
+
+// Keyboard shortcuts
+document.addEventListener('keydown', e => {
+    const tag = (e.target.tagName || '').toLowerCase();
+    const typing = tag === 'input' || tag === 'textarea' || tag === 'select';
+
+    if (e.key === 'Escape') {
+        if ($('#modalOverlay').classList.contains('open')) { closeModal(); return; }
+        closeCtxMenu();
+        return;
+    }
+    if (typing) return;
+
+    if (e.key === '/' && !e.ctrlKey && !e.metaKey) {
+        e.preventDefault();
+        $('#searchInput').focus();
+        return;
+    }
+    if (e.key.toLowerCase() === 'n' && !e.ctrlKey && !e.metaKey) {
+        openAddModal();
+        return;
+    }
+    if (e.key.toLowerCase() === 'm' && !e.ctrlKey && !e.metaKey) {
+        Object.keys(openWindows).forEach(wid => minimizeWindow(wid));
+        return;
+    }
+});
+
+// OS clock
+function tickClock() {
+    const d = new Date();
+    $('#osClock').textContent =
+        pad(d.getHours()) + ':' + pad(d.getMinutes()) + ':' + pad(d.getSeconds());
+}
+setInterval(tickClock, 1000);
+tickClock();
+
+/* ------------------------------------------------------------
+   BOOT
+   ------------------------------------------------------------ */
+function boot() {
+    seed();
+    render();
+
+    setTimeout(() => {
+        toast('success', 'SOCIAL HUB ONLINE',
+              'Sovereign workspace ready · ' + state.accounts.length + ' accounts loaded', 3800);
+    }, 420);
+
+    // Handle window resize — re-clamp open windows
+    window.addEventListener('resize', () => {
+        const layer = $('#windowsLayer');
+        const bounds = layer.getBoundingClientRect();
+        Object.entries(openWindows).forEach(([wid, w]) => {
+            const el = document.querySelector('.fwin[data-wid="' + wid + '"]');
+            if (!el) return;
+            // clamp position so titlebar stays visible
+            w.x = clamp(w.x, -w.w + 120, bounds.width - 60);
+            w.y = clamp(w.y, 0, bounds.height - 34);
+            el.style.left = w.x + 'px';
+            el.style.top = w.y + 'px';
+        });
+    });
+}
+
+boot();
+
+})();
+</script>
+</body>
+</html>
