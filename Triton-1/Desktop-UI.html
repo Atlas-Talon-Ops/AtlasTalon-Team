@@ -7,6 +7,32 @@
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
     <style>
         /* ──────────────────────────────────────────────────────
+           TOKENS  ·  MONOCHROME
+           ────────────────────────────────────────────────────── */
+        :root {
+            /* primary accent is now pure white */
+            --accent: #ffffff;
+            --accent-bright: #ffffff;
+            --accent-deep: rgba(255, 255, 255, 0.55);
+            --accent-soft: rgba(255, 255, 255, 0.08);
+            --accent-line: rgba(255, 255, 255, 0.18);
+            --accent-glow: rgba(255, 255, 255, 0.55);
+
+            /* greyscale ink scale */
+            --ink-1: rgba(255, 255, 255, 0.92);
+            --ink-2: rgba(255, 255, 255, 0.70);
+            --ink-3: rgba(255, 255, 255, 0.48);
+            --ink-4: rgba(255, 255, 255, 0.30);
+            --ink-5: rgba(255, 255, 255, 0.16);
+
+            --line: rgba(255, 255, 255, 0.07);
+            --line-strong: rgba(255, 255, 255, 0.13);
+
+            --glass: rgba(255, 255, 255, 0.025);
+            --glass-hover: rgba(255, 255, 255, 0.05);
+        }
+
+        /* ──────────────────────────────────────────────────────
            RESET & BASE
            ────────────────────────────────────────────────────── */
         * {
@@ -17,13 +43,15 @@
 
         body {
             background: #000000;
-            color: #e0e0e0;
+            color: var(--ink-1);
             font-family: 'Inter', sans-serif;
             height: 100vh;
             width: 100vw;
             overflow: hidden;
             user-select: none;
             cursor: default;
+            -webkit-font-smoothing: antialiased;
+            text-rendering: optimizeLegibility;
         }
 
         /* ──────────────────────────────────────────────────────
@@ -35,14 +63,13 @@
             height: 100vh;
             width: 100vw;
             background:
-                radial-gradient(ellipse at 50% 0%, #1a1a1a 0%, #070707 60%, #000000 100%);
+                radial-gradient(ellipse at 50% -10%, #1c1c1c 0%, #0a0a0a 55%, #000000 100%);
             padding: 16px 20px 14px 20px;
             position: relative;
             z-index: 1;
-            box-shadow: inset 0 0 120px rgba(0, 0, 0, 0.9);
+            box-shadow: inset 0 0 140px rgba(0, 0, 0, 0.95);
         }
 
-        /* Glossy highlight sweep */
         .desktop::before {
             content: '';
             position: absolute;
@@ -50,34 +77,24 @@
             left: -50%;
             width: 200%;
             height: 200%;
-            background: radial-gradient(ellipse at 70% 10%, rgba(255, 255, 255, 0.015) 0%, transparent 50%);
+            background: radial-gradient(ellipse at 70% 8%, rgba(255, 255, 255, 0.022) 0%, transparent 50%);
             pointer-events: none;
             z-index: 0;
-            animation: glossRotate 20s linear infinite;
+            animation: glossRotate 24s linear infinite;
         }
         @keyframes glossRotate {
-            0% {
-                transform: rotate(0deg);
-            }
-            100% {
-                transform: rotate(360deg);
-            }
+            0%   { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
 
-        /* ──────────────────────────────────────────────────────
-           TACTICAL GRID OVERLAY
-           ────────────────────────────────────────────────────── */
         .desktop::after {
             content: '';
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            inset: 0;
             background-image:
-                linear-gradient(rgba(255, 208, 0, 0.01) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255, 208, 0, 0.01) 1px, transparent 1px);
-            background-size: 40px 40px;
+                linear-gradient(rgba(255, 255, 255, 0.018) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.018) 1px, transparent 1px);
+            background-size: 42px 42px;
             pointer-events: none;
             z-index: 0;
         }
@@ -87,26 +104,19 @@
            ────────────────────────────────────────────────────── */
         .scanline {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            inset: 0;
             pointer-events: none;
             z-index: 9999;
             background: repeating-linear-gradient(0deg,
-                    rgba(0, 0, 0, 0.03) 0px,
-                    rgba(0, 0, 0, 0.03) 2px,
+                    rgba(0, 0, 0, 0.035) 0px,
+                    rgba(0, 0, 0, 0.035) 2px,
                     transparent 2px,
                     transparent 6px);
             animation: scanMove 0.8s linear infinite;
         }
         @keyframes scanMove {
-            0% {
-                transform: translateY(0);
-            }
-            100% {
-                transform: translateY(6px);
-            }
+            0%   { transform: translateY(0); }
+            100% { transform: translateY(6px); }
         }
 
         /* ──────────────────────────────────────────────────────
@@ -118,55 +128,57 @@
             left: 0;
             width: 100%;
             height: 1px;
-            background: rgba(255, 208, 0, 0.02);
+            background: rgba(255, 255, 255, 0.10);
+            box-shadow: 0 0 8px rgba(255, 255, 255, 0.06);
             z-index: 9998;
             pointer-events: none;
-            animation: glitchLine 6s linear infinite;
+            opacity: 0;
+            animation: glitchLine 7s linear infinite;
         }
         @keyframes glitchLine {
-            0%,
-            100% {
-                opacity: 0;
-                transform: translateY(0);
-            }
-            5% {
-                opacity: 1;
-                transform: translateY(0);
-            }
-            6% {
-                opacity: 0;
-            }
-            15% {
-                opacity: 0.6;
-                transform: translateY(4px);
-            }
-            16% {
-                opacity: 0;
-            }
-            50% {
-                opacity: 0;
-            }
-            55% {
-                opacity: 0.8;
-                transform: translateY(2px);
-            }
-            56% {
-                opacity: 0;
-            }
-            80% {
-                opacity: 0;
-            }
-            85% {
-                opacity: 0.5;
-                transform: translateY(0);
-            }
-            86% {
-                opacity: 0;
-            }
+            0%, 100% { opacity: 0; transform: translateY(0); }
+            4%   { opacity: 0.9; transform: translateY(0); }
+            5%   { opacity: 0; }
+            14%  { opacity: 0.5; transform: translateY(5px); }
+            15%  { opacity: 0; }
+            49%  { opacity: 0; }
+            54%  { opacity: 0.7; transform: translateY(2px); }
+            55%  { opacity: 0; }
+            79%  { opacity: 0; }
+            84%  { opacity: 0.45; transform: translateY(0); }
+            85%  { opacity: 0; }
         }
 
         /* ──────────────────────────────────────────────────────
-           TOP BAR (BORDERLESS)
+           FULL-SCREEN GLITCH TEAR OVERLAY
+           ────────────────────────────────────────────────────── */
+        .screen-glitch {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 9997;
+            opacity: 0;
+            background:
+                linear-gradient(transparent 0%,
+                    rgba(255, 255, 255, 0.03) 46%,
+                    rgba(255, 255, 255, 0.10) 50%,
+                    rgba(255, 255, 255, 0.03) 54%,
+                    transparent 100%);
+            mix-blend-mode: screen;
+        }
+        .screen-glitch.active {
+            animation: screenTear 0.22s steps(3, end) 1;
+        }
+        @keyframes screenTear {
+            0%   { opacity: 0; transform: translateY(-4%) scaleY(1); }
+            20%  { opacity: 1; transform: translateY(3%)  scaleY(1.02); }
+            45%  { opacity: 0.4; transform: translateY(-2%) scaleY(0.99); }
+            70%  { opacity: 0.9; transform: translateY(2%); }
+            100% { opacity: 0; transform: translateY(0); }
+        }
+
+        /* ──────────────────────────────────────────────────────
+           TOP BAR
            ────────────────────────────────────────────────────── */
         .topbar {
             display: flex;
@@ -177,7 +189,7 @@
             flex-shrink: 0;
             position: relative;
             z-index: 2;
-            border-bottom: 1px solid rgba(255, 208, 0, 0.05);
+            border-bottom: 1px solid var(--line);
         }
 
         .topbar-left {
@@ -197,62 +209,57 @@
             color: #ffffff;
         }
         .brand .badge {
-            font-weight: 400;
+            font-weight: 500;
             font-size: 8px;
-            color: rgba(255, 208, 0, 0.8);
-            background: rgba(255, 208, 0, 0.08);
-            padding: 2px 10px;
-            border: 1px solid rgba(255, 208, 0, 0.1);
-            letter-spacing: 0.1em;
+            color: var(--accent);
+            background: var(--accent-soft);
+            padding: 3px 10px;
+            border: 1px solid var(--accent-line);
+            letter-spacing: 0.12em;
         }
         .brand .dot {
             display: inline-block;
             width: 8px;
             height: 8px;
-            background: #ffd000;
-            box-shadow: 0 0 25px rgba(255, 208, 0, 0.4);
+            background: #ffffff;
+            box-shadow: 0 0 22px var(--accent-glow);
             animation: pulseDot 1.6s ease-in-out infinite;
         }
         @keyframes pulseDot {
-            0%,
-            100% {
-                opacity: 1;
-                transform: scale(1);
-            }
-            50% {
-                opacity: 0.2;
-                transform: scale(0.6);
-            }
+            0%, 100% { opacity: 1;   transform: scale(1); }
+            50%      { opacity: 0.25; transform: scale(0.6); }
         }
 
         .topbar-center {
             display: flex;
             align-items: center;
-            gap: 24px;
+            gap: 12px;
             font-family: 'Orbitron', monospace;
             font-size: 9px;
-            font-weight: 400;
+            font-weight: 500;
             letter-spacing: 0.15em;
-            color: rgba(255, 255, 255, 0.15);
+            color: var(--ink-3);
         }
         .topbar-center .status-item {
             display: flex;
             align-items: center;
             gap: 8px;
-            padding: 4px 12px;
-            border: 1px solid rgba(255, 255, 255, 0.03);
-            background: rgba(255, 255, 255, 0.01);
+            padding: 5px 12px;
+            border: 1px solid var(--line);
+            background: var(--glass);
         }
         .topbar-center .status-item .indicator {
             display: inline-block;
-            width: 4px;
-            height: 4px;
-            background: #00f0ff;
+            width: 5px;
+            height: 5px;
+            background: #ffffff;
+            box-shadow: 0 0 8px rgba(255, 255, 255, 0.5);
             animation: pulseDot 2s ease-in-out infinite;
         }
         .topbar-center .status-item .indicator.warn {
-            background: #ffd000;
-            animation-duration: 0.8s;
+            background: rgba(255, 255, 255, 0.65);
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.55);
+            animation-duration: 0.9s;
         }
 
         .topbar-right {
@@ -266,21 +273,17 @@
             font-size: 18px;
             letter-spacing: 0.06em;
             color: #ffffff;
-            background: transparent;
-            padding: 2px 0;
-            border: none;
-            text-shadow: 0 0 30px rgba(255, 208, 0, 0.1);
-            font-family: 'Orbitron', monospace;
+            text-shadow: 0 0 30px rgba(255, 255, 255, 0.12);
         }
         .topbar-right .date-display {
-            color: rgba(255, 255, 255, 0.2);
+            color: var(--ink-3);
             font-size: 11px;
-            font-weight: 300;
-            letter-spacing: 0.1em;
+            font-weight: 400;
+            letter-spacing: 0.12em;
         }
 
         /* ──────────────────────────────────────────────────────
-           MAIN GRID (3-COLUMN COMMAND CENTER)
+           MAIN GRID
            ────────────────────────────────────────────────────── */
         .main-grid {
             display: grid;
@@ -292,15 +295,14 @@
             z-index: 2;
         }
 
-        /* ─── PANEL BASE ─── */
         .panel {
-            background: rgba(0, 0, 0, 0.65);
-            border: 1px solid rgba(255, 255, 255, 0.04);
-            backdrop-filter: blur(4px);
+            background: rgba(8, 8, 8, 0.72);
+            border: 1px solid var(--line);
+            backdrop-filter: blur(6px);
             display: flex;
             flex-direction: column;
             overflow: hidden;
-            box-shadow: 0 0 40px rgba(0, 0, 0, 0.6);
+            box-shadow: 0 0 50px rgba(0, 0, 0, 0.7);
             position: relative;
         }
         .panel::before {
@@ -310,97 +312,115 @@
             left: 0;
             width: 100%;
             height: 1px;
-            background: linear-gradient(90deg, transparent, rgba(255, 208, 0, 0.15), transparent);
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.14), transparent);
         }
         .panel-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 14px 18px 10px 18px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+            padding: 14px 18px 11px 18px;
+            border-bottom: 1px solid var(--line);
             flex-shrink: 0;
         }
         .panel-header h2 {
+            display: flex;
+            align-items: center;
+            gap: 8px;
             font-family: 'Orbitron', monospace;
             font-size: 10px;
             font-weight: 700;
             letter-spacing: 0.2em;
             text-transform: uppercase;
-            color: rgba(255, 255, 255, 0.2);
+            color: var(--ink-2);
         }
-        .panel-header .badge {
-            font-family: 'Orbitron', monospace;
-            font-size: 7px;
-            font-weight: 400;
-            color: rgba(255, 208, 0, 0.4);
-            background: rgba(255, 208, 0, 0.05);
-            padding: 1px 10px;
-            border: 1px solid rgba(255, 208, 0, 0.06);
-            letter-spacing: 0.1em;
-        }
-
-        /* ─── FILES PANEL (LEFT) ─── */
-        .files-panel {
-            border-left: 2px solid rgba(255, 208, 0, 0.1);
-        }
-        .file-list {
-            flex: 1;
-            overflow-y: auto;
-            padding: 6px 12px 12px 12px;
-            display: flex;
-            flex-direction: column;
-            gap: 2px;
-        }
-        .file-item {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 8px 12px;
-            border-left: 2px solid transparent;
-            cursor: pointer;
-            transition: all 0.15s ease;
-            background: transparent;
-            border: 1px solid transparent;
-            border-left-width: 2px;
-        }
-        .file-item:hover {
-            background: rgba(255, 208, 0, 0.04);
-            border-color: rgba(255, 208, 0, 0.06);
-            border-left-color: #ffd000;
-            transform: translateX(2px);
-        }
-        .file-item:active {
-            transform: scale(0.98);
-            background: rgba(255, 208, 0, 0.08);
-        }
-        .file-item .icon-wrap {
-            width: 24px;
-            height: 24px;
-            flex-shrink: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: rgba(255, 255, 255, 0.2);
-        }
-        .file-item .icon-wrap svg {
-            width: 18px;
-            height: 18px;
+        .hdr-icon {
+            width: 12px;
+            height: 12px;
             fill: none;
             stroke: currentColor;
             stroke-width: 1.8;
             stroke-linecap: round;
             stroke-linejoin: round;
+            opacity: 0.9;
         }
+        .panel-header .badge {
+            font-family: 'Orbitron', monospace;
+            font-size: 7px;
+            font-weight: 500;
+            color: var(--ink-2);
+            background: var(--accent-soft);
+            padding: 3px 10px;
+            border: 1px solid var(--accent-line);
+            letter-spacing: 0.12em;
+        }
+
+        /* ─── FILES PANEL ─── */
+        .files-panel { border-left: 2px solid var(--accent-line); }
+        .file-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 8px 12px 12px 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+        .file-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 9px 12px;
+            cursor: pointer;
+            transition: background 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
+            background: var(--glass);
+            border: 1px solid var(--line);
+            border-left: 2px solid transparent;
+        }
+        .file-item:hover {
+            background: var(--glass-hover);
+            border-color: var(--line-strong);
+            border-left-color: #ffffff;
+            transform: translateX(2px);
+        }
+        .file-item:active {
+            transform: scale(0.985);
+            background: rgba(255, 255, 255, 0.06);
+        }
+
+        .file-item .icon-wrap {
+            width: 26px;
+            height: 26px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--ink-3);
+            transition: color 0.18s ease, filter 0.18s ease;
+        }
+        .file-item .icon-wrap svg {
+            width: 17px;
+            height: 17px;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 1.7;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+        .file-item:hover .icon-wrap {
+            color: #ffffff;
+            filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.35));
+        }
+
         .file-item .info {
             display: flex;
             flex-direction: column;
             flex: 1;
             min-width: 0;
+            gap: 2px;
         }
         .file-item .info .name {
             font-size: 12px;
             font-weight: 500;
-            color: #d0d0d0;
+            color: var(--ink-1);
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -408,42 +428,32 @@
         }
         .file-item .info .meta {
             font-size: 8px;
-            color: rgba(255, 255, 255, 0.08);
+            color: var(--ink-4);
             font-family: 'Orbitron', monospace;
-            letter-spacing: 0.06em;
+            letter-spacing: 0.08em;
             text-transform: uppercase;
         }
         .file-item .size {
             font-size: 9px;
-            color: rgba(255, 255, 255, 0.06);
+            color: var(--ink-4);
             font-family: 'Orbitron', monospace;
-        }
-        .file-item.folder .icon-wrap {
-            color: #ffd000;
-        }
-        .file-item.folder .info .name {
-            color: #ffffff;
-            font-weight: 600;
-        }
-        .file-item.pdf .icon-wrap {
-            color: #ff4444;
-        }
-        .file-item.csv .icon-wrap {
-            color: #44ff88;
-        }
-        .file-item.txt .icon-wrap {
-            color: #ffd700;
-        }
-        .file-item.img .icon-wrap {
-            color: #cc66ff;
-        }
-        .file-divider {
-            height: 1px;
-            background: rgba(255, 255, 255, 0.02);
-            margin: 4px 0 6px 12px;
+            letter-spacing: 0.04em;
         }
 
-        /* ─── CENTER PANEL (BORDERLESS, NO BLOCK) ─── */
+        .file-item.folder .icon-wrap { color: rgba(255, 255, 255, 0.78); }
+        .file-item.folder .info .name { color: #ffffff; font-weight: 600; }
+        .file-item.pdf  .icon-wrap { color: #c8ccd3; }
+        .file-item.csv  .icon-wrap { color: #cfd4db; }
+        .file-item.txt  .icon-wrap { color: #c2c7cf; }
+        .file-item.img  .icon-wrap { color: #d4d9e0; }
+
+        .file-divider {
+            height: 1px;
+            background: var(--line);
+            margin: 6px 0 7px 12px;
+        }
+
+        /* ─── CENTER PANEL ─── */
         .center-panel {
             background: transparent;
             border: none;
@@ -457,32 +467,29 @@
             box-shadow: none;
         }
         .center-panel::before,
-        .center-panel::after {
-            display: none;
-        }
+        .center-panel::after { display: none; }
 
         .hub-time {
             font-family: 'Orbitron', monospace;
-            font-size: 6.5rem;
+            font-size: clamp(3.2rem, 8.6vw, 6.5rem);
             font-weight: 900;
             color: #ffffff;
             letter-spacing: 0.08em;
-            text-shadow: 0 0 50px rgba(255, 208, 0, 0.1);
+            text-shadow: 0 0 60px rgba(255, 255, 255, 0.10);
             line-height: 1;
-            margin-bottom: 4px;
+            margin-bottom: 8px;
             z-index: 1;
             position: relative;
-            transition: all 0.05s ease;
         }
         .hub-date {
             font-family: 'Orbitron', monospace;
             font-size: 0.9rem;
             font-weight: 400;
-            color: rgba(255, 255, 255, 0.15);
-            letter-spacing: 0.3em;
+            color: var(--ink-3);
+            letter-spacing: 0.34em;
             text-transform: uppercase;
             z-index: 1;
-            margin-bottom: 16px;
+            margin-bottom: 18px;
         }
         .hub-status {
             display: flex;
@@ -491,12 +498,12 @@
             z-index: 1;
             font-family: 'Orbitron', monospace;
             font-size: 9px;
-            font-weight: 400;
-            letter-spacing: 0.1em;
-            color: rgba(255, 255, 255, 0.1);
-            border-top: 1px solid rgba(255, 208, 0, 0.05);
-            padding-top: 14px;
-            width: 60%;
+            font-weight: 500;
+            letter-spacing: 0.12em;
+            color: var(--ink-4);
+            border-top: 1px solid var(--line);
+            padding-top: 15px;
+            width: 62%;
             justify-content: center;
         }
         .hub-status .stat-item {
@@ -505,25 +512,25 @@
             gap: 8px;
         }
         .hub-status .stat-item .dot {
-            width: 4px;
-            height: 4px;
-            background: #00f0ff;
+            width: 5px;
+            height: 5px;
+            background: #ffffff;
+            box-shadow: 0 0 8px rgba(255, 255, 255, 0.45);
             animation: pulseDot 1.8s ease-in-out infinite;
         }
         .hub-status .stat-item .dot.orange {
-            background: #ffd000;
+            background: #ffffff;
+            box-shadow: 0 0 12px rgba(255, 255, 255, 0.7);
             animation-duration: 1s;
         }
 
-        /* ─── APPS PANEL (RIGHT) ─── */
-        .apps-panel {
-            border-right: 2px solid rgba(255, 208, 0, 0.1);
-        }
+        /* ─── APPS PANEL ─── */
+        .apps-panel { border-right: 2px solid var(--accent-line); }
         .apps-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 6px;
-            padding: 12px 14px 14px 14px;
+            gap: 7px;
+            padding: 14px;
             flex: 1;
             overflow-y: auto;
             align-content: start;
@@ -533,69 +540,156 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 12px 4px 10px 4px;
-            border: 1px solid rgba(255, 255, 255, 0.02);
-            background: rgba(255, 255, 255, 0.01);
+            padding: 13px 4px 11px 4px;
+            border: 1px solid var(--line);
+            background: var(--glass);
             cursor: pointer;
-            transition: all 0.15s ease;
+            transition: background 0.16s ease, border-color 0.16s ease,
+                        transform 0.16s ease, box-shadow 0.16s ease;
             text-align: center;
-            min-height: 80px;
+            min-height: 84px;
             position: relative;
         }
         .app-item:hover {
-            background: rgba(255, 208, 0, 0.04);
-            border-color: rgba(255, 208, 0, 0.08);
+            background: var(--glass-hover);
+            border-color: var(--line-strong);
             transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 10px 26px rgba(0, 0, 0, 0.6);
         }
         .app-item:active {
-            transform: scale(0.93);
-            background: rgba(255, 208, 0, 0.08);
+            transform: scale(0.94);
+            background: rgba(255, 255, 255, 0.07);
         }
         .app-item .app-icon {
-            width: 32px;
-            height: 32px;
+            width: 34px;
+            height: 34px;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: rgba(255, 255, 255, 0.2);
-            margin-bottom: 4px;
-            transition: color 0.2s ease;
+            color: rgba(255, 255, 255, 0.55);
+            margin-bottom: 6px;
+            transition: color 0.2s ease, filter 0.2s ease, transform 0.2s ease;
         }
         .app-item:hover .app-icon {
-            color: #ffd000;
+            color: #ffffff;
+            filter: drop-shadow(0 0 7px rgba(255, 255, 255, 0.35));
+            transform: scale(1.06);
         }
         .app-item .app-icon svg {
-            width: 24px;
-            height: 24px;
+            width: 23px;
+            height: 23px;
             fill: none;
             stroke: currentColor;
-            stroke-width: 1.6;
+            stroke-width: 1.55;
             stroke-linecap: round;
             stroke-linejoin: round;
         }
         .app-item .app-name {
             font-size: 7px;
             font-weight: 600;
-            color: rgba(255, 255, 255, 0.15);
-            letter-spacing: 0.1em;
+            color: var(--ink-3);
+            letter-spacing: 0.11em;
             text-transform: uppercase;
             font-family: 'Orbitron', monospace;
             transition: color 0.2s ease;
+            line-height: 1.35;
+            word-break: break-word;
         }
-        .app-item:hover .app-name {
-            color: rgba(255, 255, 255, 0.4);
-        }
+        .app-item:hover .app-name { color: #ffffff; }
         .app-item .app-shortcut {
             font-size: 6px;
-            color: rgba(255, 255, 255, 0.02);
-            margin-top: 2px;
+            color: var(--ink-5);
+            margin-top: 3px;
             font-family: 'Orbitron', monospace;
-            letter-spacing: 0.05em;
+            letter-spacing: 0.06em;
+        }
+
+        .app-item.running::after {
+            content: '';
+            position: absolute;
+            top: 6px;
+            right: 6px;
+            width: 5px;
+            height: 5px;
+            background: #ffffff;
+            box-shadow: 0 0 9px rgba(255, 255, 255, 0.8);
+            animation: pulseDot 1.8s ease-in-out infinite;
+        }
+
+        .app-item.hidden { display: none; }
+        .apps-empty {
+            display: none;
+            grid-column: 1 / -1;
+            padding: 22px 8px;
+            text-align: center;
+            font-family: 'Orbitron', monospace;
+            font-size: 8px;
+            font-weight: 500;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: var(--ink-4);
+        }
+        .apps-empty.visible { display: block; }
+
+        /* ─── APP SEARCH BAR ─── */
+        .apps-search {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-shrink: 0;
+            padding: 9px 14px;
+            border-top: 1px solid var(--line);
+            background: rgba(255, 255, 255, 0.022);
+            transition: border-color 0.25s ease, background 0.25s ease, box-shadow 0.25s ease;
+        }
+        .apps-search:focus-within {
+            border-top-color: var(--accent-line);
+            background: rgba(255, 255, 255, 0.04);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.10);
+        }
+        .apps-search .lead-icon {
+            width: 12px;
+            height: 12px;
+            flex-shrink: 0;
+            fill: none;
+            stroke: var(--ink-4);
+            stroke-width: 1.9;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            transition: stroke 0.25s ease;
+        }
+        .apps-search:focus-within .lead-icon { stroke: #ffffff; }
+        .apps-search input {
+            flex: 1;
+            min-width: 0;
+            background: transparent;
+            border: none;
+            outline: none;
+            color: var(--ink-1);
+            font-family: 'Orbitron', monospace;
+            font-size: 9px;
+            font-weight: 500;
+            letter-spacing: 0.1em;
+            padding: 3px 0;
+        }
+        .apps-search input::placeholder {
+            color: var(--ink-4);
+            text-transform: uppercase;
+            font-size: 8px;
+            letter-spacing: 0.14em;
+        }
+        .apps-search .kbd {
+            font-size: 7px;
+            color: var(--ink-3);
+            background: rgba(255, 255, 255, 0.05);
+            padding: 2px 6px;
+            border: 1px solid var(--line);
+            font-family: 'Orbitron', monospace;
+            flex-shrink: 0;
         }
 
         /* ──────────────────────────────────────────────────────
-           BOTTOM BAR (BORDERLESS)
+           BOTTOM BAR
            ────────────────────────────────────────────────────── */
         .bottombar {
             display: flex;
@@ -606,136 +700,611 @@
             flex-shrink: 0;
             position: relative;
             z-index: 2;
-            border-top: 1px solid rgba(255, 208, 0, 0.05);
+            border-top: 1px solid var(--line);
         }
         .bottombar-left {
             display: flex;
             align-items: center;
-            gap: 16px;
+            gap: 10px;
         }
         .bottombar-left .dock-item {
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 7px;
             font-size: 9px;
             font-weight: 600;
-            color: rgba(255, 255, 255, 0.1);
-            padding: 4px 14px;
-            border: 1px solid transparent;
-            transition: all 0.15s ease;
+            color: var(--ink-3);
+            padding: 5px 13px;
+            border: 1px solid var(--line);
+            background: var(--glass);
+            transition: color 0.15s ease, background 0.15s ease,
+                        border-color 0.15s ease, transform 0.1s ease;
             cursor: pointer;
             font-family: 'Orbitron', monospace;
             letter-spacing: 0.1em;
             text-transform: uppercase;
         }
+        .bottombar-left .dock-item svg {
+            width: 11px;
+            height: 11px;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 1.9;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            opacity: 0.85;
+        }
         .bottombar-left .dock-item:hover {
             color: #ffffff;
-            background: rgba(255, 255, 255, 0.02);
-            border-color: rgba(255, 255, 255, 0.04);
+            background: var(--glass-hover);
+            border-color: var(--line-strong);
         }
-        .bottombar-left .dock-item:active {
-            transform: scale(0.95);
-        }
+        .bottombar-left .dock-item:active { transform: scale(0.95); }
         .bottombar-left .dock-item .dot {
-            width: 4px;
-            height: 4px;
-            background: #ffd000;
-            opacity: 0.2;
+            width: 5px;
+            height: 5px;
+            background: #ffffff;
+            opacity: 0.35;
+            transition: opacity 0.2s ease, box-shadow 0.2s ease;
+        }
+        .bottombar-left .dock-item.active {
+            color: #ffffff;
+            border-color: var(--accent-line);
+            background: rgba(255, 255, 255, 0.05);
         }
         .bottombar-left .dock-item.active .dot {
             opacity: 1;
-            box-shadow: 0 0 12px rgba(255, 208, 0, 0.3);
-        }
-        .bottombar-left .dock-item.active {
-            color: rgba(255, 255, 255, 0.3);
+            box-shadow: 0 0 12px rgba(255, 255, 255, 0.7);
         }
 
         .search-box {
             display: flex;
             align-items: center;
             gap: 8px;
-            background: rgba(255, 255, 255, 0.01);
-            border: 1px solid rgba(255, 255, 255, 0.03);
-            padding: 2px 12px 2px 16px;
-            transition: all 0.25s ease;
+            background: rgba(255, 255, 255, 0.035);
+            border: 1px solid var(--line-strong);
+            padding: 4px 12px 4px 14px;
+            transition: border-color 0.25s ease, background 0.25s ease, box-shadow 0.25s ease;
         }
         .search-box:focus-within {
-            border-color: rgba(255, 208, 0, 0.10);
-            background: rgba(255, 208, 0, 0.01);
+            border-color: var(--accent-line);
+            background: rgba(255, 255, 255, 0.05);
+            box-shadow: 0 0 18px rgba(255, 255, 255, 0.06);
         }
+        .search-box .lead { color: var(--ink-4); font-size: 10px; }
         .search-box input {
             background: transparent;
             border: none;
             outline: none;
-            color: #d0d0d0;
+            color: var(--ink-1);
             font-size: 10px;
-            font-weight: 400;
+            font-weight: 500;
             padding: 4px 0;
-            width: 120px;
+            width: 130px;
             font-family: 'Orbitron', monospace;
-            letter-spacing: 0.06em;
+            letter-spacing: 0.07em;
         }
         .search-box input::placeholder {
-            color: rgba(255, 255, 255, 0.04);
+            color: var(--ink-4);
             text-transform: uppercase;
             font-size: 8px;
-            letter-spacing: 0.1em;
+            letter-spacing: 0.14em;
         }
         .search-box .kbd {
             font-size: 7px;
-            color: rgba(255, 255, 255, 0.02);
-            background: rgba(255, 255, 255, 0.01);
-            padding: 0px 6px;
-            border: 1px solid rgba(255, 255, 255, 0.02);
+            color: var(--ink-3);
+            background: rgba(255, 255, 255, 0.05);
+            padding: 2px 6px;
+            border: 1px solid var(--line);
             font-family: 'Orbitron', monospace;
         }
 
         .bottombar-right {
             display: flex;
             align-items: center;
-            gap: 16px;
+            gap: 14px;
             font-family: 'Orbitron', monospace;
             font-size: 8px;
-            color: rgba(255, 255, 255, 0.04);
-            letter-spacing: 0.06em;
+            color: var(--ink-4);
+            letter-spacing: 0.08em;
         }
         .bottombar-right .sys-stat {
             display: flex;
             align-items: center;
             gap: 8px;
-            padding: 2px 12px;
-            border: 1px solid rgba(255, 255, 255, 0.01);
+            padding: 3px 12px;
+            border: 1px solid var(--line);
+            background: var(--glass);
         }
         .bottombar-right .sys-stat .bar {
-            width: 40px;
-            height: 2px;
-            background: rgba(255, 255, 255, 0.02);
+            width: 42px;
+            height: 3px;
+            background: rgba(255, 255, 255, 0.06);
             overflow: hidden;
         }
         .bottombar-right .sys-stat .bar .fill {
             height: 100%;
             width: 62%;
-            background: #ffd000;
-            transition: width 1.2s ease;
+            background: #ffffff;
+            transition: width 1.2s ease, background 0.4s ease;
+            box-shadow: 0 0 8px rgba(255, 255, 255, 0.35);
         }
         .bottombar-right .sys-stat .bar .fill.warn {
-            background: #ffaa00;
+            background: rgba(255, 255, 255, 0.72);
         }
         .bottombar-right .sys-stat .bar .fill.danger {
-            background: #ff3333;
+            background: rgba(255, 255, 255, 0.55);
+            box-shadow: 0 0 8px rgba(255, 255, 255, 0.5);
         }
+        .bottombar-right .sep { opacity: 0.25; }
 
         /* ──────────────────────────────────────────────────────
            SCROLLBAR
            ────────────────────────────────────────────────────── */
-        ::-webkit-scrollbar {
-            width: 2px;
+        ::-webkit-scrollbar { width: 3px; }
+        ::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.02); }
+        ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.14); }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.45); }
+
+        /* ──────────────────────────────────────────────────────
+           GLITCH ENGINE
+           ────────────────────────────────────────────────────── */
+        .glitch-wrapper {
+            position: relative;
+            display: inline-block;
+            will-change: transform;
         }
-        ::-webkit-scrollbar-track {
-            background: rgba(255, 255, 255, 0.01);
+        .glitch-text {
+            display: block;
+            position: relative;
+            will-change: transform, opacity;
         }
-        ::-webkit-scrollbar-thumb {
-            background: rgba(255, 208, 0, 0.15);
+        .glitch-active .glitch-text::before,
+        .glitch-active .glitch-text::after {
+            content: attr(data-text);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            white-space: nowrap;
+        }
+        .glitch-active .glitch-text::before {
+            color: #ffffff;
+            text-shadow: 2px 0 0 rgba(255, 255, 255, 0.55);
+            clip-path: polygon(0 0, 100% 0, 100% 36%, 0 36%);
+            animation: glitchBefore 0.16s steps(2, end) infinite;
+            opacity: 0.9;
+        }
+        .glitch-active .glitch-text::after {
+            color: #8f959c;
+            text-shadow: -2px 0 0 rgba(255, 255, 255, 0.28);
+            clip-path: polygon(0 62%, 100% 62%, 100% 100%, 0 100%);
+            animation: glitchAfter 0.16s steps(2, end) infinite;
+            opacity: 0.9;
+        }
+        @keyframes glitchBefore {
+            0%   { transform: translate(0, 0); }
+            25%  { transform: translate(-6px, -1px); }
+            50%  { transform: translate(4px, 1px); }
+            75%  { transform: translate(-3px, 2px); }
+            100% { transform: translate(0, 0); }
+        }
+        @keyframes glitchAfter {
+            0%   { transform: translate(0, 0); }
+            25%  { transform: translate(5px, 1px); }
+            50%  { transform: translate(-5px, -2px); }
+            75%  { transform: translate(3px, -1px); }
+            100% { transform: translate(0, 0); }
+        }
+        .glitch-wrapper::after {
+            content: '';
+            position: absolute;
+            left: -8%;
+            right: -8%;
+            top: 0;
+            height: 100%;
+            background: repeating-linear-gradient(0deg,
+                    rgba(255, 255, 255, 0.10) 0px,
+                    rgba(255, 255, 255, 0.10) 1px,
+                    transparent 1px,
+                    transparent 5px);
+            opacity: 0;
+            pointer-events: none;
+            mix-blend-mode: screen;
+        }
+        .glitch-active.glitch-wrapper::after {
+            opacity: 1;
+            animation: tearSlide 0.22s steps(4, end) infinite;
+        }
+        @keyframes tearSlide {
+            0%   { transform: translateY(0); }
+            100% { transform: translateY(5px); }
+        }
+        .glitch-active .glitch-text {
+            animation: glitchFlicker 0.12s steps(2, end) infinite;
+        }
+        @keyframes glitchFlicker {
+            0%   { opacity: 1; }
+            40%  { opacity: 0.72; }
+            70%  { opacity: 1; }
+            100% { opacity: 0.85; }
+        }
+
+        /* ──────────────────────────────────────────────────────
+           APP WINDOWS
+           ────────────────────────────────────────────────────── */
+        .window-layer {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 5000;
+        }
+
+        .app-window {
+            position: absolute;
+            pointer-events: auto;
+            display: flex;
+            flex-direction: column;
+            min-width: 280px;
+            min-height: 180px;
+            background: rgba(9, 9, 9, 0.90);
+            border: 1px solid var(--line-strong);
+            backdrop-filter: blur(16px);
+            box-shadow:
+                0 34px 90px rgba(0, 0, 0, 0.85),
+                0 0 0 1px rgba(255, 255, 255, 0.02),
+                inset 0 1px 0 rgba(255, 255, 255, 0.05);
+            overflow: hidden;
+            opacity: 0;
+            transform: scale(0.94);
+            transition: opacity 0.18s ease, transform 0.2s cubic-bezier(0.2, 0.9, 0.3, 1.15);
+            will-change: transform, opacity;
+        }
+        .app-window.open {
+            opacity: 1;
+            transform: scale(1);
+        }
+        .app-window.minimized {
+            opacity: 0;
+            transform: scale(0.86) translateY(60px);
+            pointer-events: none;
+        }
+        .app-window.focused {
+            border-color: var(--accent-line);
+            box-shadow:
+                0 34px 100px rgba(0, 0, 0, 0.92),
+                0 0 0 1px rgba(255, 255, 255, 0.10),
+                0 0 40px rgba(255, 255, 255, 0.05),
+                inset 0 1px 0 rgba(255, 255, 255, 0.06);
+        }
+
+        .app-window.maximized {
+            left: 0 !important;
+            top: 0 !important;
+            width: 100vw !important;
+            height: 100vh !important;
+            border: none;
+            border-radius: 0;
+            box-shadow: none;
+            backdrop-filter: blur(20px);
+        }
+        .app-window.maximized.focused {
+            border: none;
+            box-shadow: none;
+        }
+        .app-window.maximized .resize-handle { display: none; }
+
+        /* ─── RESIZE HANDLES ─── */
+        .resize-handle {
+            position: absolute;
+            z-index: 15;
+            touch-action: none;
+        }
+        .resize-handle.n  { top: 0;    left: 12px;  right: 12px; height: 5px;  cursor: ns-resize; }
+        .resize-handle.s  { bottom: 0; left: 12px;  right: 12px; height: 5px;  cursor: ns-resize; }
+        .resize-handle.e  { right: 0;  top: 12px;   bottom: 12px; width: 5px;  cursor: ew-resize; }
+        .resize-handle.w  { left: 0;   top: 12px;   bottom: 12px; width: 5px;  cursor: ew-resize; }
+        .resize-handle.ne { top: 0;    right: 0;    width: 14px; height: 14px; cursor: nesw-resize; }
+        .resize-handle.nw { top: 0;    left: 0;     width: 14px; height: 14px; cursor: nwse-resize; }
+        .resize-handle.se { bottom: 0; right: 0;    width: 14px; height: 14px; cursor: nwse-resize; }
+        .resize-handle.sw { bottom: 0; left: 0;     width: 14px; height: 14px; cursor: nesw-resize; }
+
+        .app-window:not(.maximized) .resize-handle:hover {
+            background: rgba(255, 255, 255, 0.10);
+        }
+
+        /* ─── TITLE BAR ─── */
+        .win-titlebar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            padding: 9px 10px 9px 14px;
+            border-bottom: 1px solid var(--line);
+            background: rgba(255, 255, 255, 0.022);
+            flex-shrink: 0;
+            cursor: grab;
+            touch-action: none;
+            position: relative;
+            z-index: 16;
+        }
+        .win-titlebar:active { cursor: grabbing; }
+
+        .win-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-width: 0;
+            flex: 1;
+        }
+        .win-title-icon {
+            width: 15px;
+            height: 15px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ffffff;
+        }
+        .win-title-icon svg {
+            width: 15px;
+            height: 15px;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 1.7;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+        .win-title-text {
+            font-family: 'Orbitron', monospace;
+            font-size: 9px;
+            font-weight: 700;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: var(--ink-1);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .win-controls {
+            display: flex;
+            align-items: center;
+            gap: 3px;
+            flex-shrink: 0;
+            position: relative;
+            z-index: 17;
+        }
+        .win-btn {
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: transparent;
+            border: 1px solid transparent;
+            color: var(--ink-3);
+            cursor: pointer;
+            padding: 0;
+            transition: color 0.15s ease, background 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .win-btn svg {
+            width: 11px;
+            height: 11px;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            pointer-events: none;
+        }
+        .win-btn:hover {
+            color: #ffffff;
+            background: rgba(255, 255, 255, 0.07);
+            border-color: var(--line-strong);
+        }
+        .win-btn:active { transform: scale(0.9); }
+        .win-btn.close:hover {
+            color: #ffffff;
+            background: rgba(255, 255, 255, 0.14);
+            border-color: rgba(255, 255, 255, 0.30);
+        }
+
+        /* ─── WINDOW BODY ─── */
+        .win-body {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            min-height: 0;
+            overflow: hidden;
+        }
+        .win-toolbar {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            padding: 9px 14px;
+            border-bottom: 1px solid var(--line);
+            flex-shrink: 0;
+            flex-wrap: wrap;
+        }
+        .win-tag {
+            font-family: 'Orbitron', monospace;
+            font-size: 7px;
+            font-weight: 500;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: var(--ink-4);
+            padding: 3px 9px;
+            border: 1px solid var(--line);
+            background: var(--glass);
+        }
+        .win-tag.live {
+            color: #ffffff;
+            background: rgba(255, 255, 255, 0.07);
+            border-color: var(--accent-line);
+        }
+
+        .win-scroll {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px 16px 18px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .win-hero {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 14px;
+            border: 1px solid var(--line);
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.012));
+        }
+        .win-hero-icon {
+            width: 42px;
+            height: 42px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid var(--accent-line);
+            background: rgba(255, 255, 255, 0.06);
+            color: #ffffff;
+        }
+        .win-hero-icon svg {
+            width: 22px;
+            height: 22px;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 1.5;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+        .win-hero-text { min-width: 0; }
+        .win-hero-text h3 {
+            font-family: 'Orbitron', monospace;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: #ffffff;
+            margin-bottom: 4px;
+        }
+        .win-hero-text p {
+            font-size: 10px;
+            color: var(--ink-3);
+            letter-spacing: 0.04em;
+        }
+
+        .win-rows {
+            display: flex;
+            flex-direction: column;
+            border: 1px solid var(--line);
+            background: rgba(255, 255, 255, 0.012);
+        }
+        .win-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 9px 13px;
+            border-bottom: 1px solid var(--line);
+            font-family: 'Orbitron', monospace;
+            font-size: 8px;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+        }
+        .win-row:last-child { border-bottom: none; }
+        .win-row > span:first-child { color: var(--ink-4); }
+        .win-row .val { color: var(--ink-2); }
+        .win-row .val.ok { color: #ffffff; }
+
+        .win-log {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            padding: 12px 14px;
+            border: 1px solid var(--line);
+            background: rgba(0, 0, 0, 0.4);
+            font-family: 'Orbitron', monospace;
+            font-size: 8px;
+            letter-spacing: 0.06em;
+            color: var(--ink-4);
+        }
+        .win-log-line { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .win-log-line::first-letter { color: #ffffff; }
+
+        /* ─── WINDOW TRAY ─── */
+        .window-tray {
+            position: fixed;
+            bottom: 82px;
+            left: 50%;
+            transform: translateX(-50%) translateY(10px);
+            display: none;
+            align-items: center;
+            gap: 7px;
+            padding: 7px;
+            background: rgba(8, 8, 8, 0.88);
+            border: 1px solid var(--line-strong);
+            backdrop-filter: blur(12px);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
+            z-index: 5500;
+            max-width: calc(100vw - 40px);
+            overflow-x: auto;
+            opacity: 0;
+            transition: opacity 0.2s ease, transform 0.2s ease;
+        }
+        .window-tray.has-items {
+            display: flex;
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+        .tray-chip {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 7px 13px;
+            border: 1px solid var(--line);
+            background: var(--glass);
+            cursor: pointer;
+            font-family: 'Orbitron', monospace;
+            font-size: 7px;
+            font-weight: 600;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--ink-3);
+            white-space: nowrap;
+            transition: color 0.16s ease, background 0.16s ease,
+                        border-color 0.16s ease, transform 0.12s ease;
+        }
+        .tray-chip:hover {
+            color: #ffffff;
+            border-color: var(--accent-line);
+            background: rgba(255, 255, 255, 0.06);
+            transform: translateY(-1px);
+        }
+        .tray-chip:active { transform: scale(0.96); }
+        .tray-chip .chip-icon {
+            width: 12px;
+            height: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ffffff;
+            flex-shrink: 0;
+        }
+        .tray-chip .chip-icon svg {
+            width: 12px;
+            height: 12px;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 1.7;
+            stroke-linecap: round;
+            stroke-linejoin: round;
         }
 
         /* ──────────────────────────────────────────────────────
@@ -746,254 +1315,80 @@
                 grid-template-columns: 240px 1fr 260px;
                 gap: 12px;
             }
-            .hub-time {
-                font-size: 4.5rem;
-            }
-            .topbar-center {
-                display: none;
-            }
+            .topbar-center { display: none; }
         }
 
         @media (max-width: 768px) {
-            .desktop {
-                padding: 10px 12px 10px 12px;
-            }
+            .desktop { padding: 10px 12px; }
             .topbar {
                 flex-wrap: wrap;
                 gap: 6px;
                 padding: 6px 0;
             }
-            .topbar-center {
-                display: none;
-            }
+            .topbar-center { display: none; }
             .main-grid {
                 grid-template-columns: 1fr;
                 grid-template-rows: auto 1fr auto;
                 gap: 10px;
             }
             .files-panel {
-                max-height: 160px;
+                max-height: 170px;
                 border-left: none;
-                border-top: 2px solid rgba(255, 208, 0, 0.1);
+                border-top: 2px solid var(--accent-line);
             }
             .center-panel {
                 min-height: 180px;
                 padding: 10px 0;
             }
-            .hub-time {
-                font-size: 3.8rem;
-            }
             .apps-panel {
-                max-height: 200px;
+                max-height: 240px;
                 border-right: none;
-                border-bottom: 2px solid rgba(255, 208, 0, 0.1);
+                border-bottom: 2px solid var(--accent-line);
             }
-            .apps-grid {
-                grid-template-columns: repeat(4, 1fr);
-            }
+            .apps-grid { grid-template-columns: repeat(4, 1fr); }
             .bottombar {
                 flex-wrap: wrap;
-                gap: 6px;
-                padding: 6px 0;
+                gap: 8px;
+                padding: 8px 0;
             }
-            .bottombar-left {
-                flex-wrap: wrap;
-                gap: 4px;
-            }
-            .search-box input {
-                width: 80px;
-            }
-            .topbar-right .date-display {
-                display: none;
-            }
-            .hub-status {
-                width: 90%;
-            }
+            .bottombar-left { flex-wrap: wrap; gap: 6px; }
+            .search-box input { width: 90px; }
+            .topbar-right .date-display { display: none; }
+            .hub-status { width: 92%; gap: 18px; }
+            .window-tray { bottom: 96px; }
         }
 
         @media (max-width: 480px) {
-            .topbar-right .time-display {
-                font-size: 14px;
-            }
-            .hub-time {
-                font-size: 3rem;
-            }
-            .apps-grid {
-                grid-template-columns: repeat(3, 1fr);
-            }
+            .topbar-right .time-display { font-size: 14px; }
+            .apps-grid { grid-template-columns: repeat(3, 1fr); }
             .app-item {
-                min-height: 60px;
-                padding: 6px 2px 4px 2px;
+                min-height: 66px;
+                padding: 8px 2px 6px 2px;
             }
-            .app-item .app-icon {
-                width: 24px;
-                height: 24px;
-            }
-            .app-item .app-icon svg {
-                width: 18px;
-                height: 18px;
-            }
-            .app-item .app-name {
-                font-size: 6px;
-            }
-            .file-item .info .meta {
-                display: none;
-            }
-            .file-item .size {
-                display: none;
-            }
-            .files-panel {
-                max-height: 120px;
-            }
-            .bottombar-left .dock-item {
-                font-size: 7px;
-                padding: 2px 8px;
-            }
-            .search-box input {
-                width: 60px;
-                font-size: 8px;
-            }
-        }
-
-        /* ──────────────────────────────────────────────────────
-           HARD GLITCH EFFECTS
-           ────────────────────────────────────────────────────── */
-        .glitch-wrapper {
-            position: relative;
-            display: inline-block;
-        }
-
-        .glitch-text {
-            display: block;
-            position: relative;
-        }
-
-        .glitch-text .line {
-            display: block;
-        }
-
-        .glitch-active .glitch-text::before,
-        .glitch-active .glitch-text::after {
-            content: attr(data-text);
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: transparent;
-            pointer-events: none;
-            opacity: 0.8;
-        }
-
-        .glitch-active .glitch-text::before {
-            color: #ff00c8;
-            z-index: -1;
-            animation: glitch-before 0.15s cubic-bezier(0.25, 0.46, 0.45, 0.94) both infinite;
-            clip-path: polygon(0 0, 100% 0, 100% 35%, 0 35%);
-        }
-
-        .glitch-active .glitch-text::after {
-            color: #00f0ff;
-            z-index: -2;
-            animation: glitch-after 0.15s cubic-bezier(0.25, 0.46, 0.45, 0.94) both infinite;
-            clip-path: polygon(0 65%, 100% 65%, 100% 100%, 0 100%);
-        }
-
-        @keyframes glitch-before {
-            0% {
-                transform: translate(0);
-            }
-            20% {
-                transform: translate(-3px, 2px);
-            }
-            40% {
-                transform: translate(3px, -1px);
-            }
-            60% {
-                transform: translate(-1px, 2px);
-            }
-            80% {
-                transform: translate(2px, -2px);
-            }
-            100% {
-                transform: translate(0);
-            }
-        }
-
-        @keyframes glitch-after {
-            0% {
-                transform: translate(0);
-            }
-            20% {
-                transform: translate(3px, -1px);
-            }
-            40% {
-                transform: translate(-3px, 2px);
-            }
-            60% {
-                transform: translate(1px, -2px);
-            }
-            80% {
-                transform: translate(-2px, 1px);
-            }
-            100% {
-                transform: translate(0);
-            }
-        }
-
-        /* Random flicker */
-        .glitch-flicker {
-            animation: flicker 0.08s infinite alternate;
-        }
-
-        @keyframes flicker {
-            0% {
-                opacity: 1;
-            }
-            50% {
-                opacity: 0.2;
-            }
-            100% {
-                opacity: 1;
-            }
-        }
-
-        /* Screen tear effect */
-        .glitch-tear {
-            position: relative;
-        }
-        .glitch-tear::after {
-            content: '';
-            position: absolute;
-            top: 10%;
-            left: 0;
-            width: 100%;
-            height: 2px;
-            background: rgba(255, 208, 0, 0.3);
-            box-shadow: 0 0 10px rgba(255, 208, 0, 0.2);
-            pointer-events: none;
-            animation: tearSlide 0.3s linear infinite;
-        }
-        @keyframes tearSlide {
-            0% {
-                transform: translateY(0);
-            }
-            100% {
-                transform: translateY(40px);
-            }
+            .app-item .app-icon { width: 26px; height: 26px; }
+            .app-item .app-icon svg { width: 18px; height: 18px; }
+            .app-item .app-name { font-size: 6px; }
+            .file-item .info .meta,
+            .file-item .size { display: none; }
+            .files-panel { max-height: 130px; }
+            .bottombar-left .dock-item { font-size: 7px; padding: 4px 8px; }
+            .search-box input { width: 70px; font-size: 8px; }
+            .tray-chip { font-size: 6px; padding: 6px 9px; }
         }
     </style>
 </head>
 <body>
 
-    <!-- ─── SCANLINE ─── -->
     <div class="scanline"></div>
-    <!-- ─── GLITCH LINE ─── -->
     <div class="glitch-line"></div>
+    <div class="screen-glitch" id="screenGlitch"></div>
+
+    <div class="window-layer" id="windowLayer"></div>
+    <div class="window-tray" id="windowTray"></div>
 
     <div class="desktop">
 
-        <!-- ═══ TOP BAR (BORDERLESS) ═══ -->
+        <!-- ═══ TOP BAR ═══ -->
         <header class="topbar">
             <div class="topbar-left">
                 <div class="brand">
@@ -1009,8 +1404,8 @@
                 <span class="status-item">
                     <span class="indicator warn"></span> ENCRYPTION
                 </span>
-                <span class="status-item" style="border-color:transparent;background:transparent;">
-                    <span style="opacity:0.1;">●</span> 12 NODES
+                <span class="status-item">
+                    <span style="opacity:0.35;">●</span> 12 NODES
                 </span>
             </div>
             <div class="topbar-right">
@@ -1022,10 +1417,13 @@
         <!-- ═══ MAIN GRID ═══ -->
         <div class="main-grid">
 
-            <!-- ─── FILES PANEL ─── -->
+            <!-- FILES PANEL -->
             <section class="panel files-panel">
                 <div class="panel-header">
-                    <h2>📁 ASSETS</h2>
+                    <h2>
+                        <svg class="hdr-icon" viewBox="0 0 24 24"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+                        ASSETS
+                    </h2>
                     <span class="badge">12 ITEMS</span>
                 </div>
                 <div class="file-list">
@@ -1072,7 +1470,7 @@
                     <div class="file-divider"></div>
                     <div class="file-item pdf">
                         <span class="icon-wrap">
-                            <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                            <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
                         </span>
                         <div class="info">
                             <span class="name">Q3_ASSESSMENT.pdf</span>
@@ -1092,7 +1490,7 @@
                     </div>
                     <div class="file-item txt">
                         <span class="icon-wrap">
-                            <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                            <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
                         </span>
                         <div class="info">
                             <span class="name">BRIEFING_NOTES.txt</span>
@@ -1113,7 +1511,7 @@
                 </div>
             </section>
 
-            <!-- ─── CENTER PANEL (BORDERLESS, FLOATING) ─── -->
+            <!-- CENTER PANEL -->
             <section class="panel center-panel">
                 <div class="hub-time glitch-wrapper" id="hubTimeWrapper">
                     <span class="glitch-text" data-text="14:32:07" id="hubTime">14:32:07</span>
@@ -1127,118 +1525,183 @@
                         <span class="dot orange"></span> TARGET LOCK
                     </span>
                     <span class="stat-item">
-                        <span style="opacity:0.1;">●</span> 256-BIT
+                        <span style="opacity:0.35;">●</span> 256-BIT
                     </span>
                 </div>
             </section>
 
-            <!-- ─── APPS PANEL ─── -->
+            <!-- APPS PANEL -->
             <section class="panel apps-panel">
                 <div class="panel-header">
-                    <h2>⚡ TOOLKIT</h2>
-                    <span class="badge">12 APPS</span>
+                    <h2>
+                        <svg class="hdr-icon" viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                        TOOLKIT
+                    </h2>
+                    <span class="badge" id="appsBadge">16 APPS</span>
                 </div>
-                <div class="apps-grid">
-                    <div class="app-item">
+                <div class="apps-grid" id="appsGrid">
+
+                    <div class="app-item" data-name="Browser">
                         <span class="app-icon">
-                            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H5.78a1.65 1.65 0 0 0-1.51 1 1.65 1.65 0 0 0 .33 1.82l.68.68a2 2 0 0 0 1.41.59h9.62a2 2 0 0 0 1.41-.59l.68-.68z"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+                            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
                         </span>
-                        <span class="app-name">SURVEILLANCE</span>
-                        <span class="app-shortcut">⌘S</span>
+                        <span class="app-name">Browser</span>
+                        <span class="app-shortcut">⌘B</span>
                     </div>
-                    <div class="app-item">
+
+                    <div class="app-item" data-name="Offline Browser">
                         <span class="app-icon">
-                            <svg viewBox="0 0 24 24"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/><path d="M5 12l7-7 7 7-7 7"/></svg>
+                            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/><line x1="3" y1="3" x2="21" y2="21"/></svg>
                         </span>
-                        <span class="app-name">SIGNALS</span>
-                        <span class="app-shortcut">⌘G</span>
+                        <span class="app-name">Offline Browser</span>
+                        <span class="app-shortcut">⌘⇧B</span>
                     </div>
-                    <div class="app-item">
+
+                    <div class="app-item" data-name="Calendar">
                         <span class="app-icon">
-                            <svg viewBox="0 0 24 24"><path d="M12 2a2 2 0 0 1 2 2c0 .74-.4 1.39-1 1.73V8h1a7 7 0 0 1 7 7h1a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1.27A7 7 0 0 1 14 22h-4a7 7 0 0 1-6.73-5H2a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h1a7 7 0 0 1 7-7h1V5.73c-.6-.34-1-.99-1-1.73a2 2 0 0 1 2-2z"/><circle cx="9" cy="14" r="1"/><circle cx="15" cy="14" r="1"/><path d="M9 17h6"/></svg>
+                            <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
                         </span>
-                        <span class="app-name">AI CORE</span>
-                        <span class="app-shortcut">⌘A</span>
+                        <span class="app-name">Calendar</span>
+                        <span class="app-shortcut">⌘C</span>
                     </div>
-                    <div class="app-item">
+
+                    <div class="app-item" data-name="Clock">
                         <span class="app-icon">
-                            <svg viewBox="0 0 24 24"><polygon points="3 11 9 2 15 11 21 2 21 22 15 13 9 22 3 13 3 11"/></svg>
+                            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
                         </span>
-                        <span class="app-name">MAPS</span>
+                        <span class="app-name">Clock</span>
+                        <span class="app-shortcut">⌘L</span>
+                    </div>
+
+                    <div class="app-item" data-name="Cloud Data">
+                        <span class="app-icon">
+                            <svg viewBox="0 0 24 24"><path d="M18 17a4 4 0 0 0 .6-7.96A6 6 0 0 0 6.7 8.2 4.5 4.5 0 0 0 6.5 17z"/><line x1="12" y1="10" x2="12" y2="15.5"/><polyline points="9.5 13 12 15.5 14.5 13"/></svg>
+                        </span>
+                        <span class="app-name">Cloud Data</span>
+                        <span class="app-shortcut">⌘D</span>
+                    </div>
+
+                    <div class="app-item" data-name="Communication">
+                        <span class="app-icon">
+                            <svg viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8z"/></svg>
+                        </span>
+                        <span class="app-name">Communication</span>
                         <span class="app-shortcut">⌘M</span>
                     </div>
-                    <div class="app-item">
+
+                    <div class="app-item" data-name="Docs">
                         <span class="app-icon">
-                            <svg viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M22 7l-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+                            <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
                         </span>
-                        <span class="app-name">SECURE MAIL</span>
-                        <span class="app-shortcut">⌘E</span>
-                    </div>
-                    <div class="app-item">
-                        <span class="app-icon">
-                            <svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-                        </span>
-                        <span class="app-name">ANALYTICS</span>
-                        <span class="app-shortcut">⌘N</span>
-                    </div>
-                    <div class="app-item">
-                        <span class="app-icon">
-                            <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-                        </span>
-                        <span class="app-name">VAULT</span>
-                        <span class="app-shortcut">⌘V</span>
-                    </div>
-                    <div class="app-item">
-                        <span class="app-icon">
-                            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
-                        </span>
-                        <span class="app-name">TARGETS</span>
-                        <span class="app-shortcut">⌘T</span>
-                    </div>
-                    <div class="app-item">
-                        <span class="app-icon">
-                            <svg viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
-                        </span>
-                        <span class="app-name">TOOLS</span>
-                        <span class="app-shortcut">⌘O</span>
-                    </div>
-                    <div class="app-item">
-                        <span class="app-icon">
-                            <svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
-                        </span>
-                        <span class="app-name">NOTES</span>
-                        <span class="app-shortcut">⌘P</span>
-                    </div>
-                    <div class="app-item">
-                        <span class="app-icon">
-                            <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg>
-                        </span>
-                        <span class="app-name">FIREWALL</span>
-                        <span class="app-shortcut">⌘F</span>
-                    </div>
-                    <div class="app-item">
-                        <span class="app-icon">
-                            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="2"/><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="M12 2v20"/><path d="M2 12h20"/></svg>
-                        </span>
-                        <span class="app-name">NETWORK</span>
+                        <span class="app-name">Docs</span>
                         <span class="app-shortcut">⌘W</span>
                     </div>
+
+                    <div class="app-item" data-name="Identities">
+                        <span class="app-icon">
+                            <svg viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"/><circle cx="8.5" cy="11" r="2.5"/><path d="M4.5 17a4 4 0 0 1 8 0"/><line x1="14" y1="10" x2="19" y2="10"/><line x1="14" y1="14" x2="19" y2="14"/></svg>
+                        </span>
+                        <span class="app-name">Identities</span>
+                        <span class="app-shortcut">⌘I</span>
+                    </div>
+
+                    <div class="app-item" data-name="Intel Gathering">
+                        <span class="app-icon">
+                            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="1"/><line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/></svg>
+                        </span>
+                        <span class="app-name">Intel Gathering</span>
+                        <span class="app-shortcut">⌘N</span>
+                    </div>
+
+                    <div class="app-item" data-name="Linktrace">
+                        <span class="app-icon">
+                            <svg viewBox="0 0 24 24"><circle cx="5" cy="6" r="2.5"/><circle cx="19" cy="6" r="2.5"/><circle cx="12" cy="18" r="2.5"/><line x1="7.5" y1="6" x2="16.5" y2="6"/><line x1="6.6" y1="8.2" x2="10.6" y2="15.8"/><line x1="17.4" y1="8.2" x2="13.4" y2="15.8"/></svg>
+                        </span>
+                        <span class="app-name">Linktrace</span>
+                        <span class="app-shortcut">⌘T</span>
+                    </div>
+
+                    <div class="app-item" data-name="Map">
+                        <span class="app-icon">
+                            <svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                        </span>
+                        <span class="app-name">Map</span>
+                        <span class="app-shortcut">⌘P</span>
+                    </div>
+
+                    <div class="app-item" data-name="Passwords">
+                        <span class="app-icon">
+                            <svg viewBox="0 0 24 24"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
+                        </span>
+                        <span class="app-name">Passwords</span>
+                        <span class="app-shortcut">⌘V</span>
+                    </div>
+
+                    <div class="app-item" data-name="Recon">
+                        <span class="app-icon">
+                            <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="8" y1="11" x2="14" y2="11"/><line x1="11" y1="8" x2="11" y2="14"/></svg>
+                        </span>
+                        <span class="app-name">Recon</span>
+                        <span class="app-shortcut">⌘R</span>
+                    </div>
+
+                    <div class="app-item" data-name="Records">
+                        <span class="app-icon">
+                            <svg viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+                        </span>
+                        <span class="app-name">Records</span>
+                        <span class="app-shortcut">⌘H</span>
+                    </div>
+
+                    <div class="app-item" data-name="Sheets">
+                        <span class="app-icon">
+                            <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/></svg>
+                        </span>
+                        <span class="app-name">Sheets</span>
+                        <span class="app-shortcut">⌘E</span>
+                    </div>
+
+                    <div class="app-item" data-name="Voice Record">
+                        <span class="app-icon">
+                            <svg viewBox="0 0 24 24"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="8" y1="22" x2="16" y2="22"/></svg>
+                        </span>
+                        <span class="app-name">Voice Record</span>
+                        <span class="app-shortcut">⌘U</span>
+                    </div>
+
+                    <div class="apps-empty" id="appsEmpty">NO MATCHING APP</div>
+
+                </div>
+
+                <div class="apps-search">
+                    <svg class="lead-icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    <input type="text" id="appSearchInput" placeholder="FILTER APPS" autocomplete="off" spellcheck="false" />
+                    <span class="kbd">/</span>
                 </div>
             </section>
 
         </div>
 
-        <!-- ═══ BOTTOM BAR (BORDERLESS) ═══ -->
+        <!-- ═══ BOTTOM BAR ═══ -->
         <footer class="bottombar">
             <div class="bottombar-left">
                 <span class="dock-item active">
                     <span class="dot"></span> SYSTEM
                 </span>
-                <span class="dock-item">📁 FILES</span>
-                <span class="dock-item">⚡ APPS</span>
-                <span class="dock-item">🔍 SEARCH</span>
+                <span class="dock-item">
+                    <svg viewBox="0 0 24 24"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+                    FILES
+                </span>
+                <span class="dock-item">
+                    <svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                    APPS
+                </span>
+                <span class="dock-item">
+                    <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    SEARCH
+                </span>
                 <div class="search-box">
-                    <span style="color:rgba(255,255,255,0.03);font-size:9px;">⌘</span>
+                    <span class="lead">⌘</span>
                     <input type="text" placeholder="SEARCH" />
                     <span class="kbd">K</span>
                 </div>
@@ -1254,141 +1717,209 @@
                     <span class="bar"><span class="fill" style="width:23%;"></span></span>
                     23%
                 </span>
-                <span style="opacity:0.03;">|</span>
-                <span style="opacity:0.04;">v2.4.1</span>
+                <span class="sep">|</span>
+                <span>v2.4.1</span>
             </div>
         </footer>
 
     </div>
 
     <script>
-        // ─── CLOCK ───
+        // ─────────────────────────────────────────────
+        //  CLOCK
+        // ─────────────────────────────────────────────
+        let isGlitching = false;
+
         function updateClock() {
             const now = new Date();
-            const h = String(now.getHours()).padStart(2, '0');
-            const m = String(now.getMinutes()).padStart(2, '0');
-            const s = String(now.getSeconds()).padStart(2, '0');
+            const h  = String(now.getHours()).padStart(2, '0');
+            const m  = String(now.getMinutes()).padStart(2, '0');
+            const s  = String(now.getSeconds()).padStart(2, '0');
             const timeStr = `${h}:${m}:${s}`;
-            document.getElementById('timeDisplay').textContent = timeStr;
-            document.getElementById('hubTime').textContent = timeStr;
-            document.getElementById('hubTime').setAttribute('data-text', timeStr);
 
-            const y = now.getFullYear();
+            document.getElementById('timeDisplay').textContent = timeStr;
+
+            const hub = document.getElementById('hubTime');
+            hub.dataset.text = timeStr;
+            if (!isGlitching) hub.textContent = timeStr;
+
+            const y  = now.getFullYear();
             const mo = String(now.getMonth() + 1).padStart(2, '0');
-            const d = String(now.getDate()).padStart(2, '0');
+            const d  = String(now.getDate()).padStart(2, '0');
             document.getElementById('dateDisplay').textContent = `${y}-${mo}-${d}`;
             document.getElementById('hubDate').textContent = `${y} · ${mo} · ${d}`;
         }
         updateClock();
         setInterval(updateClock, 1000);
 
-        // ─── HARD GLITCH ENGINE ───
-        function triggerHardGlitch() {
-            const el = document.getElementById('hubTime');
-            const wrapper = document.getElementById('hubTimeWrapper');
-            if (!el) return;
+        // ─────────────────────────────────────────────
+        //  GLITCH ENGINE
+        // ─────────────────────────────────────────────
+        const GLYPHS = '!<>-_\\/[]{}—=+*^?#01%$&@▓▒░█│┤┐└┴┬';
 
-            // Apply glitch class for CSS tearing + skew
-            wrapper.classList.add('glitch-active');
-
-            // Random character injection
-            const original = el.textContent;
-            const chars = '0123456789:';
-            let glitched = '';
-            for (let i = 0; i < original.length; i++) {
-                if (Math.random() > 0.7) {
-                    glitched += chars[Math.floor(Math.random() * chars.length)];
+        function scramble(text, intensity) {
+            let out = '';
+            for (let i = 0; i < text.length; i++) {
+                const ch = text[i];
+                const hit = Math.random() < intensity;
+                if (ch === ':') {
+                    out += (Math.random() < intensity * 0.4)
+                        ? GLYPHS[(Math.random() * GLYPHS.length) | 0]
+                        : ch;
                 } else {
-                    glitched += original[i];
+                    out += hit ? GLYPHS[(Math.random() * GLYPHS.length) | 0] : ch;
                 }
             }
-            el.textContent = glitched;
-            el.style.color = '#ffd000';
-            el.style.textShadow = '0 0 60px rgba(255,208,0,0.6), 0 0 120px rgba(255,0,200,0.3)';
-
-            // Random screen tear (horizontal shift)
-            if (Math.random() > 0.5) {
-                wrapper.style.transform = `translateX(${(Math.random() - 0.5) * 20}px) skewX(${(Math.random() - 0.5) * 6}deg)`;
-            }
-
-            // Reset after intense burst
-            setTimeout(() => {
-                el.textContent = original;
-                el.style.color = '#ffffff';
-                el.style.textShadow = '0 0 50px rgba(255,208,0,0.1)';
-                wrapper.classList.remove('glitch-active');
-                wrapper.style.transform = '';
-            }, 150 + Math.random() * 100);
+            return out;
         }
 
-        // ─── RANDOM GLITCH TRIGGERS ───
-        setInterval(() => {
-            if (Math.random() > 0.6) {
-                triggerHardGlitch();
-            }
-        }, 1200);
+        const wrap = document.getElementById('hubTimeWrapper');
+        const hub  = document.getElementById('hubTime');
+        const screenGlitch = document.getElementById('screenGlitch');
 
-        // ─── SUPER GLITCH BURST (every 8-12 seconds) ───
-        function superGlitchBurst() {
-            for (let i = 0; i < 3; i++) {
-                setTimeout(() => {
-                    triggerHardGlitch();
-                }, i * 200);
+        function triggerGlitch(strength = 1) {
+            if (isGlitching) return;
+            isGlitching = true;
+
+            const real = hub.dataset.text;
+            wrap.classList.add('glitch-active');
+
+            if (strength > 1 || Math.random() > 0.75) {
+                screenGlitch.classList.remove('active');
+                void screenGlitch.offsetWidth;
+                screenGlitch.classList.add('active');
             }
+
+            const frames = 3 + Math.round((2 + Math.random() * 4) * strength);
+            let i = 0;
+
+            (function step() {
+                if (i >= frames) {
+                    hub.textContent = real;
+                    hub.style.opacity = '';
+                    wrap.style.transform = '';
+                    wrap.classList.remove('glitch-active');
+                    isGlitching = false;
+                    return;
+                }
+
+                hub.textContent = scramble(real, 0.22 + Math.random() * 0.48);
+                hub.style.opacity = (0.55 + Math.random() * 0.45).toFixed(2);
+
+                const dx = (Math.random() - 0.5) * 12 * strength;
+                const dy = (Math.random() - 0.5) * 3 * strength;
+                const sk = (Math.random() - 0.5) * 9 * strength;
+                wrap.style.transform = `translate(${dx}px, ${dy}px) skewX(${sk}deg)`;
+
+                i++;
+                setTimeout(step, 32 + Math.random() * 42);
+            })();
         }
-        setInterval(() => {
-            if (Math.random() > 0.6) {
-                superGlitchBurst();
-            }
-        }, 8000);
 
-        // ─── FILE ITEM CLICK ──
+        setInterval(() => {
+            if (Math.random() > 0.55) triggerGlitch(1);
+        }, 1300);
+
+        setInterval(() => {
+            if (Math.random() > 0.55) {
+                triggerGlitch(1.6);
+                setTimeout(() => triggerGlitch(1.2), 220);
+                setTimeout(() => triggerGlitch(1), 430);
+            }
+        }, 8500);
+
+        // ─────────────────────────────────────────────
+        //  FILE ITEM CLICK
+        // ─────────────────────────────────────────────
         document.querySelectorAll('.file-item').forEach(el => {
-            el.addEventListener('click', function() {
+            el.addEventListener('click', function () {
                 const name = this.querySelector('.info .name')?.textContent || 'item';
                 this.style.transition = 'all 0.05s ease';
-                this.style.transform = 'scale(0.97)';
-                this.style.background = 'rgba(255,208,0,0.08)';
-                this.style.borderLeftColor = '#ffd000';
+                this.style.transform = 'scale(0.975)';
+                this.style.background = 'rgba(255,255,255,0.07)';
+                this.style.borderLeftColor = '#ffffff';
                 setTimeout(() => {
                     this.style.transform = '';
                     this.style.background = '';
                     this.style.borderLeftColor = '';
-                }, 120);
+                    this.style.transition = '';
+                }, 130);
                 console.log(`[ATLAS TALON] FILE ACCESS: ${name}`);
                 if (navigator.vibrate) navigator.vibrate(6);
             });
         });
 
-        // ─── APP ITEM CLICK ──
-        document.querySelectorAll('.app-item').forEach(el => {
-            el.addEventListener('click', function() {
-                const name = this.querySelector('.app-name')?.textContent || 'app';
-                this.style.transition = 'all 0.06s ease';
-                this.style.transform = 'scale(0.92)';
-                this.style.background = 'rgba(255,208,0,0.08)';
-                setTimeout(() => {
-                    this.style.transform = '';
-                    this.style.background = '';
-                }, 130);
-                console.log(`[ATLAS TALON] LAUNCH: ${name}`);
-                if (navigator.vibrate) navigator.vibrate(8);
-            });
-        });
+        // ─────────────────────────────────────────────
+        //  TOOLKIT FILTER
+        // ─────────────────────────────────────────────
+        const appSearchInput = document.getElementById('appSearchInput');
+        const appsBadge      = document.getElementById('appsBadge');
+        const appsEmpty      = document.getElementById('appsEmpty');
+        const appItems       = Array.from(document.querySelectorAll('.app-item'));
+        const APP_TOTAL      = appItems.length;
 
-        // ─── DOCK ITEMS ──
+        function filterApps(raw) {
+            const term = (raw || '').trim().toLowerCase();
+            let visible = 0;
+
+            appItems.forEach(item => {
+                const name = (item.dataset.name ||
+                              item.querySelector('.app-name')?.textContent || '').toLowerCase();
+                const match = !term || name.includes(term);
+                item.classList.toggle('hidden', !match);
+                if (match) visible++;
+            });
+
+            if (appsEmpty) appsEmpty.classList.toggle('visible', visible === 0);
+            if (appsBadge) appsBadge.textContent = term
+                ? `${visible}/${APP_TOTAL}`
+                : `${APP_TOTAL} APPS`;
+        }
+
+        if (appSearchInput) {
+            appSearchInput.addEventListener('input', e => filterApps(e.target.value));
+
+            appSearchInput.addEventListener('keydown', e => {
+                if (e.key === 'Escape') {
+                    appSearchInput.value = '';
+                    filterApps('');
+                    appSearchInput.blur();
+                }
+                if (e.key === 'Enter') {
+                    const first = appItems.find(i => !i.classList.contains('hidden'));
+                    if (first) first.click();
+                }
+            });
+
+            document.addEventListener('keydown', e => {
+                const tag = (e.target.tagName || '').toLowerCase();
+                const typing = tag === 'input' || tag === 'textarea' || e.target.isContentEditable;
+                if (e.key === '/' && !typing) {
+                    e.preventDefault();
+                    appSearchInput.focus();
+                    appSearchInput.select();
+                }
+            });
+        }
+
+        // ─────────────────────────────────────────────
+        //  DOCK / SYS STATS
+        // ─────────────────────────────────────────────
         document.querySelectorAll('.dock-item, .bottombar-right .sys-stat').forEach(el => {
-            el.addEventListener('click', function() {
+            el.addEventListener('click', function () {
                 this.style.transition = 'all 0.05s ease';
-                this.style.opacity = '0.4';
+                this.style.opacity = '0.45';
                 setTimeout(() => {
                     this.style.opacity = '';
-                }, 100);
+                    this.style.transition = '';
+                }, 110);
                 if (navigator.vibrate) navigator.vibrate(4);
             });
         });
 
-        // ─── SEARCH ──
+        // ─────────────────────────────────────────────
+        //  GLOBAL SEARCH
+        // ─────────────────────────────────────────────
         const searchInput = document.querySelector('.search-box input');
         if (searchInput) {
             searchInput.addEventListener('keydown', (e) => {
@@ -1397,39 +1928,515 @@
                     if (val) {
                         console.log(`[ATLAS TALON] SEARCH: "${val}"`);
                         searchInput.value = '';
+                        triggerGlitch(0.8);
                         if (navigator.vibrate) navigator.vibrate(6);
                     }
                 }
             });
             document.addEventListener('keydown', (e) => {
-                if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+                if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
                     e.preventDefault();
                     searchInput.focus();
                     searchInput.select();
                 }
-                if (e.key === 'Escape') {
-                    searchInput.blur();
-                }
+                if (e.key === 'Escape') searchInput.blur();
             });
         }
 
-        // ─── CPU/MEM BARS ──
+        // ─────────────────────────────────────────────
+        //  CPU / MEM BARS
+        // ─────────────────────────────────────────────
         function updateBars() {
-            const fills = document.querySelectorAll('.bar .fill');
-            fills.forEach((fill) => {
+            document.querySelectorAll('.bar .fill').forEach((fill) => {
                 const newVal = 15 + Math.random() * 70;
                 fill.style.width = newVal + '%';
                 fill.className = 'fill';
                 if (newVal > 70) fill.classList.add('warn');
-                if (newVal > 85) fill.classList.add('danger');
+                if (newVal > 86) fill.classList.add('danger');
             });
         }
         setInterval(updateBars, 4000);
 
-        // ─── CONSOLE HINT ──
+        // ═════════════════════════════════════════════
+        //  WINDOW MANAGER
+        // ═════════════════════════════════════════════
+        const windowLayer = document.getElementById('windowLayer');
+        const windowTray  = document.getElementById('windowTray');
+
+        const openWindows = new Map();
+        let zCounter = 5000;
+        let cascadeIndex = 0;
+
+        const WIN_ICONS = {
+            minimize: '<svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/></svg>',
+            maximize: '<svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="1.5"/></svg>',
+            restore:  '<svg viewBox="0 0 24 24"><rect x="3.5" y="7" width="12" height="12" rx="1.5"/><polyline points="8.5 7 8.5 3.5 20.5 3.5 20.5 15.5 17 15.5"/></svg>',
+            close:    '<svg viewBox="0 0 24 24"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg>'
+        };
+
+        const HANDLES_HTML = `
+            <div class="resize-handle n"  data-dir="n"></div>
+            <div class="resize-handle s"  data-dir="s"></div>
+            <div class="resize-handle e"  data-dir="e"></div>
+            <div class="resize-handle w"  data-dir="w"></div>
+            <div class="resize-handle ne" data-dir="ne"></div>
+            <div class="resize-handle nw" data-dir="nw"></div>
+            <div class="resize-handle se" data-dir="se"></div>
+            <div class="resize-handle sw" data-dir="sw"></div>
+        `;
+
+        function focusWindow(el) {
+            document.querySelectorAll('.app-window.focused').forEach(w => w.classList.remove('focused'));
+            el.classList.add('focused');
+            el.style.zIndex = ++zCounter;
+        }
+
+        function buildBody(name, iconHTML) {
+            const slug = name.toLowerCase().replace(/\s+/g, '.');
+            const session = '0x' + Math.random().toString(16).slice(2, 6).toUpperCase()
+                                + '…' + Math.random().toString(16).slice(2, 6).toUpperCase();
+            return `
+                <div class="win-body">
+                    <div class="win-toolbar">
+                        <span class="win-tag live">● LIVE</span>
+                        <span class="win-tag">ENCRYPTED</span>
+                        <span class="win-tag">NODE 04</span>
+                    </div>
+                    <div class="win-scroll">
+                        <div class="win-hero">
+                            <span class="win-hero-icon">${iconHTML}</span>
+                            <div class="win-hero-text">
+                                <h3>${name}</h3>
+                                <p>Module loaded · awaiting input</p>
+                            </div>
+                        </div>
+                        <div class="win-rows">
+                            <div class="win-row"><span>STATUS</span><span class="val ok">ACTIVE</span></div>
+                            <div class="win-row"><span>SESSION</span><span class="val">${session}</span></div>
+                            <div class="win-row"><span>PRIORITY</span><span class="val">NORMAL</span></div>
+                            <div class="win-row"><span>CHANNEL</span><span class="val">SECURE / 256-BIT</span></div>
+                        </div>
+                        <div class="win-log">
+                            <div class="win-log-line">&gt; init ${slug}.module</div>
+                            <div class="win-log-line">&gt; handshake complete</div>
+                            <div class="win-log-line">&gt; ready for operator input</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // ─── DRAGGING ───
+        function makeDraggable(win, handle) {
+            let dragging = false, startX = 0, startY = 0, startLeft = 0, startTop = 0;
+
+            handle.addEventListener('pointerdown', (e) => {
+                if (e.target.closest('.win-btn')) return;
+                if (e.target.closest('.resize-handle')) return;
+                if (win.classList.contains('maximized')) return;
+                if (e.button !== undefined && e.button !== 0) return;
+
+                dragging = true;
+                startX = e.clientX;
+                startY = e.clientY;
+                const rect = win.getBoundingClientRect();
+                startLeft = rect.left;
+                startTop = rect.top;
+
+                win.style.transition = 'none';
+                handle.setPointerCapture(e.pointerId);
+                focusWindow(win);
+                e.preventDefault();
+            });
+
+            handle.addEventListener('pointermove', (e) => {
+                if (!dragging) return;
+                const dx = e.clientX - startX;
+                const dy = e.clientY - startY;
+
+                let nx = startLeft + dx;
+                let ny = startTop + dy;
+
+                const w = win.offsetWidth;
+                const h = win.offsetHeight;
+                nx = Math.max(-w + 90, Math.min(nx, window.innerWidth - 90));
+                ny = Math.max(0, Math.min(ny, window.innerHeight - 40));
+
+                win.style.left = nx + 'px';
+                win.style.top  = ny + 'px';
+            });
+
+            const endDrag = (e) => {
+                if (!dragging) return;
+                dragging = false;
+                win.style.transition = '';
+                try { handle.releasePointerCapture(e.pointerId); } catch (_) {}
+            };
+            handle.addEventListener('pointerup', endDrag);
+            handle.addEventListener('pointercancel', endDrag);
+        }
+
+        // ─── RESIZING ───
+        function makeResizable(win) {
+            const MIN_W = 280;
+            const MIN_H = 180;
+
+            win.querySelectorAll('.resize-handle').forEach(handle => {
+                handle.addEventListener('pointerdown', (e) => {
+                    if (win.classList.contains('maximized')) return;
+                    if (e.button !== undefined && e.button !== 0) return;
+
+                    e.preventDefault();
+                    e.stopPropagation();
+
+                    const dir = handle.dataset.dir;
+                    const startX = e.clientX;
+                    const startY = e.clientY;
+                    const rect = win.getBoundingClientRect();
+                    const startLeft = rect.left;
+                    const startTop  = rect.top;
+                    const startW    = rect.width;
+                    const startH    = rect.height;
+
+                    win.style.transition = 'none';
+                    win.style.left   = startLeft + 'px';
+                    win.style.top    = startTop  + 'px';
+                    win.style.width  = startW    + 'px';
+                    win.style.height = startH    + 'px';
+
+                    handle.setPointerCapture(e.pointerId);
+                    focusWindow(win);
+
+                    const onMove = (ev) => {
+                        const dx = ev.clientX - startX;
+                        const dy = ev.clientY - startY;
+
+                        let newLeft = startLeft;
+                        let newTop  = startTop;
+                        let newW    = startW;
+                        let newH    = startH;
+
+                        if (dir.includes('e')) newW = startW + dx;
+                        if (dir.includes('w')) {
+                            newW    = startW - dx;
+                            newLeft = startLeft + dx;
+                        }
+                        if (dir.includes('s')) newH = startH + dy;
+                        if (dir.includes('n')) {
+                            newH   = startH - dy;
+                            newTop = startTop + dy;
+                        }
+
+                        if (newW < MIN_W) {
+                            if (dir.includes('w')) newLeft = startLeft + (startW - MIN_W);
+                            newW = MIN_W;
+                        }
+                        if (newH < MIN_H) {
+                            if (dir.includes('n')) newTop = startTop + (startH - MIN_H);
+                            newH = MIN_H;
+                        }
+
+                        win.style.left   = newLeft + 'px';
+                        win.style.top    = newTop  + 'px';
+                        win.style.width  = newW    + 'px';
+                        win.style.height = newH    + 'px';
+                    };
+
+                    const onUp = (ev) => {
+                        try { handle.releasePointerCapture(ev.pointerId); } catch (_) {}
+                        handle.removeEventListener('pointermove', onMove);
+                        handle.removeEventListener('pointerup', onUp);
+                        handle.removeEventListener('pointercancel', onUp);
+                        win.style.transition = '';
+                    };
+
+                    handle.addEventListener('pointermove', onMove);
+                    handle.addEventListener('pointerup', onUp);
+                    handle.addEventListener('pointercancel', onUp);
+                });
+            });
+        }
+
+        // ─── OPEN APP ───
+        function openApp(appEl) {
+            const name = appEl.dataset.name ||
+                         appEl.querySelector('.app-name')?.textContent || 'App';
+            const iconHTML = appEl.querySelector('.app-icon')?.innerHTML || '';
+
+            if (openWindows.has(name)) {
+                const w = openWindows.get(name);
+                if (w.minimized) restoreWindow(name);
+                focusWindow(w.el);
+                return;
+            }
+
+            const el = document.createElement('div');
+            el.className = 'app-window';
+            el.dataset.app = name;
+
+            const isSmall = window.innerWidth <= 768;
+
+            let x, y, defW, defH;
+            if (isSmall) {
+                x = 6;
+                y = 6;
+                defW = window.innerWidth  - 12;
+                defH = window.innerHeight - 12;
+            } else {
+                const baseX = Math.max(40, Math.min(320, window.innerWidth * 0.22));
+                const baseY = 110;
+                const step  = cascadeIndex % 6;
+                x = baseX + step * 30;
+                y = baseY + step * 30;
+
+                defW = Math.min(580, window.innerWidth  - 80);
+                defH = Math.min(400, window.innerHeight - 160);
+
+                x = Math.max(12, Math.min(x, window.innerWidth  - defW - 12));
+                y = Math.max(12, Math.min(y, window.innerHeight - defH - 12));
+            }
+            cascadeIndex++;
+
+            el.style.left   = x + 'px';
+            el.style.top    = y + 'px';
+            el.style.width  = defW + 'px';
+            el.style.height = defH + 'px';
+            el.style.zIndex = ++zCounter;
+
+            el.innerHTML = `
+                ${HANDLES_HTML}
+                <div class="win-titlebar">
+                    <div class="win-title">
+                        <span class="win-title-icon">${iconHTML}</span>
+                        <span class="win-title-text">${name}</span>
+                    </div>
+                    <div class="win-controls">
+                        <button class="win-btn minimize" title="Minimize" aria-label="Minimize">${WIN_ICONS.minimize}</button>
+                        <button class="win-btn maximize" title="Fullscreen" aria-label="Fullscreen">${WIN_ICONS.maximize}</button>
+                        <button class="win-btn close" title="Close" aria-label="Close">${WIN_ICONS.close}</button>
+                    </div>
+                </div>
+                ${buildBody(name, iconHTML)}
+            `;
+
+            windowLayer.appendChild(el);
+
+            const record = {
+                el,
+                minimized: false,
+                maximized: false,
+                prevGeom: null,
+                icon: iconHTML,
+                name
+            };
+            openWindows.set(name, record);
+
+            el.addEventListener('pointerdown', () => focusWindow(el), true);
+
+            el.querySelector('.win-btn.minimize').addEventListener('click', (e) => {
+                e.stopPropagation();
+                minimizeWindow(name);
+            });
+            el.querySelector('.win-btn.maximize').addEventListener('click', (e) => {
+                e.stopPropagation();
+                toggleMaximize(name);
+            });
+            el.querySelector('.win-btn.close').addEventListener('click', (e) => {
+                e.stopPropagation();
+                closeWindow(name);
+            });
+
+            makeDraggable(el, el.querySelector('.win-titlebar'));
+            makeResizable(el);
+
+            requestAnimationFrame(() => {
+                el.classList.add('open');
+                focusWindow(el);
+            });
+
+            appEl.classList.add('running');
+        }
+
+        function closeWindow(name) {
+            const w = openWindows.get(name);
+            if (!w) return;
+
+            const el = w.el;
+            el.classList.remove('open');
+            el.classList.add('minimized');
+
+            setTimeout(() => { el.remove(); }, 200);
+
+            openWindows.delete(name);
+            updateTray();
+
+            const appEl = document.querySelector(`.app-item[data-name="${CSS.escape(name)}"]`);
+            if (appEl) appEl.classList.remove('running');
+
+            console.log(`[ATLAS TALON] CLOSE: ${name}`);
+        }
+
+        function minimizeWindow(name) {
+            const w = openWindows.get(name);
+            if (!w || w.minimized) return;
+
+            w.minimized = true;
+            w.el.classList.remove('open');
+            w.el.classList.add('minimized');
+
+            setTimeout(() => {
+                if (w.minimized) w.el.style.display = 'none';
+            }, 200);
+
+            updateTray();
+            console.log(`[ATLAS TALON] MINIMIZE: ${name}`);
+        }
+
+        function restoreWindow(name) {
+            const w = openWindows.get(name);
+            if (!w) return;
+
+            w.minimized = false;
+            w.el.style.display = '';
+
+            void w.el.offsetWidth;
+            requestAnimationFrame(() => {
+                w.el.classList.remove('minimized');
+                w.el.classList.add('open');
+                focusWindow(w.el);
+            });
+
+            updateTray();
+            console.log(`[ATLAS TALON] RESTORE: ${name}`);
+        }
+
+        function toggleMaximize(name) {
+            const w = openWindows.get(name);
+            if (!w) return;
+            const el = w.el;
+            const btn = el.querySelector('.win-btn.maximize');
+
+            el.style.transition =
+                'left 0.22s cubic-bezier(0.2,0.9,0.3,1), ' +
+                'top 0.22s cubic-bezier(0.2,0.9,0.3,1), ' +
+                'width 0.22s cubic-bezier(0.2,0.9,0.3,1), ' +
+                'height 0.22s cubic-bezier(0.2,0.9,0.3,1), ' +
+                'opacity 0.18s ease, transform 0.2s ease';
+
+            if (!w.maximized) {
+                const rect = el.getBoundingClientRect();
+                w.prevGeom = {
+                    left:   rect.left + 'px',
+                    top:    rect.top  + 'px',
+                    width:  rect.width  + 'px',
+                    height: rect.height + 'px'
+                };
+
+                el.classList.add('maximized');
+                el.style.left   = '0px';
+                el.style.top    = '0px';
+                el.style.width  = '100vw';
+                el.style.height = '100vh';
+
+                w.maximized = true;
+                if (btn) {
+                    btn.innerHTML = WIN_ICONS.restore;
+                    btn.title = 'Restore';
+                }
+                console.log(`[ATLAS TALON] FULLSCREEN: ${name}`);
+            } else {
+                const g = w.prevGeom || {};
+                el.classList.remove('maximized');
+                el.style.left   = g.left   || '80px';
+                el.style.top    = g.top    || '80px';
+                el.style.width  = g.width  || '580px';
+                el.style.height = g.height || '400px';
+
+                w.maximized = false;
+                if (btn) {
+                    btn.innerHTML = WIN_ICONS.maximize;
+                    btn.title = 'Fullscreen';
+                }
+                console.log(`[ATLAS TALON] RESTORE SIZE: ${name}`);
+            }
+
+            setTimeout(() => { el.style.transition = ''; }, 260);
+        }
+
+        function updateTray() {
+            if (!windowTray) return;
+            windowTray.innerHTML = '';
+
+            const minimized = [];
+            openWindows.forEach((w, name) => {
+                if (w.minimized) minimized.push({ name, icon: w.icon });
+            });
+
+            if (minimized.length === 0) {
+                windowTray.classList.remove('has-items');
+                return;
+            }
+
+            minimized.forEach(({ name, icon }) => {
+                const chip = document.createElement('button');
+                chip.className = 'tray-chip';
+                chip.type = 'button';
+                chip.title = `Restore ${name}`;
+                chip.innerHTML = `<span class="chip-icon">${icon}</span>${name}`;
+                chip.addEventListener('click', () => restoreWindow(name));
+                windowTray.appendChild(chip);
+            });
+
+            windowTray.classList.add('has-items');
+        }
+
+        // ─────────────────────────────────────────────
+        //  APP ITEM CLICK → OPEN WINDOW
+        // ─────────────────────────────────────────────
+        appItems.forEach(el => {
+            el.addEventListener('click', function () {
+                const name = this.querySelector('.app-name')?.textContent || 'app';
+
+                this.style.transition = 'all 0.06s ease';
+                this.style.transform = 'scale(0.93)';
+                this.style.background = 'rgba(255,255,255,0.08)';
+                setTimeout(() => {
+                    this.style.transform = '';
+                    this.style.background = '';
+                    this.style.transition = '';
+                }, 130);
+
+                console.log(`[ATLAS TALON] LAUNCH: ${name}`);
+                if (navigator.vibrate) navigator.vibrate(8);
+
+                openApp(this);
+            });
+        });
+
+        window.addEventListener('resize', () => {
+            openWindows.forEach(w => {
+                const el = w.el;
+                if (w.maximized) {
+                    el.style.left   = '0px';
+                    el.style.top    = '0px';
+                    el.style.width  = '100vw';
+                    el.style.height = '100vh';
+                } else {
+                    const rect = el.getBoundingClientRect();
+                    if (rect.right > window.innerWidth) {
+                        el.style.left = Math.max(0, window.innerWidth - el.offsetWidth) + 'px';
+                    }
+                    if (rect.bottom > window.innerHeight) {
+                        el.style.top = Math.max(0, window.innerHeight - el.offsetHeight) + 'px';
+                    }
+                }
+            });
+        });
+
+        console.log('%c[ATLAS TALON] ACTIVE · GLITCH ENGINE ONLINE', 'color:#ffffff;font-weight:700;');
         console.log('⌘K  → focus search');
-        console.log('ESC  → blur search');
-        console.log('[ATLAS TALON] ACTIVE · HARD GLITCH ENGAGED');
+        console.log('/   → focus toolkit filter');
+        console.log('ESC → blur search');
     </script>
 
 </body>
